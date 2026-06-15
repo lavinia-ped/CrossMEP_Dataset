@@ -1,0 +1,44 @@
+cff-version: 3.1.0
+title: "CrossMEP: a tiered synthetic dataset of multi-trade MEP cross-sections"
+message: "If you use CrossMEP, please cite the dataset paper and the companion formulation paper."
+type: dataset
+version: 3.1.0
+authors:
+  - family-names: Pedrollo
+    given-names: Lavinia
+    affiliation: Stanford University
+  - family-names: Graeber
+    given-names: Torben
+    affiliation: Hilti AG
+  - family-names: Fischer
+    given-names: Martin
+    affiliation: Stanford University
+license: CC-BY-4.0
+repository-code: "https://github.com/<USER>/crossmep"   # TODO: replace
+doi: "<ZENODO-DOI>"                                      # TODO: replace
+preferred-citation:
+  type: conference-paper
+  title: "CrossMEP: a tiered synthetic dataset of multi-trade mechanical, electrical, and plumbing cross-sections for learning-based structural support assembly synthesis"
+  authors:
+    - family-names: Pedrollo
+      given-names: Lavinia
+    - family-names: Graeber
+      given-names: Torben
+    - family-names: Fischer
+      given-names: Martin
+  conference:
+    name: "43rd CIB W78 Conference on IT in Construction"
+  year: 2026
+references:
+  - type: conference-paper
+    title: "Feasibility-Aware Sequential Synthesis of Structural Support Assemblies: a Canonical Formulation for Automated MEP Support Design"
+    authors:
+      - family-names: Pedrollo
+        given-names: Lavinia
+      - family-names: Graeber
+        given-names: Torben
+      - family-names: Fischer
+        given-names: Martin
+    conference:
+      name: "International Symposium on Automation and Robotics in Construction (ISARC)"
+    year: 2026
