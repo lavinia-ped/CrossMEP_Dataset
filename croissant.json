@@ -1,0 +1,84 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "cr": "http://mlcommons.org/croissant/",
+    "dct": "http://purl.org/dc/terms/"
+  },
+  "@type": "Dataset",
+  "name": "CrossMEP",
+  "description": "Tiered synthetic dataset of multi-trade MEP cross-sections for learning-based structural support assembly synthesis. 7,000 contexts across train/val/test/benchmark splits on disjoint seeds; deliberately unlabeled (supervision from downstream environment rules).",
+  "version": "3.0.0",
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "creator": [
+    {
+      "@type": "Person",
+      "name": "Lavinia Pedrollo",
+      "affiliation": "Stanford University"
+    },
+    {
+      "@type": "Person",
+      "name": "Torben Graeber",
+      "affiliation": "Hilti AG"
+    },
+    {
+      "@type": "Person",
+      "name": "Martin Fischer",
+      "affiliation": "Stanford University"
+    }
+  ],
+  "url": "https://github.com/USER/crossmep",
+  "citeAs": "Pedrollo, Graeber & Fischer, CIB W78 2026 (dataset paper); ISARC 2026 (formulation)",
+  "cr:distribution": [
+    {
+      "@type": "cr:FileObject",
+      "name": "mep_contexts_v3.0_train.json",
+      "encodingFormat": "application/json",
+      "cr:containedIn": "."
+    },
+    {
+      "@type": "cr:FileObject",
+      "name": "mep_contexts_v3.0_val.json",
+      "encodingFormat": "application/json",
+      "cr:containedIn": "."
+    },
+    {
+      "@type": "cr:FileObject",
+      "name": "mep_contexts_v3.0_test.json",
+      "encodingFormat": "application/json",
+      "cr:containedIn": "."
+    },
+    {
+      "@type": "cr:FileObject",
+      "name": "mep_contexts_v3.0_benchmark.json",
+      "encodingFormat": "application/json",
+      "cr:containedIn": "."
+    }
+  ],
+  "cr:recordSet": [
+    {
+      "@type": "cr:RecordSet",
+      "name": "contexts",
+      "description": "One record per MEP cross-section context",
+      "cr:field": [
+        {
+          "name": "context_id",
+          "dataType": "Text"
+        },
+        {
+          "name": "tier",
+          "dataType": "Text"
+        },
+        {
+          "name": "surface",
+          "dataType": "Text",
+          "description": "ceiling|wall + substrate + thickness_mm"
+        },
+        {
+          "name": "elements",
+          "dataType": "Text",
+          "description": "array: kind, service, trade, shape, width_mm, height_mm, insulation_mm, load_kN, level, along_mm, out_mm"
+        }
+      ]
+    }
+  ]
+}
