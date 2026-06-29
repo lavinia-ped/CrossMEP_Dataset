@@ -19,9 +19,13 @@ model (same procedure): 231 sized segments; gaps median 54 mm, IQR 19-202
 (n = 61), saved as measured_gaps_plumbing.json.
 
 The generator samples gaps from a lognormal FITTED to the MEP-model gaps above
-the published 25 mm clearance floor (mu=5.018, sigma=0.848, KS p=0.53), giving a
-Wasserstein-1 distance of 40 mm to the MEP model — below the 50 mm distance
-between the two real discipline models.
+the published 25 mm clearance floor (mu=5.018, sigma=0.848, KS p=0.53, n=73).
+Computing the Wasserstein-1 distance on the realized gaps in the released data
+(`wasserstein_gaps.py`, gaps < 600 mm) gives 41 mm to the MEP model, 89 mm to
+Plumbing, and 59 mm to the pooled sample — versus 50 mm between the two real
+discipline models, and 139 mm for the pre-fit fixed-modular (25 mm floor)
+baseline. The synthetic-to-real distance is thus comparable to the real-to-real
+variation. Run `python verify/wasserstein_gaps.py` to reproduce.
 
 Re-running against a private commercial model requires only replacing the IFC
 path; sizes must be exported (property "Size" or equivalent) for step 1.
