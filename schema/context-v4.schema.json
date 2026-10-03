@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/lavinia-ped/CrossMEP_Dataset/schema/context-v4.schema.json",
+  "title": "CrossMEP dataset file (data revision 4.x)",
+  "description": "One JSON object per split. Units: millimetres, kilonewtons, metres (span). Each context is a 2-D cross-section at one support location: the MEP elements a support must carry and the surface it mounts to; no support-assembly information. Geometry is physical: positions are such that the clear gap between insulation surfaces of any two elements is at least 25 mm in at least one direction.",
+  "type": "object",
+  "required": ["dataset", "version", "split", "seed", "n_contexts", "units", "contexts"],
+  "additionalProperties": false,
+  "properties": {
+    "dataset": { "const": "CrossMEP" },
+    "version": { "type": "string", "pattern": "^4\\." },
+    "split": { "enum": ["train", "val", "test", "benchmark", "custom", "adhoc"] },
+    "seed": { "type": "integer" },
+    "n_contexts": { "type": "integer", "minimum": 1 },
+    "units": { "const": "mm, kN" },
+    "contexts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/context" }
+    }
+  },
+  "$defs": {
+    "context": {
+      "type": "object",
+      "required": ["context_id", "tier", "surface", "n_elements", "n_levels",
+                   "total_load_kN", "bundle_width_mm", "elements"],
+      "additionalProperties": false,
+      "properties": {
+        "context_id": { "type": "string" },
+        "tier": { "enum": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "custom"],
+                  "description": "Cn = exactly n elements; 'custom' = user-specified composition" },
+        "surface": { "$ref": "#/$defs/surface" },
+        "n_elements": { "type": "integer", "minimum": 1, "maximum": 12 },
+        "n_levels": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "total_load_kN": { "type": "number", "exclusiveMinimum": 0,
+                           "description": "exactly-rounded sum of element loads, 2 decimals" },
+        "bundle_width_mm": { "type": "number", "exclusiveMinimum": 0,
+                             "description": "physical overall extent along the surface, insulation included" },
+        "elements": { "type": "array", "minItems": 1, "maxItems": 12, "items": { "$ref": "#/$defs/element" } }
+      }
+    },
+    "surface": {
+      "type": "object",
+      "required": ["kind", "substrate", "thickness_mm"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["ceiling", "wall"] },
+        "substrate": { "enum": ["concrete_C25", "concrete_C30"] },
+        "thickness_mm": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "element": {
+      "type": "object",
+      "required": ["kind", "service", "trade", "shape", "label", "width_mm", "height_mm",
+                   "insulation_mm", "load_kN", "span_m", "load_kN_per_m", "level", "along_mm", "out_mm"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["pipe", "cable_tray", "duct", "conduit"] },
+        "service": { "enum": ["domestic_hot", "domestic_cold", "heating", "chilled", "sprinkler",
+                              "tray", "duct", "conduit"],
+                     "description": "with insulation_mm, determines the attachment method (bare clamp vs rigid insert)" },
+        "trade": { "enum": ["domestic", "heating", "chilled", "sprinkler", "electrical", "ventilation"] },
+        "shape": { "enum": ["round", "rect"] },
+        "label": { "type": "string" },
+        "width_mm": { "type": "number", "exclusiveMinimum": 0, "description": "bare building-horizontal size" },
+        "height_mm": { "type": "number", "exclusiveMinimum": 0, "description": "bare building-vertical size" },
+        "insulation_mm": { "type": "number", "minimum": 0, "description": "per side" },
+        "load_kN": { "type": "number", "exclusiveMinimum": 0,
+                     "description": "per support point = load_kN_per_m x span_m, rounded to 0.01 kN (0.001 for conduits and round ducts)" },
+        "span_m": { "type": "number", "exclusiveMinimum": 0, "description": "support span the load was derived at" },
+        "load_kN_per_m": { "type": "number", "exclusiveMinimum": 0, "description": "operating load per metre of run (water-filled pipes, full trays)" },
+        "level": { "type": "integer", "minimum": 0, "maximum": 2,
+                   "description": "generative row index (0 = nearest the surface); metadata, not a physical invariant" },
+        "along_mm": { "type": "number", "description": "offset along the surface; rows are centred on 0" },
+        "out_mm": { "type": "number", "exclusiveMinimum": 0, "description": "standoff out from the surface, positive away" }
+      }
+    }
+  }
+}

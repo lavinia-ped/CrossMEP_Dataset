@@ -1,8 +1,8 @@
 """Command-line interface: ``python -m crossmep <command>``.
 
     generate   regenerate a canonical split, sample tiers, or build a custom composition
-    validate   run the validator and schema check over a dataset file
-    results    print the per-tier table, kind totals and catalog coverage (RESULTS.md)
+    validate   run the validator and schema check over dataset files
+    results    print the per-tier tables, kind totals and catalog coverage (RESULTS.md)
     gallery    render the interactive HTML gallery for a dataset file
     checksums  print SHA-256 digests of the released files
 """
@@ -15,9 +15,10 @@ import sys
 from typing import List, Optional
 
 from . import __version__
-from .io import (DATA_VERSION, RELEASE_SPLITS, ROOT, build_payload, read_payload, sha256_file,
+from .io import (DATA_VERSION, DATA_VERSIONS, RELEASE_SPLITS, ROOT, build_payload,
+                 contexts_from_payload, read_payload, release_files, schema_path, sha256_file,
                  split_path, write_payload)
-from .model import MEPContext, validate_context
+from .model import validate_context
 
 RELEASED_CLAMP_BINS = [(48.0, 54.0, 2.5), (108.0, 114.0, 4.0)]
 """The two-bin clamp catalog of the companion SSA code base used for the catalog
@@ -39,12 +40,15 @@ def _env_line() -> str:
 def cmd_generate(a: argparse.Namespace) -> int:
     from .generate import CANONICAL_SPLITS, TIERS, generate_custom, generate_dataset, generate_split
     custom = any(v is not None for v in (a.pipes, a.trays, a.ducts, a.conduits))
+    version = a.version or DATA_VERSION
     if a.split:
         if custom or a.tier or a.n is not None or a.seed is not None:
             raise SystemExit("--split regenerates a canonical file; do not combine with other options")
-        ctxs = generate_split(a.split)
+        ctxs = generate_split(a.split, version)
         split, seed = a.split, CANONICAL_SPLITS[a.split]["seed"]
     elif custom:
+        if a.version and a.version != DATA_VERSION:
+            raise SystemExit("custom composition is generated in the current data revision only")
         seed = 0 if a.seed is None else a.seed
         ctxs = generate_custom(a.n or 100, pipes=a.pipes or 0, trays=a.trays or 0,
                                ducts=a.ducts or 0, conduits=a.conduits or 0,
@@ -54,12 +58,12 @@ def cmd_generate(a: argparse.Namespace) -> int:
         if a.tier and a.tier not in TIERS:
             raise SystemExit(f"--tier must be one of {list(TIERS)}")
         seed = 0 if a.seed is None else a.seed
-        ctxs = generate_dataset(a.n or 320, seed=seed, tier=a.tier)
+        ctxs = generate_dataset(a.n or 320, seed=seed, tier=a.tier, revision=version)
         split = "adhoc"
-    out = a.out or (f"mep_contexts_v{DATA_VERSION}_{split}.regenerated.json" if a.split
+    out = a.out or (f"mep_contexts_v{version}_{split}.regenerated.json" if a.split
                     else f"mep_contexts_{split}.json")
     write_payload(build_payload(ctxs, split=split, seed=seed), out)
-    print(f"wrote {len(ctxs)} contexts -> {out}  [{_env_line()}]", file=sys.stderr)
+    print(f"wrote {len(ctxs)} contexts (data {version}) -> {out}  [{_env_line()}]", file=sys.stderr)
     if a.split:
         print(f"sha256 {sha256_file(out)}  {os.path.basename(out)}")
     if a.gallery:
@@ -70,22 +74,21 @@ def cmd_generate(a: argparse.Namespace) -> int:
 
 
 def cmd_validate(a: argparse.Namespace) -> int:
-    paths = a.files or [split_path(s) for s in RELEASE_SPLITS]
+    paths = a.files or [os.path.join(ROOT, p) for p in release_files()]
     rc = 0
     for path in paths:
         payload = read_payload(path)
         n_bad = 0
-        for d in payload["contexts"]:
+        for ctx in contexts_from_payload(payload):
             try:
-                validate_context(MEPContext.from_dict(d))
+                validate_context(ctx)
             except ValueError as exc:
                 n_bad += 1
                 if n_bad <= 5:
                     print(f"  {exc}")
-        schema_msg = ""
         try:
             import jsonschema
-            with open(os.path.join(ROOT, "schema", "context-v3.schema.json")) as f:
+            with open(schema_path(payload["version"])) as f:
                 jsonschema.validate(payload, json.load(f))
             schema_msg = "schema OK"
         except ImportError:
@@ -93,44 +96,57 @@ def cmd_validate(a: argparse.Namespace) -> int:
         except Exception as exc:                      # jsonschema.ValidationError
             schema_msg = f"SCHEMA ERROR: {str(exc).splitlines()[0]}"
             rc = 1
-        print(f"{os.path.basename(path)}: {len(payload['contexts'])} contexts, "
-              f"{n_bad} invalid; {schema_msg}")
+        print(f"{os.path.relpath(path, ROOT) if path.startswith(ROOT) else path}: "
+              f"data {payload['version']}, {len(payload['contexts'])} contexts, {n_bad} invalid; {schema_msg}")
         rc |= int(n_bad > 0)
     return rc
 
 
-def cmd_results(a: argparse.Namespace) -> int:
+def results_markdown(data: List[dict], name: str, version: str) -> str:
     from . import tasks as cm
-    data = read_payload(a.file)["contexts"] if a.file else cm.load(a.split)
-    name = os.path.basename(a.file) if a.file else f"{a.split} split"
-    lines: List[str] = [f"## {name} ({len(data)} contexts)", "",
-                        "Per-tier medians (envelope clearance = paper section 5.1 definition; "
-                        "clear gap = physical, insulation surface to surface):", "",
-                        "```", cm.per_tier_table(data), "```", "",
-                        "Per-tier ranges (layout of the paper's Table 1):", "",
-                        "```", cm.tier_ranges_table(data), "```", ""]
+    legacy = version.startswith("3")
+    lines: List[str] = [f"## {name} ({len(data)} contexts, data revision {version})", ""]
+    if legacy:
+        lines += ["Per-tier medians. `clear-gap` is the physical gap between insulation surfaces; "
+                  "`env-clear` is the revision 3.0 envelope definition used in the paper's section 5.1 "
+                  "(physical minus 50 mm).", ""]
+    else:
+        lines += ["Per-tier medians (`clear-gap` = minimum pairwise physical clear gap between "
+                  "insulation surfaces; paper section 5.1).", ""]
+    lines += ["```", cm.per_tier_table(data, legacy_envelope=legacy), "```", "",
+              "Per-tier ranges (layout of the paper's Table 1):", "",
+              "```", cm.tier_ranges_table(data), "```", ""]
     kt = cm.kind_totals(data)
     lines += ["Element kinds: " + ", ".join(f"{k} {v}" for k, v in kt.items()) + f" (total {sum(kt.values())})", ""]
     cov = cm.catalog_coverage(data, RELEASED_CLAMP_BINS)
     lines += ["Catalog coverage, released two-bin clamp catalog "
               f"{RELEASED_CLAMP_BINS}: " + ", ".join(f"{k} {v}" for k, v in cov.items()), ""]
-    text = "\n".join(lines)
-    print(text)
+    return "\n".join(lines)
+
+
+def cmd_results(a: argparse.Namespace) -> int:
+    if a.file:
+        payload = read_payload(a.file)
+        name, version = os.path.basename(a.file), payload["version"]
+    else:
+        version = a.version or DATA_VERSION
+        payload = read_payload(split_path(a.split, version=version))
+        name = f"{a.split} split"
+    print(results_markdown(payload["contexts"], name, version))
     return 0
 
 
 def cmd_gallery(a: argparse.Namespace) -> int:
     from .render import render_gallery_html
-    ctxs = [MEPContext.from_dict(d) for d in read_payload(a.file)["contexts"]]
+    ctxs = contexts_from_payload(read_payload(a.file))
     render_gallery_html(ctxs, a.out)
     print(f"gallery of {len(ctxs)} contexts -> {a.out}")
     return 0
 
 
 def cmd_checksums(a: argparse.Namespace) -> int:
-    for s in RELEASE_SPLITS:
-        p = split_path(s)
-        print(f"{sha256_file(p)}  {os.path.basename(p)}")
+    for rel in release_files():
+        print(f"{sha256_file(os.path.join(ROOT, rel))}  {rel}")
     return 0
 
 
@@ -142,6 +158,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     g = sub.add_parser("generate", help="regenerate a canonical split, sample tiers, or build a custom composition")
     g.add_argument("--split", choices=list(RELEASE_SPLITS), help="regenerate this canonical split (byte-identical)")
+    g.add_argument("--version", dest="version", choices=list(DATA_VERSIONS), help=f"data revision (default {DATA_VERSION})")
     g.add_argument("--n", type=int, help="number of contexts (default 320 tiers / 100 custom)")
     g.add_argument("--seed", type=int, help="generator seed (default 0)")
     g.add_argument("--tier", help="fix a single tier C1..C8 (default: round-robin C1..C8)")
@@ -154,12 +171,13 @@ def build_parser() -> argparse.ArgumentParser:
     g.add_argument("--gallery", help="also write an HTML gallery to this path")
     g.set_defaults(func=cmd_generate)
 
-    v = sub.add_parser("validate", help="validator + JSON Schema over dataset files (default: the four released splits)")
+    v = sub.add_parser("validate", help="validator + JSON Schema over dataset files (default: all released files)")
     v.add_argument("files", nargs="*")
     v.set_defaults(func=cmd_validate)
 
-    r = sub.add_parser("results", help="per-tier table, kind totals, catalog coverage")
+    r = sub.add_parser("results", help="per-tier tables, kind totals, catalog coverage")
     r.add_argument("--split", default="benchmark", choices=list(RELEASE_SPLITS))
+    r.add_argument("--version", dest="version", choices=list(DATA_VERSIONS), help=f"data revision (default {DATA_VERSION})")
     r.add_argument("--file", help="any dataset file instead of a released split")
     r.set_defaults(func=cmd_results)
 

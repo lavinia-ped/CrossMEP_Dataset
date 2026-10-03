@@ -9,6 +9,8 @@ if ROOT not in sys.path:
 
 import crossmep.tasks as cm  # noqa: E402
 
+SPLITS = ("train", "val", "test", "benchmark")
+
 
 @pytest.fixture(scope="session")
 def root() -> str:
@@ -17,9 +19,21 @@ def root() -> str:
 
 @pytest.fixture(scope="session")
 def benchmark():
+    """Released benchmark split, current data revision (4.0)."""
     return cm.load("benchmark")
 
 
 @pytest.fixture(scope="session")
+def benchmark_v3():
+    """Released benchmark split of revision 3.0 (the paper release)."""
+    return cm.load("benchmark", "3.0")
+
+
+@pytest.fixture(scope="session")
 def all_splits():
-    return {s: cm.load(s) for s in ("train", "val", "test", "benchmark")}
+    return {s: cm.load(s) for s in SPLITS}
+
+
+@pytest.fixture(scope="session")
+def all_splits_v3():
+    return {s: cm.load(s, "3.0") for s in SPLITS}

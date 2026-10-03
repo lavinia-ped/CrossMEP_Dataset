@@ -1,4 +1,4 @@
-"""Backward-compatible entry point for the v3.0/v3.1 single-file API.
+"""Backward-compatible entry point for the v3.x single-file API.
 
 The generator now lives in the ``crossmep`` package (see README.md).  This
 module re-exports the names earlier releases documented so that
@@ -6,7 +6,9 @@ module re-exports the names earlier releases documented so that
     from mep_context_sampler import generate_custom, generate_dataset, validate_context
     python mep_context_sampler.py --n 1000 --seed 42 --json out.json
 
-keep working.  New code should use ``crossmep`` / ``python -m crossmep``.
+keep working.  Output is the CURRENT data revision (4.0); pass
+``revision="3.0"`` to ``generate_dataset`` for the paper-release geometry.
+New code should use ``crossmep`` / ``python -m crossmep``.
 """
 from __future__ import annotations
 
@@ -20,11 +22,13 @@ from crossmep.library import (CONDUIT_LOAD_KN, CONDUIT_OD_MM, DN_LOAD_KN, DN_OD_
                               RECT_DUCT_LOAD_KN, RECT_DUCT_SIZES_MM, ROUND_DUCT_D_MM,
                               ROUND_DUCT_LOAD_KN, TRAY_HEIGHT_MM, TRAY_LOAD_KN, TRAY_WIDTHS_MM,
                               insulation_mm)
-from crossmep.model import (CLEARANCE_MM, ContextValidationError, Element, MEPContext,  # noqa: F401
-                            MountingSurface, depth_out, span_along, validate_context)
+from crossmep.model import (CLEARANCE_MM, MIN_CLEAR_GAP_MM, REV_3_0, REV_4_0,  # noqa: F401
+                            ContextValidationError, Element, MEPContext, MountingSurface,
+                            depth_out, span_along, validate_context)
 from crossmep.render import context_svg, render_gallery_html  # noqa: F401
 
-# v3.1 names
+# v3.x names.  NOTE: span_along is now physical (bare + insulation); the v3.0
+# routing envelope is applied only when regenerating revision 3.0 files.
 _span = span_along
 _depth = depth_out
 _arrange = arrange
@@ -56,7 +60,7 @@ def render_preview_html(contexts, path: str) -> str:
 
 
 if __name__ == "__main__":
-    # Translate the v3.1 flags onto `python -m crossmep generate`.
+    # Translate the v3.x flags onto `python -m crossmep generate`.
     import argparse
 
     from crossmep.cli import main

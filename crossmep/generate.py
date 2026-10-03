@@ -1,7 +1,7 @@
 """Context generation: canonical count-stratified tiers and user-specified compositions.
 
-Difficulty tiers (v3)
----------------------
+Difficulty tiers
+----------------
 Tier Cn contains EXACTLY n elements (C1..C8).  Composition -- kinds, trades,
 services, surfaces, stacking -- is marginalised within each tier so that element
 count is the single controlled difficulty axis.
@@ -15,10 +15,12 @@ measurement) in :mod:`crossmep.layout`.
 
 Frozen random stream
 --------------------
-The released splits regenerate byte-for-byte from ``generate_dataset`` with the
-seeds in ``CANONICAL_SPLITS``.  The order and arguments of every ``rng`` call in
-this module are therefore part of the data format; two historical quirks are
-preserved and marked ``# stream:`` rather than cleaned up.
+Both data revisions regenerate byte-for-byte from ``generate_split``.  The order
+and arguments of every ``rng`` call in this module are therefore part of the
+data format; two historical quirks are preserved and marked ``# stream:`` rather
+than cleaned up.  Revision 4.0 differs from 3.0 only in layout arithmetic
+(:mod:`crossmep.layout`) and recorded fields, never in a draw, so the two
+revisions contain the same elements in the same rows.
 """
 from __future__ import annotations
 
@@ -28,7 +30,8 @@ import numpy as np
 
 from . import library as lib
 from .layout import VPRIORITY, arrange
-from .model import Element, MEPContext, MountingSurface, validate_context
+from .model import (CURRENT_REVISION, Element, MEPContext, MountingSurface, Revision,
+                    revision_for, validate_context)
 
 # --------------------------------------------------------------------------- #
 # Design parameters                                                            #
@@ -43,8 +46,8 @@ CANONICAL_SPLITS: Dict[str, Dict[str, int]] = {
     "test": {"n": 500, "seed": 3000},
     "benchmark": {"n": 1000, "seed": 42},
 }
-"""Released splits: disjoint seeds; tiers assigned round-robin (125 per tier in
-the benchmark, 625 in train)."""
+"""Released splits (both revisions): disjoint seeds; tiers assigned round-robin
+(125 per tier in the benchmark, 625 in train)."""
 
 SURFACE_KINDS = ("ceiling", "wall")
 SURFACE_P = (0.78, 0.22)
@@ -155,10 +158,12 @@ def sample_single_pipe(rng: np.random.Generator) -> Element:
 
 
 def _finish(groups: List[Tuple[int, List[Element]]], n: int, surface: MountingSurface,
-            rng: np.random.Generator, tier: str, context_id: str) -> MEPContext:
+            rng: np.random.Generator, tier: str, context_id: str,
+            revision: Revision) -> MEPContext:
     n_rows = rows_for(n, surface, rng)
-    els = arrange(groups, n_rows, surface, stagger_for(n), rng=rng)
-    ctx = MEPContext(tuple(els), surface, tier, context_id)
+    els = arrange(groups, n_rows, surface, stagger_for(n), rng=rng,
+                  envelope_mm=revision.layout_envelope_mm)
+    ctx = MEPContext(tuple(els), surface, tier, context_id, revision)
     validate_context(ctx)
     return ctx
 
@@ -167,7 +172,8 @@ def _finish(groups: List[Tuple[int, List[Element]]], n: int, surface: MountingSu
 # Canonical tiers                                                              #
 # --------------------------------------------------------------------------- #
 
-def generate_context(rng: np.random.Generator, tier: str = "C3", context_id: str = "") -> MEPContext:
+def generate_context(rng: np.random.Generator, tier: str = "C3", context_id: str = "",
+                     revision: Revision = CURRENT_REVISION) -> MEPContext:
     """One context of tier ``tier`` (exactly ``TIERS[tier]`` elements), validated."""
     n_target = TIERS[tier]
     surface = sample_surface(rng)
@@ -201,22 +207,25 @@ def generate_context(rng: np.random.Generator, tier: str = "C3", context_id: str
             group = sample_conduit_group(rng)[:remaining]
             groups.append((VPRIORITY["conduit"], group))
             remaining -= len(group)
-    return _finish(groups, n_target, surface, rng, tier, context_id)
+    return _finish(groups, n_target, surface, rng, tier, context_id, revision)
 
 
 def generate_dataset(n: int, seed: int = 0, tier: Optional[str] = None,
-                     id_prefix: str = "mep") -> List[MEPContext]:
+                     id_prefix: str = "mep",
+                     revision: Union[Revision, str] = CURRENT_REVISION) -> List[MEPContext]:
     """``n`` validated contexts from ``seed``; tiers round-robin C1..C8 unless fixed."""
+    rev = revision_for(revision) if isinstance(revision, str) else revision
     rng = np.random.default_rng(seed)
     names = list(TIERS)
-    return [generate_context(rng, tier or names[i % len(names)], context_id=f"{id_prefix}_{i}")
+    return [generate_context(rng, tier or names[i % len(names)], context_id=f"{id_prefix}_{i}",
+                             revision=rev)
             for i in range(n)]
 
 
-def generate_split(name: str) -> List[MEPContext]:
-    """Regenerate a canonical split (train | val | test | benchmark)."""
+def generate_split(name: str, version: str = CURRENT_REVISION.version) -> List[MEPContext]:
+    """Regenerate a canonical split (train | val | test | benchmark) of a data revision."""
     spec = CANONICAL_SPLITS[name]
-    return generate_dataset(spec["n"], seed=spec["seed"])
+    return generate_dataset(spec["n"], seed=spec["seed"], revision=revision_for(version))
 
 
 # --------------------------------------------------------------------------- #
@@ -246,7 +255,7 @@ def generate_custom(n: int, *, pipes: CountSpec = 0, trays: CountSpec = 0,
                     ducts: CountSpec = 0, conduits: CountSpec = 0,
                     surface: Optional[str] = None, trades: Optional[Sequence[str]] = None,
                     seed: int = 0) -> List[MEPContext]:
-    """``n`` contexts with a USER-SPECIFIED composition.
+    """``n`` contexts with a USER-SPECIFIED composition (current data revision).
 
     Each count accepts an exact int or an inclusive ``(lo, hi)`` tuple resolved
     independently per context.  ``surface`` fixes 'ceiling' or 'wall' (default:
@@ -307,5 +316,5 @@ def generate_custom(n: int, *, pipes: CountSpec = 0, trays: CountSpec = 0,
             k = int(min(left, rng.integers(CONDUIT_GROUP_SIZES[0], CONDUIT_GROUP_SIZES[1] + 1))) if left > 1 else 1
             groups.append((VPRIORITY["conduit"], sample_conduit_group(rng)[:k]))
             left -= k
-        out.append(_finish(groups, total, surf, rng, "custom", f"custom_{i}"))
+        out.append(_finish(groups, total, surf, rng, "custom", f"custom_{i}", CURRENT_REVISION))
     return out

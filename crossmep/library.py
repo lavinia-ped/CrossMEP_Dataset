@@ -5,9 +5,14 @@ distribution (trade mix, option weights, surface split) live in
 :mod:`crossmep.generate`; the layout constants in :mod:`crossmep.layout`.
 
 Every per-support load is DERIVED here at import time from sourced primitives
-(wall thickness, density, span, fill).  ``tests/test_library.py`` pins the
-derived values to the frozen tables of the v3.0 data release, so a change to any
-primitive is caught by the test suite rather than silently altering the data.
+(wall thickness, density, span, fill):
+
+    load_kN_per_m = mass_kg_per_m x g / 1000
+    load_kN       = round(load_kN_per_m x span_m, 2)
+
+``tests/test_library.py`` pins the derived values to the frozen tables of the
+data release, so a change to any primitive is caught by the test suite rather
+than silently altering the data.
 
 Status vocabulary (as in VERIFICATION_LOG.md): VERIFIED = primary or
 authoritative source; PRACTICE-CITED = practice documents, not a normative
@@ -27,6 +32,7 @@ from .model import Element
 G_M_S2 = 9.81                    # gravitational acceleration (mass -> force)
 STEEL_DENSITY_KG_M3 = 7850.0     # carbon steel                                   VERIFIED
 WATER_DENSITY_KG_M3 = 1000.0
+KNPM_DECIMALS = 4                # precision of the recorded load_kN_per_m
 
 # --------------------------------------------------------------------------- #
 # Pipes -- EN 10255:2004 medium series, DN 15-100 (carbon steel)               #
@@ -66,9 +72,13 @@ def pipe_mass_kg_m(dn: int) -> float:
     return steel + water
 
 
+def pipe_load_kN_per_m(dn: int) -> float:
+    return pipe_mass_kg_m(dn) * G_M_S2 / 1000.0
+
+
 def pipe_load_kN(dn: int) -> float:
-    """Per-support operating load = mass/m x support span x g, rounded to 0.01 kN."""
-    return round(pipe_mass_kg_m(dn) * support_span_m(dn) * G_M_S2 / 1000.0, 2)
+    """Per-support operating load = load per metre x support span, rounded to 0.01 kN."""
+    return round(pipe_load_kN_per_m(dn) * support_span_m(dn), 2)
 
 
 DN_LOAD_KN: Dict[int, float] = {dn: pipe_load_kN(dn) for dn in DN_SERIES}
@@ -107,11 +117,14 @@ TRAY_SELF_KG_M_AT_300 = 5.0          # steel tray self-weight at 300 mm (publish
 TRAY_SPAN_M = 2.0                    # typical tray support spacing (PRACTICE-CITED)
 
 
-def tray_load_kN(width_mm: int) -> float:
+def tray_load_kN_per_m(width_mm: int) -> float:
     """Design-for-full basis: rated fill + self-weight, both scaled linearly with
-    width from the 300 mm datum, x span x g, rounded to 0.01 kN."""
-    kg_m = (TRAY_FULL_CABLE_KG_M_AT_300 + TRAY_SELF_KG_M_AT_300) * (width_mm / 300.0)
-    return round(kg_m * TRAY_SPAN_M * G_M_S2 / 1000.0, 2)
+    width from the 300 mm datum."""
+    return (TRAY_FULL_CABLE_KG_M_AT_300 + TRAY_SELF_KG_M_AT_300) * (width_mm / 300.0) * G_M_S2 / 1000.0
+
+
+def tray_load_kN(width_mm: int) -> float:
+    return round(tray_load_kN_per_m(width_mm) * TRAY_SPAN_M, 2)
 
 
 TRAY_LOAD_KN: Dict[int, float] = {w: tray_load_kN(w) for w in TRAY_WIDTHS_MM}
@@ -132,14 +145,21 @@ ROUND_DUCT_D_MM: Tuple[int, ...] = (160, 200, 250, 315, 400, 500)   # EN 1506:20
 SPIRAL_DUCT_SHEET_MM = 0.6       # manufacturer gauge tables for D <= 500 (VERIFIED)
 
 
+def rect_duct_load_kN_per_m(width_mm: int, height_mm: int) -> float:
+    return WALRAVEN_RECT_DUCT_KG_M[(width_mm, height_mm)] * G_M_S2 / 1000.0
+
+
 def rect_duct_load_kN(width_mm: int, height_mm: int) -> float:
-    return round(WALRAVEN_RECT_DUCT_KG_M[(width_mm, height_mm)] * DUCT_SPAN_M * G_M_S2 / 1000.0, 2)
+    return round(rect_duct_load_kN_per_m(width_mm, height_mm) * DUCT_SPAN_M, 2)
+
+
+def round_duct_load_kN_per_m(d_mm: int) -> float:
+    """Plain spiral sheet: pi x D x gauge x steel density x g (excl. fittings)."""
+    return math.pi * d_mm * 1e-3 * SPIRAL_DUCT_SHEET_MM * 1e-3 * STEEL_DENSITY_KG_M3 * G_M_S2 / 1000.0
 
 
 def round_duct_load_kN(d_mm: int) -> float:
-    """Plain spiral sheet: pi x D x gauge x steel density x span x g (excl. fittings)."""
-    kg_m = math.pi * d_mm * 1e-3 * SPIRAL_DUCT_SHEET_MM * 1e-3 * STEEL_DENSITY_KG_M3
-    return round(kg_m * DUCT_SPAN_M * G_M_S2 / 1000.0, 3)
+    return round(round_duct_load_kN_per_m(d_mm) * DUCT_SPAN_M, 3)
 
 
 RECT_DUCT_LOAD_KN: Dict[Tuple[int, int], float] = {wh: rect_duct_load_kN(*wh) for wh in RECT_DUCT_SIZES_MM}
@@ -158,11 +178,15 @@ tray datum: 50 kg/m / (0.40 fill x 0.300 m x 0.100 m) = 4,167 kg/m3."""
 CONDUIT_SPAN_M = 2.0             # conduit support spacing (PRACTICE-CITED)
 
 
-def conduit_load_kN(od_mm: int) -> float:
+def conduit_load_kN_per_m(od_mm: int) -> float:
     steel = math.pi * (od_mm - CONDUIT_WALL_MM) * CONDUIT_WALL_MM * 1e-6 * STEEL_DENSITY_KG_M3
     bore = od_mm - 2.0 * CONDUIT_WALL_MM
     cable = math.pi / 4.0 * bore ** 2 * 1e-6 * CABLE_FILL_FRACTION * CABLE_BULK_DENSITY_KG_M3
-    return round((steel + cable) * CONDUIT_SPAN_M * G_M_S2 / 1000.0, 3)
+    return (steel + cable) * G_M_S2 / 1000.0
+
+
+def conduit_load_kN(od_mm: int) -> float:
+    return round(conduit_load_kN_per_m(od_mm) * CONDUIT_SPAN_M, 3)
 
 
 CONDUIT_LOAD_KN: Dict[int, float] = {od: conduit_load_kN(od) for od in CONDUIT_OD_MM}
@@ -183,28 +207,37 @@ def dn_band(trade: str) -> list:
     return [dn for dn in DN_SERIES if lo <= dn <= hi]
 
 
+def _knpm(x: float) -> float:
+    return round(x, KNPM_DECIMALS)
+
+
 def make_pipe(dn: int, service: str, trade: str) -> Element:
     od = DN_OD_MM[dn]
     return Element("pipe", service, trade, "round", od, od,
-                   insulation_mm(service, dn), DN_LOAD_KN[dn], f"DN{dn}")
+                   insulation_mm(service, dn), DN_LOAD_KN[dn], f"DN{dn}",
+                   span_m=support_span_m(dn), load_kN_per_m=_knpm(pipe_load_kN_per_m(dn)))
 
 
 def make_tray(width_mm: int) -> Element:
     return Element("cable_tray", "tray", "electrical", "rect", float(width_mm),
-                   TRAY_HEIGHT_MM, 0.0, TRAY_LOAD_KN[width_mm], f"{width_mm} tray")
+                   TRAY_HEIGHT_MM, 0.0, TRAY_LOAD_KN[width_mm], f"{width_mm} tray",
+                   span_m=TRAY_SPAN_M, load_kN_per_m=_knpm(tray_load_kN_per_m(width_mm)))
 
 
 def make_rect_duct(width_mm: int, height_mm: int) -> Element:
     # Duct thermal insulation is excluded: no verified thickness source (DATASHEET).
     return Element("duct", "duct", "ventilation", "rect", float(width_mm), float(height_mm),
-                   0.0, RECT_DUCT_LOAD_KN[(width_mm, height_mm)], f"{width_mm}x{height_mm} duct")
+                   0.0, RECT_DUCT_LOAD_KN[(width_mm, height_mm)], f"{width_mm}x{height_mm} duct",
+                   span_m=DUCT_SPAN_M, load_kN_per_m=_knpm(rect_duct_load_kN_per_m(width_mm, height_mm)))
 
 
 def make_round_duct(d_mm: int) -> Element:
     return Element("duct", "duct", "ventilation", "round", float(d_mm), float(d_mm),
-                   0.0, ROUND_DUCT_LOAD_KN[d_mm], f"Ø{d_mm} duct")
+                   0.0, ROUND_DUCT_LOAD_KN[d_mm], f"Ø{d_mm} duct",
+                   span_m=DUCT_SPAN_M, load_kN_per_m=_knpm(round_duct_load_kN_per_m(d_mm)))
 
 
 def make_conduit(od_mm: int) -> Element:
     return Element("conduit", "conduit", "electrical", "round", float(od_mm), float(od_mm),
-                   0.0, CONDUIT_LOAD_KN[od_mm], f"Ø{od_mm} conduit")
+                   0.0, CONDUIT_LOAD_KN[od_mm], f"Ø{od_mm} conduit",
+                   span_m=CONDUIT_SPAN_M, load_kN_per_m=_knpm(conduit_load_kN_per_m(od_mm)))
