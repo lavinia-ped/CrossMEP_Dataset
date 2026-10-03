@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.venv/
+.DS_Store
+# generator outputs that are not part of the release
+mep_contexts_adhoc.json
+mep_contexts_custom.json
+*.regenerated.json
+mep_contexts_preview.html

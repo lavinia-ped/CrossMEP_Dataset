@@ -1,6 +1,11 @@
-"""CrossMEP quality gates. Run: pytest tests/test_crossmep.py -q
-Covers: JSON Schema validity of all splits, geometric invariants over many seeds,
-byte-determinism, distribution drift, and convention compliance."""
+"""The v3.1 test suite, kept VERBATIM (only this docstring changed) as a
+backward-compatibility check: every assertion it makes about the old single-file
+API `mep_context_sampler` / `crossmep_tasks` must keep holding against the
+compatibility shims.  The current suite lives in the other test modules.
+
+Original header: CrossMEP quality gates. Covers JSON Schema validity of all
+splits, geometric invariants over many seeds, byte-determinism, distribution
+drift, and convention compliance."""
 import json, glob, os, sys, hashlib
 import numpy as np
 import pytest

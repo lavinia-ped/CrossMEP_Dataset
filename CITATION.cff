@@ -1,33 +1,47 @@
-cff-version: 3.1.0
-title: "CrossMEP: a tiered synthetic dataset of multi-trade MEP cross-sections"
+cff-version: 1.2.0
 message: "If you use CrossMEP, please cite the dataset paper and the companion formulation paper."
 type: dataset
-version: 3.1.0
+title: "CrossMEP: a tiered synthetic dataset of multi-trade MEP cross-sections"
+version: 3.5.0
+date-released: 2026-10-03
+license: CC-BY-4.0
+repository-code: "https://github.com/lavinia-ped/CrossMEP_Dataset"
 authors:
   - family-names: Pedrollo
     given-names: Lavinia
     affiliation: Stanford University
+    email: laviniap@stanford.edu
+  - family-names: Gvadzabia
+    given-names: David
+    affiliation: Lafayette College
   - family-names: Graeber
     given-names: Torben
     affiliation: Hilti AG
   - family-names: Fischer
     given-names: Martin
     affiliation: Stanford University
-license: CC-BY-4.0
-repository-code: "https://github.com/<USER>/crossmep"   # TODO: replace
-doi: "<ZENODO-DOI>"                                      # TODO: replace
+keywords:
+  - MEP
+  - structural support assembly
+  - synthetic dataset
+  - BIM
+  - reinforcement learning
 preferred-citation:
   type: conference-paper
-  title: "CrossMEP: a tiered synthetic dataset of multi-trade mechanical, electrical, and plumbing cross-sections for learning-based structural support assembly synthesis"
+  title: "CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections. A support-design problem distribution for learning-based Structural Support Assembly synthesis"
   authors:
     - family-names: Pedrollo
       given-names: Lavinia
+    - family-names: Gvadzabia
+      given-names: David
     - family-names: Graeber
       given-names: Torben
     - family-names: Fischer
       given-names: Martin
   conference:
-    name: "43rd CIB W78 Conference on IT in Construction"
+    name: "43rd International CIB W78 Conference: IT in Construction"
+    city: New Delhi
+    country: IN
   year: 2026
 references:
   - type: conference-paper

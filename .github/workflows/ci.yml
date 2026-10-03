@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        numpy: ["latest"]
+        include:
+          # oldest supported NumPy and the first 2.x line: the release-reproduction
+          # tests fail loudly if a Generator stream ever changes.
+          - python-version: "3.11"
+            numpy: "1.26.4"
+          - python-version: "3.12"
+            numpy: "2.0.2"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          if [ "${{ matrix.numpy }}" != "latest" ]; then pip install "numpy==${{ matrix.numpy }}"; fi
+          pip install -e ".[test]"
+      - name: Released files match checksums and regenerate byte-for-byte
+        run: python -m crossmep checksums && python -m pytest tests/test_release.py -q
+      - name: Full suite
+        run: python -m pytest -q
+      - name: Verification scripts
+        run: python verify/compare_gaps.py

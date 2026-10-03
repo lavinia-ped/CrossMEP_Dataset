@@ -1,88 +1,103 @@
-# CrossMEP Verification Log (v3.0)
+# CrossMEP Verification Log (release 3.5.0, data revision 3.0)
 
-v3.0 changes ONLY the stratification (tiers = exact element count C1–C8,
-composition marginalized) and adds the filtering API. Every physical constant
-below is UNCHANGED from the audited v2.1 zero-invention release.
+Every numeric constant in the generator, with value, source and status, keyed to
+its name in `crossmep/library.py` (physical constants) and `crossmep/layout.py`
+(layout). Loads are **derived in code** from the primitives listed in sections
+2, 4 and 5; `tests/test_library.py` pins every derived value to the frozen table
+of the data release, so a change to a primitive cannot alter the data unnoticed.
 
-Every numeric constant in the generator, with value, source, and status.
-Statuses: **VERIFIED** (checked against a primary or authoritative source this
-audit, June 2026), **PRACTICE-CITED** (grounded in cited practice documents, not a
-normative standard), **DEFAULT** (author estimate, disclosed; plausible magnitude,
+Statuses: **VERIFIED** (checked against a primary or authoritative source,
+June 2026 audit), **PRACTICE-CITED** (grounded in practice documents, not a
+normative standard), **DEFAULT** (author choice, disclosed; plausible magnitude,
 not source-traceable to a single document).
 
 ## 1. Pipe geometry
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| DN outer diameters | 21.3, 26.9, 33.7, 42.4, 48.3, 60.3, 76.1, 88.9, 114.3 mm | EN 10255:2004 (OD range 21.3–165.1 mm confirmed); EN 10220:2002 dimension series; cross-checked vs ANSI sch40 chart (½″ = 21.3 mm) | VERIFIED |
-| EN 10220 edition | 2002 | intertekinform.com, en-standard.eu, ANSI webstore — all list EN 10220:2002 as current | VERIFIED |
-| EN 10255 edition | 2004 | BS EN 10255:2004 (replaced BS 1387:1985); energy-steel.com facsimile | VERIFIED |
+| `DN_OD_MM` | 21.3, 26.9, 33.7, 42.4, 48.3, 60.3, 76.1, 88.9, 114.3 mm (DN15–100) | EN 10255:2004 (OD range 21.3–165.1 mm confirmed); EN 10220:2002 dimension series; cross-checked vs ANSI sch40 chart (½″ = 21.3 mm) | VERIFIED |
+| EN 10220 / EN 10255 editions | 2002 / 2004 | current editions listed by national standards bodies; BS EN 10255:2004 replaced BS 1387:1985 | VERIFIED |
 
-## 2. Pipe loads
-
-| Constant | Value | Source | Status |
-|---|---|---|---|
-| Pipe weights (all DN) | 1.40–20.89 kg/m water-filled | Derived per size: steel = π(OD−t)·t·7,850 kg/m³ with EN 10255:2004 MEDIUM-series walls (DN15/20: 2.6 mm; DN25–40: 3.2; DN50/65: 3.6; DN80: 4.0; DN100: 4.5) + water at internal bore. Cross-check: DN50 gives 7.25 kg/m vs 7.6 from ANSI sch40 charts (different wall series, consistent). | VERIFIED (derived from standard) |
-| Support spans per DN | 2.1–4.3 m | ONLY published ASME B31.1 Table 121.5 water-service points (2.1 / 3.0 / 3.7 / 4.3 m), assigned by a floor rule (each DN takes the span of the largest published size not exceeding it). No interpolated values. | VERIFIED (published values only) |
-| Typical support span (3.0 m at DN50, scaled) | ASME B31.1 Table 121.5 / MSS SP-58 Table 4 style | **Edition note:** B31.1-2022 is real (ANSI-approved 2022-08-08) but superseded by **B31.1-2024**; MSS SP-58-2018 is real but superseded by **SP-58-2025**. Span values are stable across these editions. Camera-ready should cite current editions. | VERIFIED (editions); span table values PRACTICE-CITED |
-
-## 3. Insulation
+## 2. Pipe loads (`pipe_load_kN` = mass/m × span × g, rounded to 0.01 kN)
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| Heated lines (heating, domestic hot): ≤DN20 → 20 mm; ≤DN32 → 30 mm; then = DN; cap 100 mm | exact | **GEG Anlage 8 verified verbatim** (gesetze-im-internet.de/geg/anlage_8.html): inner Ø ≤22 mm → 20 mm; >22–35 → 30 mm; >35–100 → thickness = inner diameter; >100 → 100 mm, at λ=0.035 W/(mK). Generator keys on DN (≈ inner diameter for these sizes): match. | VERIFIED |
-| Chilled water: ≤DN40 → 30 mm; >DN40 → 50 mm | exact | UNOG facilities standard (2008), retrieved PDF | VERIFIED (employer-requirement class, not a normative code) |
-| Domestic cold, sprinkler: 0 mm | choice | **Documented divergence:** GEG Anlage 8 also specifies cold RLT/chilled-distribution lines at 9 mm (≤22 mm Ø) / 19 mm (>22 mm); DIN 1988-200 specifies 9 mm anti-condensation on potable cold. CrossMEP models domestic cold and sprinkler bare (thin anti-sweat sleeves excluded as geometrically negligible) and uses the stricter UNOG schedule for chilled. Disclosed in DATASHEET. | DEFAULT (disclosed divergence) |
-| Duct insulation | REMOVED in v2.1 | no verified thickness source exists; ducts are modeled bare and the exclusion is documented in DATASHEET limitations | RESOLVED (excluded) |
+| `EN10255_MEDIUM_WALL_MM` | DN15/20: 2.6; DN25–40: 3.2; DN50/65: 3.6; DN80: 4.0; DN100: 4.5 mm | EN 10255:2004 medium series | VERIFIED |
+| `STEEL_DENSITY_KG_M3`, `WATER_DENSITY_KG_M3`, `G_M_S2` | 7,850 kg/m³; 1,000 kg/m³; 9.81 m/s² | standard values; loads are insensitive to 9.81 vs 9.80665 at the released precision | VERIFIED |
+| `pipe_mass_kg_m` | 1.40 (DN15) … 20.89 (DN100) kg/m water-filled; DN50 = 7.25 | steel annulus π(OD−t)·t·ρ + water at the bore; DN50 7.25 vs 7.6 kg/m from ANSI sch40 charts (different wall series, consistent) | VERIFIED (derived) |
+| `ASME_B311_WATER_SPAN_M` | NPS 1 / 2 / 3 / 4 = 2.1 / 3.0 / 3.7 / 4.3 m | ASME B31.1 Table 121.5 water-service points as widely republished; the table is paywalled (library check outstanding). B31.1-2022 superseded by B31.1-2024, MSS SP-58-2018 by SP-58-2025; values stable across editions | PRACTICE-CITED |
+| `support_span_m` floor rule | DN15–40 → 2.1; DN50/65 → 3.0; DN80 → 3.7; DN100 → 4.3 m | each DN takes the span of the largest published size not exceeding it; sizes below NPS 1 take 2.1 m. **No interpolated values** (an earlier log entry mentioning interpolated DN32/40/65 spans described a v1 rule and was wrong for the released data) | VERIFIED (rule stated) |
+| `DN_LOAD_KN` | 0.03, 0.04, 0.06, 0.08, 0.10, 0.21, 0.30, 0.49, 0.88 kN | derived; e.g. DN50: 7.25 kg/m × 3.0 m × 9.81 = 0.213 kN | VERIFIED (derived, test-pinned) |
 
-## 4. Trays and conduits
+## 3. Insulation (`insulation_mm`, per side)
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| Tray widths 150–600 mm | standard commercial series | IEC 61537 cable tray systems. **Edition note:** 61537:2006 (Ed 2.0) real; superseded by **Ed 3.0:2023**. Widths are manufacturer-series, standard does not normatively fix the width list. | VERIFIED (edition); width series PRACTICE-CITED |
-| Tray height 100 mm | common depth | published common tray depths: 50/75/100/150 mm (apextray.com sizing guide) | PRACTICE-CITED |
-| Tray loads 0.54–2.16 kN | design-for-full-fill basis | Published datum: 300 mm tray FULL of power cables ≈ 50 kg/m (NEC 392 40%-fill, engineercalc.net) + steel tray self ≈ 5 kg/m at 300 mm (accio/kwcalc weight charts), both scaled linearly with width; span 2.0 m. Engineering rationale: supports are sized for the tray's rated fill, not its day-one contents. | VERIFIED (derived from published datum) |
-| Conduit ODs 20, 25, 32, 40, 50 mm | exact | **IEC 61386-1 metric trade sizes verified: 16, 20, 25, 32, 40, 50, 63 mm** (ecalpro.com IEC 61386 reference; penwatch.net). Ours are a strict subset. Conduits <80 mm are specified by outer diameter — confirms OD-as-width. | VERIFIED |
-| Conduit loads 0.021–0.092 kN | derived | Steel tube: wall 1.5 mm (BS 4568 / IEC 61386-21 class range 1.2–1.6 mm per Barton catalog) × 7,850 kg/m³ + IEC 40%-of-bore fill at 4,167 kg/m³ effective cable density (back-derived from the 50 kg/m full-300-mm-tray datum); span 2.0 m. | VERIFIED (derived) |
-| Conduit groups of 2–6 | practice | parallel banking routine; Duplex MEP model itself contains Ø27 conduit runs | PRACTICE-CITED |
+| Heated lines (heating, domestic hot) | ≤ DN20 → 20 mm; ≤ DN32 → 30 mm; then = DN; cap 100 mm | **GEG Anlage 8 verified verbatim** (gesetze-im-internet.de/geg/anlage_8.html): inner Ø ≤ 22 mm → 20 mm; > 22–35 → 30 mm; > 35–100 → thickness = inner diameter; > 100 → 100 mm, at λ = 0.035 W/(m·K). Keying on DN (≈ inner diameter at these sizes) matches | VERIFIED |
+| Chilled water | ≤ DN40 → 30 mm; > DN40 → 50 mm | UNOG facilities standard (2008), retrieved PDF | VERIFIED (employer-requirement class, not a normative code) |
+| Domestic cold, sprinkler | 0 mm | **Documented divergence:** GEG Anlage 8 specifies 9/19 mm for cold RLT/chilled-distribution lines; DIN 1988-200 9 mm anti-condensation on potable cold. CrossMEP models these bare (thin anti-sweat sleeves geometrically negligible) and uses the stricter UNOG schedule for chilled | DEFAULT (disclosed) |
+| Duct insulation | excluded | no verified thickness source; ducts modelled bare (DATASHEET) | RESOLVED (excluded) |
+
+## 4. Cable trays and conduits
+
+| Constant | Value | Source | Status |
+|---|---|---|---|
+| `TRAY_WIDTHS_MM` | 150, 225, 300, 450, 600 mm | manufacturer series for IEC 61537 systems (Ed 3.0:2023 current; the standard does not fix the width list) | PRACTICE-CITED |
+| `TRAY_HEIGHT_MM` | **60 mm** | common commercial side height (published depth series 50/60/75/100/150 mm). *Correction:* the v3.0 log said 100 mm; the released data and code use 60 mm | PRACTICE-CITED |
+| `TRAY_FULL_CABLE_KG_M_AT_300`, `TRAY_SELF_KG_M_AT_300`, `TRAY_SPAN_M` | 50 kg/m; 5 kg/m; 2.0 m | 300 mm tray full of power cable ≈ 50 kg/m on the NEC 392 40 %-fill basis (published datum); steel tray self-weight ≈ 5 kg/m at 300 mm (published weight charts); typical tray support spacing | VERIFIED (datum) / PRACTICE-CITED (span) |
+| `TRAY_LOAD_KN` | 0.54, 0.81, 1.08, 1.62, 2.16 kN | design-for-full basis, both masses scaled linearly with width: supports are sized for the tray's rated fill, not its day-one contents | VERIFIED (derived, test-pinned) |
+| `CONDUIT_OD_MM` | 20, 25, 32, 40, 50 mm | **IEC 61386-1 metric sizes 16, 20, 25, 32, 40, 50, 63 mm**; strict subset. Conduits < 80 mm are specified by outer diameter (confirms OD-as-width) | VERIFIED |
+| `CONDUIT_WALL_MM`, `CABLE_FILL_FRACTION`, `CABLE_BULK_DENSITY_KG_M3`, `CONDUIT_SPAN_M` | 1.5 mm; 0.40; 4,167 kg/m³; 2.0 m | wall per BS 4568 / IEC 61386-21 class range 1.2–1.6 mm; IEC/NEC 40 %-of-bore fill; bulk density back-derived from the tray datum: 50 kg/m ÷ (0.40 × 0.300 m × 0.100 m) | VERIFIED (derived) |
+| `CONDUIT_LOAD_KN` | 0.021, 0.029, 0.044, 0.063, 0.092 kN | derived | VERIFIED (derived, test-pinned) |
+| `CONDUIT_GROUP_SIZES` | parallel groups of 2–6 | banking practice; the Duplex MEP model itself contains parallel Ø27 conduit runs | PRACTICE-CITED |
 
 ## 5. Ducts
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| Rect duct sizes 250×150 … 1000×500 | standard series | EN 1505:1997 (CEN-approved 1997-10-25; BS EN 1505:1998 English version) — current, no replacement | VERIFIED (edition); size pairs are from the standard's preferred-dimension grid |
-| Round duct Ø 160, 200, 250, 315, 400, 500 | exact | **EN 1506:2007 nominal-size series verified** (ETS NORD technical sheet reproducing the EN 1506:2007 table: 100, 125, 160, 200, 250, 315, 400, 500 …). Ours are a strict subset. "EN 1506-style" upgraded to a real citation. | VERIFIED |
-| Rect duct loads 0.14–0.72 kN | table values | Walraven "Air Duct Dimensions and Weights" datasheet (files.walraven.com), non-insulated incl. flange/bracing: 400×250 = 11.7, 600×300 ≈ 19.3, 800×400 = 24.5, 1000×500 = 30.6 kg/m; all five sizes are verbatim table cells (250×200 = 6.9, 400×250 = 11.7, 500×400 = 16.2, 800×400 = 24.5, 1000×500 = 30.6 kg/m) and all are EN 1505 preferred dimensions; span 2.4 m (8-ft hanger practice). The audit found earlier estimates up to 58% light vs this table — corrected. | VERIFIED (verbatim manufacturer table) |
-| Round duct loads 0.056–0.174 kN | derived | π·D × 0.6 mm gauge (manufacturer gauge tables for D ≤ 500, SAFID) × 7,850 kg/m³, plain sheet excl. fittings; span 2.4 m. | VERIFIED (derived) |
+| `RECT_DUCT_SIZES_MM` | 250×200, 400×250, 500×400, 800×400, 1000×500 | EN 1505:1997 preferred-dimension grid (CEN-approved 1997-10-25; current) | VERIFIED |
+| `WALRAVEN_RECT_DUCT_KG_M` | 6.9, 11.7, 16.2, 24.5, 30.6 kg/m | verbatim cells of the Walraven "Air Duct Dimensions and Weights" datasheet, non-insulated, incl. flange/bracing allowance; no extrapolated cells | VERIFIED (manufacturer table) |
+| `DUCT_SPAN_M` | 2.4 m | 8-ft hanger-spacing practice | PRACTICE-CITED |
+| `RECT_DUCT_LOAD_KN` | 0.16, 0.28, 0.38, 0.58, 0.72 kN | derived | VERIFIED (derived, test-pinned) |
+| `ROUND_DUCT_D_MM` | 160, 200, 250, 315, 400, 500 mm | **EN 1506:2007 nominal-size series** (manufacturer sheet reproducing the table); strict subset | VERIFIED |
+| `SPIRAL_DUCT_SHEET_MM` | 0.6 mm | manufacturer gauge tables for D ≤ 500 | VERIFIED |
+| `ROUND_DUCT_LOAD_KN` | 0.056, 0.070, 0.087, 0.110, 0.139, 0.174 kN | π·D × gauge × 7,850 kg/m³ × 2.4 m × g, plain sheet excl. fittings | VERIFIED (derived, test-pinned) |
 
-## 6. Layout
+## 6. Layout (`crossmep/layout.py`, `crossmep/model.py`)
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| Gap distribution: lognormal μ=5.018, σ=0.848, floor 25 mm, cap 500 mm | fitted | Fitted to n=73 measured clear gaps (>25 mm, <600 mm) from the Duplex MEP IFC model; KS p=0.53. Resulting W1 to the MEP model: 40 mm — below the 50 mm distance between the two real discipline models. | VERIFIED (measured) |
-| Stagger: half-normal, scales 55/75/120 mm by tier, cap 2.5σ | calibrated | calibrated to measured in-bundle elevation spread (median 79 mm); generated T2–T4 median 84 mm | VERIFIED (calibrated to measurement) |
-| Clearance floor 25 mm (intra and inter-trade) | published | The published pipe-rack minimum clearance (25 mm, knowpipingfield.com) is used directly as the hard floor everywhere; larger separations arise from the measurement-fitted gap distribution, not from an invented second floor. | VERIFIED (published value) |
-| Wet-above-electrical avoidance | rule | practice rule (drip risk); verified 0/2356 ceiling and 0/736 wall pairs on the benchmark; enforced on walls | PRACTICE-CITED + VERIFIED (compliance) |
-| Tiering order duct → tray/conduit → pipe | practice | MaRS BIM (2025), trade-forum documentation (2024), prefabricated rack practice | PRACTICE-CITED |
-| Trade-mix frequencies, tier probabilities | choices | not surveyed; disclosed in limitations | DEFAULT |
+| `CLEARANCE_MM` | 25 mm per element side, along the surface | the published pipe-rack minimum clearance, applied as a routing envelope | VERIFIED (published value) |
+| `GAP_FLOOR_MM` | 25 mm floor on the sampled envelope gap, inside and between trades | the same published minimum; larger separations arise from the fitted distribution, not from an invented second floor | VERIFIED (published value) |
+| `GAP_LOGNORMAL_MU`, `GAP_LOGNORMAL_SIGMA` | 5.018, 0.848 | fitted (log-moments, population σ) to n = 73 measured Duplex MEP clear gaps > 25 mm and < 600 mm; KS D = 0.092, p = 0.53. `verify/compare_gaps.py` refits and matches to 3 decimals | VERIFIED (measured) |
+| `GAP_CAP_MM` | 500 mm | design parameter | DEFAULT |
+| **Gap semantics** | realised surface-to-surface gap = draw + 2 × `CLEARANCE_MM` | the envelope carries 25 mm on both sides *and* the draw is floored at 25 mm, so no two neighbours are closer than 75 mm (insulation surface to surface). The paper's W1 of 41 mm is computed on the draw; like-for-like W1 is 88.5 mm (insulation) / 109.9 mm (bare). See README "Known issues" | DISCLOSED |
+| `ROW_VGAP_MM`, `TOP_OFFSET_MM` | 120 mm between rows; 90 mm first-row standoff | design parameters | DEFAULT |
+| Stagger (`generate.stagger_for`) | half-normal, scale **0 / 75 / 120 mm** for 1 / ≤ 5 / > 5 elements, cap 2.5 σ | calibrated to measured in-bundle elevation spread (Duplex MEP median 79 mm, p75 282); generated in-row spread on the benchmark: median 93 mm, p75 149. *Correction:* the v3.0 log listed 55/75/120 | VERIFIED (calibrated) |
+| `VPRIORITY` tiering order | duct → tray/conduit → pipe (bulky nearest the surface) | coordination practice (MaRS BIM 2025; trade-forum documentation 2024); prefabricated rack practice | PRACTICE-CITED |
+| Wall drip rule | electrical containment above wet services within a row | practice rule (drip risk); enforced on walls; **0 violations in 2,096 ceiling and 817 wall wet/electrical pairs** on the benchmark, and over 600 unseen contexts in tests | PRACTICE-CITED + VERIFIED (compliance) |
+| Surface mix, trade mix, option weights, DN bands, thickness choices | `generate.py` design parameters | not surveyed; disclosed in DATASHEET | DEFAULT |
 
-## 7. Verification data
+## 7. Verification data (`verify/`)
 
 | Item | Value | Source | Status |
 |---|---|---|---|
-| Duplex MEP measurements | 427 segments; gaps n=99 (<600), median 108, IQR 24–238 | measured this audit from Ifc2x3_Duplex_MEP.ifc | VERIFIED |
-| Duplex Plumbing measurements | 231 segments; gaps n=61, median 54, IQR 19–202; sizes DN25/40/15 dominant | measured this audit from Ifc2x3_Duplex_Plumbing.ifc | VERIFIED |
-| W1 distances | generated→MEP 58 mm; →Plumbing 107; →pooled 76; real→real 50 | computed | VERIFIED |
+| Duplex MEP measurements | 427 segments; 103 clear gaps (99 < 600 mm): median 108, IQR 24–238 mm (< 600); 28–271 (all) | measured June 2026 from the Duplex MEP IFC with IfcOpenShell; procedure `verify/measure_ifc.py`; sample `measured_gaps.json` | VERIFIED |
+| Duplex Plumbing measurements | 231 sized segments; 61 gaps (59 < 600): median 53, IQR 18–183 (< 600); 19–202 (all); sizes DN25/40/15 dominant | `measured_gaps_plumbing.json` | VERIFIED |
+| Wasserstein-1, envelope draw (paper definition) | → MEP 40.7; → Plumbing 89.3; → pooled 58.9 mm; fixed 25 mm gap 138.5; real-to-real 49.9 | `python verify/compare_gaps.py`, test-pinned | VERIFIED (computed) |
+| Wasserstein-1, like-for-like | insulation surface: 88.5 / 137.6 / 106.9; bare surface: 109.9 / 159.6 / 128.4 mm | same | VERIFIED (computed) |
+| Re-execution of the IFC measurement | not re-run for 3.5.0 | the Duplex files are not redistributed here and buildingSMART's sample repository has been reorganised; `measure_ifc.py --self-check` compares any re-run with the shipped sample | OUTSTANDING |
 
-## Outstanding (cannot be closed from public web)
-- Exact reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 span values: the
-  tables are paywalled; span assumptions are practice-consistent. → library check.
-## v2.1 zero-invention statement
-Every physical constant traces to a standard, a manufacturer engineering table, a
-published datum, or a measurement made on the open IFC models — with derivation
-rules (floor-rule span assignment, design-for-full tray basis, IEC 40% fill)
-stated explicitly. Tier probabilities, trade-mix frequencies, element-count
-ranges, and the 500 mm gap cap are benchmark DESIGN PARAMETERS that define the
-curriculum; they are choices, not empirical claims, and are labeled as such in
-the datasheet. The only remaining paywalled check is verbatim reproduction of
-ASME B31.1 Table 121.5 / MSS SP-58 Table 4 and the IEC 61386-1 edition year.
+## 8. Reproducibility
+
+| Item | Value | Status |
+|---|---|---|
+| Byte-exact regeneration of all four splits | SHA-256 in `RELEASE_CHECKSUMS.txt`; `tests/test_release.py`; CI on Python 3.9–3.13 × NumPy 1.26 / 2.0 / latest | VERIFIED |
+| `total_load_kN` | `round(math.fsum(loads), 2)` — exactly rounded; plain `sum()` differs on Python ≤ 3.11 for 28 contexts | VERIFIED (fixed 3.5.0) |
+| File format | compact JSON, ASCII-escaped, no trailing newline | VERIFIED |
+| Random stream | NumPy `Generator` (PCG64) from the split seed; draw order frozen (two quirks marked `# stream:`) | VERIFIED |
+
+## 9. Outstanding
+- Verbatim reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 (paywalled; library check).
+- Re-running `verify/measure_ifc.py` on the Duplex models and committing the report.
+- Data revision 4.0: remove the double-counted clearance (section 6, "Gap semantics").
