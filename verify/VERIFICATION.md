@@ -1,27 +1,61 @@
 # Verification against a built project
 
 Layout statistics of CrossMEP were verified against the openly licensed
-buildingSMART "Duplex Apartment" IFC model (Ifc2x3_Duplex_MEP.ifc, available via
-buildingSMART community sample-file repositories).
+buildingSMART "Duplex Apartment" IFC project — its MEP discipline export
+(427 flow segments) and its Plumbing export (231 sized segments). The models are
+not redistributed here; they are available from buildingSMART community sample
+collections (the file names used in June 2026 were `Ifc2x3_Duplex_MEP.ifc` and
+`Ifc2x3_Duplex_Plumbing.ifc`).
 
-Procedure (reproducible with ifcopenshell >= 0.8):
-1. Parse all IfcFlowSegment entities; read nominal size from the "Size" property.
-2. Mesh each segment (ifcopenshell.geom, world coordinates); derive the long axis
-   and center from the bounding box; keep horizontal segments with length > 250 mm.
-3. Group parallel runs by axis and elevation band (400 mm); cluster across-axis
-   with a 1.2 m break; compute per-cluster: run multiplicity, in-bundle elevation
-   spread, and clear gaps between adjacent runs (surface-to-surface).
+## Procedure (`measure_ifc.py`, IfcOpenShell ≥ 0.7)
 
-Measured results used in the paper — MEP model: dominant sizes DN25/DN40/DN15;
-run multiplicity 2-4; elevation spread median 79 mm (p75 282); clear gaps median
-108 mm, IQR 24-238 (n = 99, < 600 mm), saved as measured_gaps.json. Plumbing
-model (same procedure): 231 sized segments; gaps median 54 mm, IQR 19-202
-(n = 61), saved as measured_gaps_plumbing.json.
+1. Take every `IfcFlowSegment`; read the nominal size from the `Size` property.
+2. Mesh each segment in world coordinates; derive the long axis and centre from
+   the bounding box; keep horizontal segments longer than 250 mm.
+3. Group parallel runs by axis and elevation band (400 mm); cluster across the
+   axis with a 1.2 m break; per cluster compute run multiplicity, in-bundle
+   elevation spread, and clear gaps between adjacent runs (surface to surface).
 
-The generator samples gaps from a lognormal FITTED to the MEP-model gaps above
-the published 25 mm clearance floor (mu=5.018, sigma=0.848, KS p=0.53), giving a
-Wasserstein-1 distance of 40 mm to the MEP model — below the 50 mm distance
-between the two real discipline models.
+```bash
+pip install ifcopenshell
+python verify/measure_ifc.py Ifc2x3_Duplex_MEP.ifc --gaps-out gaps.json --self-check verify/measured_gaps.json
+```
+
+The shipped `measured_gaps.json` (103 gaps) and `measured_gaps_plumbing.json`
+(61 gaps) are the original June 2026 outputs. The script was not re-run for
+release 3.5.0 (models not at hand); `--self-check` reports the agreement of any
+re-run with the shipped samples.
+
+## Measured results
+
+| statistic | MEP model | Plumbing model |
+|---|---|---|
+| dominant sizes | DN25, DN40, DN15 | DN25, DN40, DN15 |
+| parallel runs per bundle | 2–4 (typical) | — |
+| in-bundle elevation spread | median 79 mm, p75 282 | — |
+| clear gaps < 600 mm | n = 99, median 108, IQR 24–238 | n = 59, median 53, IQR 18–183 |
+| clear gaps, all | n = 103, median 111, IQR 28–271 | n = 61, median 54, IQR 19–202 |
+
+## Comparison (`compare_gaps.py`)
+
+The generator samples envelope gaps from a lognormal fitted to the MEP gaps
+above the 25 mm clearance floor and below 600 mm (n = 73): μ = 5.018, σ = 0.848,
+Kolmogorov–Smirnov D = 0.092, p = 0.53. `compare_gaps.py` refits these from the
+shipped sample and checks them against the generator constants, then computes
+Wasserstein-1 distances (gaps < 600 mm) for three definitions of the generated
+gap, because they are not the same quantity:
+
+| generated gap | median | min | W1 → MEP | W1 → Plumbing | W1 → pooled |
+|---|---|---|---|---|---|
+| envelope draw (the paper's definition) | 150 | 25 | 40.7 | 89.3 | 58.9 |
+| insulation surface to surface | 200 | 75 | 88.5 | 137.6 | 106.9 |
+| bare surface to surface (= the measured quantity) | 236 | 75 | 109.9 | 159.6 | 128.4 |
+
+Baselines: a fixed 25 mm gap scores 138.5 mm against the MEP model; the two
+real discipline models are 49.9 mm apart. Only the first row is like the paper;
+the third is like-for-like with the measurement. The difference is the routing
+envelope (25 mm per element side) that the generator adds on top of the 25 mm
+gap floor — see README "Known issues" and VERIFICATION_LOG section 6.
 
 Re-running against a private commercial model requires only replacing the IFC
-path; sizes must be exported (property "Size" or equivalent) for step 1.
+path; sizes must be exported (property `Size` or equivalent) for step 1.

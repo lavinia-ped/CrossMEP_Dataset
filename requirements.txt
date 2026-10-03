@@ -1,0 +1,10 @@
+# Runtime (generator). Consumers of the JSON files need nothing beyond the standard library.
+numpy>=1.22
+# Tests and verification scripts
+pytest>=7
+jsonschema>=4
+scipy>=1.9
+# Environment the 3.5.0 release files were verified byte-identical with:
+#   Python 3.11.15, NumPy 2.4.6  (original v3.0 build: Python 3.12)
+# The release-reproduction tests run on every CI matrix entry (see .github/workflows/ci.yml),
+# so any NumPy Generator stream change is detected immediately.

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crossmep"
+version = "3.5.0"
+description = "CrossMEP: a tiered synthetic dataset of multi-trade MEP cross-sections for learning-based structural support assembly synthesis"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+  { name = "Lavinia Pedrollo", email = "laviniap@stanford.edu" },
+]
+keywords = ["dataset", "MEP", "BIM", "support design", "reinforcement learning", "synthetic data"]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = ["numpy>=1.22"]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "jsonschema>=4", "scipy>=1.9"]
+ifc = ["ifcopenshell>=0.7"]
+
+[project.scripts]
+crossmep = "crossmep.cli:main"
+
+[project.urls]
+Repository = "https://github.com/lavinia-ped/CrossMEP_Dataset"
+
+[tool.setuptools]
+packages = ["crossmep"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -p no:cacheprovider"
