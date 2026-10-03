@@ -7,7 +7,7 @@ Inputs
                                           adjacent parallel runs measured on the open
                                           Duplex Apartment MEP model (``measure_ifc.py``)
 * ``verify/measured_gaps_plumbing.json``  the same on the Plumbing discipline model
-* a CrossMEP dataset file (default: the released benchmark split)
+* a CrossMEP dataset file (default: the released benchmark split, revision 4.0)
 
 What is computed
 ----------------
@@ -16,21 +16,19 @@ What is computed
    a Kolmogorov-Smirnov test of that fit.  The generator constants
    ``GAP_LOGNORMAL_MU`` / ``GAP_LOGNORMAL_SIGMA`` must equal this fit.
 2. Wasserstein-1 distances (gaps < 600 mm, the shared-support-plausible range)
-   between generated and measured gap samples, for THREE definitions of the
-   generated gap, because they are not the same quantity:
+   between generated and measured gap samples, for each definition of the
+   generated gap that applies to the data revision:
 
-   * ``envelope``    the generator's sampled gap: clearance between the routing
-                     envelopes (bare size + insulation + 25 mm per side).  This is
-                     what the paper's Table 2 / section 5.2 report (41 mm).
-   * ``insulation``  physical clear gap between insulation surfaces
-                     (= envelope + 2 x 25 mm in the v3.0 geometry).
-   * ``bare``        clear gap between bare element surfaces, the quantity the
-                     IFC measurement actually produces (the Duplex model carries
-                     no insulation geometry).
+   * ``insulation``  clear gap between insulation surfaces.  In revision 4.0 this
+                     IS the generator's sampled gap (in 3.0 it is the draw + 50 mm).
+   * ``bare``        clear gap between bare element surfaces: the quantity the IFC
+                     measurement actually produces (the Duplex model carries no
+                     insulation geometry).  Differs from ``insulation`` by the
+                     insulation of the pair.
+   * ``envelope``    revision 3.0 only: the 3.0 sampled gap, measured between
+                     routing envelopes (insulation gap minus 50 mm) -- the
+                     definition behind the paper's 41 mm.
 
-   The envelope definition is NOT like-for-like with the measurement; the
-   like-for-like numbers are the ``bare`` (or ``insulation``) rows.  See
-   README.md "Known issues" and VERIFICATION_LOG.md section 6.
 3. Baselines: a fixed modular gap at the 25 mm floor, and the distance between
    the two real discipline models.
 
@@ -38,7 +36,8 @@ Only NumPy is required; SciPy, if installed, adds the KS p-value.
 
 Usage::
 
-    python verify/compare_gaps.py                      # released benchmark
+    python verify/compare_gaps.py                      # released benchmark, revision 4.0
+    python verify/compare_gaps.py --version 3.0        # the paper release
     python verify/compare_gaps.py path/to/file.json    # any dataset file
     python verify/compare_gaps.py --json               # machine-readable
 """
@@ -58,12 +57,19 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, ROOT)
 
 import crossmep.tasks as cm  # noqa: E402
+from crossmep.io import DATA_VERSION, read_payload, split_path  # noqa: E402
 from crossmep.layout import GAP_FLOOR_MM, GAP_LOGNORMAL_MU, GAP_LOGNORMAL_SIGMA  # noqa: E402
 
 MEASURED_MEP = os.path.join(HERE, "measured_gaps.json")
 MEASURED_PLUMBING = os.path.join(HERE, "measured_gaps_plumbing.json")
 RANGE_MAX_MM = 600.0          # shared-support-plausible range used throughout the paper
-GAP_KINDS = ("envelope", "insulation", "bare")
+LABELS = {"insulation": "insulation surface to surface",
+          "bare": "bare surface to surface (measured quantity)",
+          "envelope": "envelope gap, revision 3.0 draw (paper)"}
+
+
+def gap_kinds(version: str) -> List[str]:
+    return ["insulation", "bare"] + (["envelope"] if version.startswith("3") else [])
 
 
 def wasserstein_1(a: Sequence[float], b: Sequence[float]) -> float:
@@ -112,24 +118,26 @@ def summarise(x: Sequence[float]) -> Dict[str, float]:
             "min": float(x.min()), "max": float(x.max())}
 
 
-def compare(data: List[dict], mep: Sequence[float], plumbing: Sequence[float]) -> dict:
+def compare(data: List[dict], mep: Sequence[float], plumbing: Sequence[float],
+            version: str = DATA_VERSION) -> dict:
     mep, pl = np.asarray(mep, float), np.asarray(plumbing, float)
     mep6, pl6 = mep[mep < RANGE_MAX_MM], pl[pl < RANGE_MAX_MM]
     pooled = np.concatenate([mep6, pl6])
-    out = {"range_max_mm": RANGE_MAX_MM,
+    out = {"version": version, "range_max_mm": RANGE_MAX_MM,
            "measured": {"mep": summarise(mep6), "plumbing": summarise(pl6),
                         "mep_all": summarise(mep), "plumbing_all": summarise(pl)},
            "fit": fit_lognormal(mep),
            "generator_constants": {"mu": GAP_LOGNORMAL_MU, "sigma": GAP_LOGNORMAL_SIGMA, "floor_mm": GAP_FLOOR_MM},
            "generated": {}, "w1": {}, "baselines": {}}
-    for kind in GAP_KINDS:
+    n_gaps = 0
+    for kind in gap_kinds(version):
         g = np.array([v for c in data for v in cm.neighbour_gaps(c, kind)], float)
         g6 = g[g < RANGE_MAX_MM]
+        n_gaps = len(g)
         out["generated"][kind] = summarise(g)
         out["w1"][kind] = {"mep": wasserstein_1(g6, mep6), "plumbing": wasserstein_1(g6, pl6),
                            "pooled": wasserstein_1(g6, pooled)}
-    n_env = out["generated"]["envelope"]["n"]
-    out["baselines"] = {"fixed_floor_gap_to_mep": wasserstein_1(np.full(n_env, GAP_FLOOR_MM), mep6),
+    out["baselines"] = {"fixed_floor_gap_to_mep": wasserstein_1(np.full(n_gaps, GAP_FLOOR_MM), mep6),
                         "real_to_real": wasserstein_1(mep6, pl6),
                         "share_measured_mep_below_75mm": float(np.mean(mep6 < 3 * GAP_FLOOR_MM))}
     return out
@@ -138,6 +146,7 @@ def compare(data: List[dict], mep: Sequence[float], plumbing: Sequence[float]) -
 def render(r: dict) -> str:
     L = []
     f, gc = r["fit"], r["generator_constants"]
+    L.append(f"Data revision {r['version']}")
     L.append(f"Lognormal fit to measured MEP gaps > {gc['floor_mm']:.0f} mm, < {r['range_max_mm']:.0f} mm: "
              f"n={f['n']}  mu={f['mu']:.3f}  sigma={f['sigma']:.3f}  KS D={f['ks_D']:.3f}"
              + (f"  p={f['ks_p']:.2f}" if f["ks_p"] is not None else "  (p needs SciPy)"))
@@ -147,11 +156,11 @@ def render(r: dict) -> str:
     L.append(f"Measured (< {r['range_max_mm']:.0f} mm): MEP n={m['mep']['n']} median {m['mep']['median']:.0f} "
              f"IQR {m['mep']['p25']:.0f}-{m['mep']['p75']:.0f} | Plumbing n={m['plumbing']['n']} "
              f"median {m['plumbing']['median']:.0f} IQR {m['plumbing']['p25']:.0f}-{m['plumbing']['p75']:.0f}")
-    L.append(f"{'generated gap definition':28s}{'n':>6}{'median':>8}{'IQR':>12}{'min':>7} | "
+    L.append(f"{'generated gap definition':46s}{'n':>6}{'median':>8}{'IQR':>12}{'min':>7} | "
              f"{'W1->MEP':>8}{'W1->Plumb':>10}{'W1->pooled':>11}")
-    for kind in GAP_KINDS:
+    for kind in gap_kinds(r["version"]):
         g, w = r["generated"][kind], r["w1"][kind]
-        L.append(f"{kind:28s}{g['n']:>6}{g['median']:>8.0f}{g['p25']:>6.0f}-{g['p75']:<5.0f}{g['min']:>7.1f} | "
+        L.append(f"{LABELS[kind]:46s}{g['n']:>6}{g['median']:>8.0f}{g['p25']:>6.0f}-{g['p75']:<5.0f}{g['min']:>7.1f} | "
                  f"{w['mep']:>8.1f}{w['plumbing']:>10.1f}{w['pooled']:>11.1f}")
     b = r["baselines"]
     L.append(f"Baselines: fixed {gc['floor_mm']:.0f} mm gap -> MEP {b['fixed_floor_gap_to_mep']:.1f} mm; "
@@ -163,14 +172,15 @@ def render(r: dict) -> str:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file", nargs="?", help="dataset file (default: released benchmark split)")
+    ap.add_argument("--version", default=DATA_VERSION, help="data revision of the released benchmark to use")
     ap.add_argument("--json", action="store_true", help="print the full result as JSON")
     a = ap.parse_args(argv)
-    data = cm.load("benchmark") if a.file is None else json.load(open(a.file))["contexts"]
+    payload = read_payload(a.file) if a.file else read_payload(split_path("benchmark", version=a.version))
     with open(MEASURED_MEP) as f:
         mep = json.load(f)
     with open(MEASURED_PLUMBING) as f:
         pl = json.load(f)
-    r = compare(data, mep, pl)
+    r = compare(payload["contexts"], mep, pl, payload["version"])
     print(json.dumps(r, indent=2) if a.json else render(r))
     return 0
 

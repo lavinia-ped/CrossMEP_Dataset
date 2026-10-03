@@ -1,9 +1,9 @@
-"""Generator invariants over unseen seeds, determinism, and the custom API."""
+"""Generator invariants over unseen seeds, determinism, revisions, and the custom API."""
 import numpy as np
 import pytest
 
 from crossmep import generate as G
-from crossmep.model import (ELECTRICAL_KINDS, WET_TRADES, depth_out, is_valid, span_along,
+from crossmep.model import (ELECTRICAL_KINDS, REV_3_0, WET_TRADES, depth_out, is_valid, span_along,
                             validate_context)
 
 
@@ -52,6 +52,18 @@ def test_determinism_and_seed_sensitivity():
     assert a != [c.to_dict() for c in G.generate_dataset(200, seed=43)]
 
 
+def test_revisions_share_elements_and_rows():
+    """Revision 3.0 and 4.0 consume the random stream identically: same
+    elements, loads, levels and standoffs; only along-positions differ."""
+    v4 = G.generate_dataset(120, seed=5)
+    v3 = G.generate_dataset(120, seed=5, revision="3.0")
+    for a, b in zip(v4, v3):
+        assert [(e.label, e.service, e.level, e.position_out_mm) for e in a.elements] == \
+            [(e.label, e.service, e.level, e.position_out_mm) for e in b.elements]
+        assert a.surface == b.surface and a.total_load_kN == b.total_load_kN
+        assert b.revision is REV_3_0 and a.bundle_width_mm <= b.to_dict()["bundle_width_mm"]
+
+
 def test_surface_mix_is_design_parameter():
     d = G.generate_dataset(4000, seed=99)
     share = np.mean([c.surface.kind == "ceiling" for c in d])
@@ -82,9 +94,10 @@ def test_no_wet_above_electrical():
 
 
 def test_gap_floor_and_cap_hold():
+    """In revision 4.0 the physical gap between along-neighbours is the sampled gap."""
     import crossmep.tasks as cm
     from crossmep.layout import GAP_CAP_MM, GAP_FLOOR_MM
-    gaps = [g for c in G.generate_dataset(500, seed=8) for g in cm.neighbour_gaps(c.to_dict(), "envelope")]
+    gaps = [g for c in G.generate_dataset(500, seed=8) for g in cm.neighbour_gaps(c.to_dict(), "insulation")]
     assert min(gaps) >= GAP_FLOOR_MM - 0.2 and max(gaps) <= GAP_CAP_MM + 0.2
 
 

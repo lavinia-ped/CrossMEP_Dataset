@@ -2,13 +2,13 @@
 import pytest
 
 import crossmep.tasks as cm
-from crossmep.model import CLEARANCE_MM
 
 
 def _pipe(along, out, od=33.7, ins=0.0, service="sprinkler", level=0, load=0.06):
     return {"kind": "pipe", "service": service, "trade": "sprinkler" if service == "sprinkler" else "chilled",
             "shape": "round", "label": "DN25", "width_mm": od, "height_mm": od,
-            "insulation_mm": ins, "load_kN": load, "level": level, "along_mm": along, "out_mm": out}
+            "insulation_mm": ins, "load_kN": load, "span_m": 2.1, "load_kN_per_m": round(load / 2.1, 4),
+            "level": level, "along_mm": along, "out_mm": out}
 
 
 def _ctx(elements, surface="ceiling", tier="custom"):
@@ -19,27 +19,29 @@ def _ctx(elements, surface="ceiling", tier="custom"):
 
 
 def test_clearance_definitions_on_two_bare_pipes():
-    # centres 200 mm apart, OD 33.7 each -> bare gap 166.3; envelope gap = bare - 50
+    # centres 200 mm apart, OD 33.7 each -> bare gap 166.3
     c = _ctx([_pipe(-100.0, 100.0), _pipe(100.0, 100.0)])
-    assert cm.envelope_clearance(c) == pytest.approx(166.3 - 2 * CLEARANCE_MM)
     assert cm.min_clear_gap(c) == pytest.approx(166.3)
-    assert cm.congestion_score is cm.envelope_clearance
+    assert cm.congestion_score is cm.min_clear_gap
+    assert cm.envelope_clearance(c) == pytest.approx(166.3 - 50.0)        # revision 3.0 definition
     assert cm.neighbour_gaps(c, "bare") == pytest.approx([166.3])
     assert cm.neighbour_gaps(c, "insulation") == pytest.approx([166.3])
+    assert cm.neighbour_gaps(c) == cm.neighbour_gaps(c, "insulation")
     assert cm.neighbour_gaps(c, "envelope") == pytest.approx([116.3])
+    with pytest.raises(ValueError):
+        cm.neighbour_gaps(c, "nope")
 
 
 def test_insulation_enters_gap_definitions():
     c = _ctx([_pipe(-100.0, 100.0, ins=30.0, service="chilled"), _pipe(100.0, 100.0)])
     assert cm.neighbour_gaps(c, "bare") == pytest.approx([166.3])
     assert cm.neighbour_gaps(c, "insulation") == pytest.approx([136.3])
-    assert cm.neighbour_gaps(c, "envelope") == pytest.approx([86.3])
     assert cm.min_clear_gap(c) == pytest.approx(136.3)
 
 
 def test_single_element_has_no_score():
-    assert cm.envelope_clearance(_ctx([_pipe(0.0, 100.0)])) is None
     assert cm.min_clear_gap(_ctx([_pipe(0.0, 100.0)])) is None
+    assert cm.envelope_clearance(_ctx([_pipe(0.0, 100.0)])) is None
 
 
 def test_wall_uses_height_along():
@@ -74,19 +76,24 @@ def test_filter_and_counts(benchmark):
     assert cm.filter_contexts(benchmark, levels=(4, None)) == []
 
 
-def test_per_tier_table_and_summary(benchmark):
-    table = cm.per_tier_table(benchmark)
-    lines = table.splitlines()
-    assert lines[0].split() == ["tier", "n_ctx", "elems", "env-clear", "mm", "clear-gap", "mm", "load", "kN", "width", "mm"]
+def test_tables(benchmark, benchmark_v3):
+    lines = cm.per_tier_table(benchmark).splitlines()
+    assert lines[0].split() == ["tier", "n_ctx", "elems", "clear-gap", "mm", "load", "kN", "width", "mm"]
     assert len(lines) == 9 and lines[1].startswith("C1") and lines[-1].startswith("C8")
-    s = cm.tier_summary(benchmark)
+    legacy = cm.per_tier_table(benchmark_v3, legacy_envelope=True).splitlines()
+    assert "env-clear" in legacy[0]
+    ranges = cm.tier_ranges_table(benchmark).splitlines()
+    assert len(ranges) == 9 and "ceiling/wall" in ranges[0]
+    s = cm.tier_summary(benchmark_v3, legacy_envelope=True)
     for n in range(2, 9):
-        assert s[f"C{n}"]["clear_gap_mm"] >= s[f"C{n}"]["envelope_clearance_mm"]
+        assert s[f"C{n}"]["clear_gap_mm"] > s[f"C{n}"]["envelope_clearance_mm"]
 
 
-def test_validate_dicts(benchmark):
+def test_validate_dicts(benchmark, benchmark_v3):
     for c in benchmark[:100]:
         cm.validate(c)
+    for c in benchmark_v3[:100]:
+        cm.validate(c, "3.0")
     bad = dict(benchmark[1]); bad["elements"] = [dict(e, along_mm=0.0) for e in bad["elements"]]
     with pytest.raises(ValueError):
         cm.validate(bad)

@@ -1,12 +1,10 @@
-"""Element library: derived constants equal the frozen v3.0 tables; sources hold."""
-import math
-
+"""Element library: derived constants equal the frozen release tables; sources hold."""
 import pytest
 
 from crossmep import library as lib
-from crossmep.model import validate_context  # noqa: F401
 
-# Frozen tables of the v3.0 data release (the oracle for the derivations).
+# Frozen tables of the data release (identical in revisions 3.0 and 4.0): the
+# oracle for the derivations.
 V30_DN_LOAD_KN = {15: 0.03, 20: 0.04, 25: 0.06, 32: 0.08, 40: 0.10, 50: 0.21,
                   65: 0.30, 80: 0.49, 100: 0.88}
 V30_TRAY_LOAD_KN = {150: 0.54, 225: 0.81, 300: 1.08, 450: 1.62, 600: 2.16}
@@ -14,6 +12,17 @@ V30_RECT_DUCT_LOAD_KN = {(250, 200): 0.16, (400, 250): 0.28, (500, 400): 0.38,
                          (800, 400): 0.58, (1000, 500): 0.72}
 V30_ROUND_DUCT_LOAD_KN = {160: 0.056, 200: 0.070, 250: 0.087, 315: 0.110, 400: 0.139, 500: 0.174}
 V30_CONDUIT_LOAD_KN = {20: 0.021, 25: 0.029, 32: 0.044, 40: 0.063, 50: 0.092}
+
+
+def _all_elements():
+    els = [lib.make_pipe(dn, s, t) for dn in lib.DN_SERIES
+           for s, t in (("heating", "heating"), ("chilled", "chilled"), ("sprinkler", "sprinkler"),
+                        ("domestic_hot", "domestic"), ("domestic_cold", "domestic"))]
+    els += [lib.make_tray(w) for w in lib.TRAY_WIDTHS_MM]
+    els += [lib.make_rect_duct(*wh) for wh in lib.RECT_DUCT_SIZES_MM]
+    els += [lib.make_round_duct(d) for d in lib.ROUND_DUCT_D_MM]
+    els += [lib.make_conduit(od) for od in lib.CONDUIT_OD_MM]
+    return els
 
 
 def test_pipe_loads_derive_from_primitives():
@@ -50,6 +59,17 @@ def test_span_floor_rule_uses_published_points_only():
     assert lib.support_span_m(100) == 4.3
 
 
+def test_recorded_span_and_load_per_metre_reproduce_load():
+    """load_kN == round(load_kN_per_m x span_m) for every library element, at the
+    precision recorded in the files (so a reader can check the loads by hand)."""
+    for e in _all_elements():
+        assert e.span_m > 0 and e.load_kN_per_m > 0
+        decimals = 3 if (e.kind == "conduit" or (e.kind == "duct" and e.shape == "round")) else 2
+        assert round(e.load_kN_per_m * e.span_m, decimals) == e.load_kN, e.label
+    assert lib.make_pipe(50, "chilled", "chilled").load_kN_per_m == pytest.approx(0.0711, abs=1e-4)
+    assert lib.make_tray(300).load_kN_per_m == pytest.approx(0.5396, abs=1e-4)
+
+
 def test_cable_density_back_derivation():
     assert lib.CABLE_BULK_DENSITY_KG_M3 == pytest.approx(
         lib.TRAY_FULL_CABLE_KG_M_AT_300 / (lib.CABLE_FILL_FRACTION * 0.300 * 0.100), rel=1e-3)
@@ -84,16 +104,16 @@ def test_insulation_schedule():
 
 def test_constructors():
     p = lib.make_pipe(50, "chilled", "chilled")
-    assert (p.kind, p.shape, p.width_mm, p.height_mm, p.insulation_mm, p.load_kN, p.label) == \
-        ("pipe", "round", 60.3, 60.3, 50.0, 0.21, "DN50")
+    assert (p.kind, p.shape, p.width_mm, p.height_mm, p.insulation_mm, p.load_kN, p.label, p.span_m) == \
+        ("pipe", "round", 60.3, 60.3, 50.0, 0.21, "DN50", 3.0)
     t = lib.make_tray(300)
-    assert (t.kind, t.trade, t.width_mm, t.height_mm, t.load_kN) == ("cable_tray", "electrical", 300.0, 60.0, 1.08)
+    assert (t.kind, t.trade, t.width_mm, t.height_mm, t.load_kN, t.span_m) == ("cable_tray", "electrical", 300.0, 60.0, 1.08, 2.0)
     d = lib.make_rect_duct(800, 400)
-    assert (d.kind, d.shape, d.load_kN, d.label) == ("duct", "rect", 0.58, "800x400 duct")
+    assert (d.kind, d.shape, d.load_kN, d.label, d.span_m) == ("duct", "rect", 0.58, "800x400 duct", 2.4)
     r = lib.make_round_duct(315)
     assert (r.shape, r.width_mm, r.load_kN) == ("round", 315.0, 0.110)
     c = lib.make_conduit(25)
-    assert (c.kind, c.load_kN, c.label) == ("conduit", 0.029, "Ø25 conduit")
+    assert (c.kind, c.load_kN, c.label, c.span_m) == ("conduit", 0.029, "Ø25 conduit", 2.0)
 
 
 def test_trade_bands():
@@ -102,21 +122,31 @@ def test_trade_bands():
     assert lib.dn_band("chilled") == lib.dn_band("sprinkler") == [25, 32, 40, 50, 65, 80, 100]
 
 
-def test_released_elements_use_library_values(benchmark):
-    """Every element in the released benchmark carries exactly the library's
-    size, insulation and load for its label/service (no hand-edited data)."""
-    for c in benchmark:
+def _reference(e: dict):
+    if e["kind"] == "pipe":
+        return lib.make_pipe(int(e["label"][2:]), e["service"], e["trade"])
+    if e["kind"] == "cable_tray":
+        return lib.make_tray(int(e["width_mm"]))
+    if e["kind"] == "conduit":
+        return lib.make_conduit(int(e["width_mm"]))
+    if e["shape"] == "round":
+        return lib.make_round_duct(int(e["width_mm"]))
+    return lib.make_rect_duct(int(e["width_mm"]), int(e["height_mm"]))
+
+
+def test_released_elements_use_library_values(benchmark, benchmark_v3):
+    """Every element in both released benchmarks carries exactly the library's
+    size, insulation, load (and, in 4.0, span and load per metre) for its
+    label/service -- no hand-edited data."""
+    for c in benchmark_v3:
         for e in c["elements"]:
-            if e["kind"] == "pipe":
-                dn = int(e["label"][2:])
-                ref = lib.make_pipe(dn, e["service"], e["trade"])
-            elif e["kind"] == "cable_tray":
-                ref = lib.make_tray(int(e["width_mm"]))
-            elif e["kind"] == "conduit":
-                ref = lib.make_conduit(int(e["width_mm"]))
-            elif e["shape"] == "round":
-                ref = lib.make_round_duct(int(e["width_mm"]))
-            else:
-                ref = lib.make_rect_duct(int(e["width_mm"]), int(e["height_mm"]))
+            ref = _reference(e)
             assert (e["width_mm"], e["height_mm"], e["insulation_mm"], e["load_kN"], e["label"]) == \
                 (ref.width_mm, ref.height_mm, ref.insulation_mm, ref.load_kN, ref.label), c["context_id"]
+    for c in benchmark:
+        for e in c["elements"]:
+            ref = _reference(e)
+            assert (e["width_mm"], e["height_mm"], e["insulation_mm"], e["load_kN"], e["label"],
+                    e["span_m"], e["load_kN_per_m"]) == \
+                (ref.width_mm, ref.height_mm, ref.insulation_mm, ref.load_kN, ref.label,
+                 ref.span_m, ref.load_kN_per_m), c["context_id"]

@@ -17,12 +17,14 @@ that consumers of the JSON files never pay for it.
 """
 from __future__ import annotations
 
-__version__ = "3.5.0"
+__version__ = "4.0.0"
 
-from .model import (CLEARANCE_MM, ContextValidationError, Element, MEPContext,  # noqa: F401
-                    MountingSurface, depth_out, is_valid, pair_clearance, span_along,
+from .model import (CLEARANCE_MM, CURRENT_REVISION, MIN_CLEAR_GAP_MM, REV_3_0, REV_4_0,  # noqa: F401
+                    ContextValidationError, Element, MEPContext, MountingSurface, Revision,
+                    depth_out, is_valid, pair_clearance, revision_for, span_along,
                     validate_context)
-from .io import DATA_VERSION, build_payload, load_contexts, read_payload, write_payload  # noqa: F401
+from .io import (DATA_VERSION, DATA_VERSIONS, build_payload, load_contexts, read_payload,  # noqa: F401
+                 write_payload)
 
 _LAZY = {
     "generate_context": "generate", "generate_dataset": "generate", "generate_split": "generate",
@@ -37,7 +39,8 @@ def __getattr__(name: str):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["__version__", "CLEARANCE_MM", "ContextValidationError", "Element", "MEPContext",
-           "MountingSurface", "depth_out", "is_valid", "pair_clearance", "span_along",
-           "validate_context", "DATA_VERSION", "build_payload", "load_contexts",
+__all__ = ["__version__", "CLEARANCE_MM", "CURRENT_REVISION", "MIN_CLEAR_GAP_MM", "REV_3_0",
+           "REV_4_0", "ContextValidationError", "Element", "MEPContext", "MountingSurface",
+           "Revision", "depth_out", "is_valid", "pair_clearance", "revision_for", "span_along",
+           "validate_context", "DATA_VERSION", "DATA_VERSIONS", "build_payload", "load_contexts",
            "read_payload", "write_payload", *_LAZY]

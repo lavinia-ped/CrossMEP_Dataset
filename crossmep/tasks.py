@@ -4,25 +4,21 @@ Third parties can produce comparable numbers from the released JSON files
 without NumPy or the generator::
 
     import crossmep.tasks as cm
-    data = cm.load("benchmark")                     # list of context dicts
+    data = cm.load("benchmark")                     # list of context dicts (revision 4.0)
     print(cm.per_tier_table(data))                  # the table a paper should report
     cov = cm.catalog_coverage(data, clamp_bins=[(48, 54, 2.5), (108, 114, 4.0)])
     y = [cm.congestion_score(c) for c in data]      # regression target
 
 Clearance definitions
 ---------------------
-Two pairwise quantities are provided; both are in mm and both are reported in
-RESULTS.md.
-
-* :func:`congestion_score` (alias :func:`envelope_clearance`): the released
-  definition -- the minimum over pairs of the larger of the along-excess beyond
-  the combined routing envelopes (bare size + insulation + CLEARANCE_MM per
-  side) and the out-excess beyond the combined half-depths.  For along-adjacent
-  neighbours this equals the generator's sampled gap.  This is the quantity in
-  the CIB W78 2026 paper, section 5.1.
-* :func:`min_clear_gap`: the minimum physical clear gap between insulation
-  surfaces (no routing envelope) in at least one direction.  For along-adjacent
-  neighbours of the v3.0 data it is the envelope clearance plus 2 * CLEARANCE_MM.
+* :func:`min_clear_gap` (= :func:`congestion_score`): the minimum over pairs of
+  the physical clear gap between insulation surfaces, taken as the larger of
+  the along-gap and the out-gap per pair.  For along-adjacent neighbours of
+  revision 4.0 it is exactly the generator's sampled gap.
+* :func:`envelope_clearance`: the definition used for the paper's section 5.1
+  on the revision 3.0 files -- the same quantity measured between 25 mm routing
+  envelopes, i.e. the physical gap minus 50 mm.  On revision 4.0 data the
+  physical gap already reproduces those values; keep this only for 3.0 files.
 """
 from __future__ import annotations
 
@@ -31,13 +27,14 @@ from statistics import median
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
 from .io import DATA_VERSION, ROOT, read_payload, split_path
-from .model import CLEARANCE_MM, MEPContext, validate_context
+from .model import MEPContext, revision_for, validate_context
 
 TIER_ORDER: List[str] = [f"C{n}" for n in range(1, 9)]
 KINDS = ("pipe", "cable_tray", "duct", "conduit")
 COLD = frozenset({"chilled", "domestic_cold"})
 """Services clamped over a rigid insert at the insulated diameter (cold lines);
 hot and bare lines are clamped on the bare pipe."""
+LEGACY_ENVELOPE_MM = 25.0      # routing envelope of data revision 3.0
 
 ClampBin = Tuple[float, float, float]          # (lo_mm, hi_mm, capacity_kN)
 CountSpec = Union[None, int, Tuple[Optional[int], Optional[int]]]
@@ -48,13 +45,13 @@ def load(split: str = "benchmark", version: str = DATA_VERSION, root: str = ROOT
     return read_payload(split_path(split, root, version))["contexts"]
 
 
-def validate(ctx: dict) -> None:
+def validate(ctx: dict, version: str = DATA_VERSION) -> None:
     """Run the full generator-side validator on a context dict (raises on failure)."""
-    validate_context(MEPContext.from_dict(ctx))
+    validate_context(MEPContext.from_dict(ctx, revision_for(version)))
 
 
 # --------------------------------------------------------------------------- #
-# Geometry on dicts                                                            #
+# Geometry on dicts (physical: bare size + insulation)                         #
 # --------------------------------------------------------------------------- #
 
 def _along(e: dict, surface_kind: str) -> float:
@@ -66,7 +63,7 @@ def _normal(e: dict, surface_kind: str) -> float:
 
 
 def _span(e: dict, surface_kind: str) -> float:
-    return _along(e, surface_kind) + 2.0 * e["insulation_mm"] + 2.0 * CLEARANCE_MM
+    return _along(e, surface_kind) + 2.0 * e["insulation_mm"]
 
 
 def _depth(e: dict, surface_kind: str) -> float:
@@ -80,9 +77,9 @@ def _pairs(ctx: dict):
             yield els[i], els[j], sk
 
 
-def envelope_clearance(ctx: dict) -> Optional[float]:
-    """Minimum pairwise envelope clearance (mm); lower = more congested.
-    None for single-element contexts (no pairs).  Released definition."""
+def min_clear_gap(ctx: dict) -> Optional[float]:
+    """Minimum pairwise physical clear gap between insulation surfaces (mm);
+    lower = more congested.  None for single-element contexts (no pairs)."""
     if len(ctx["elements"]) < 2:
         return None
     best = float("inf")
@@ -93,31 +90,33 @@ def envelope_clearance(ctx: dict) -> Optional[float]:
     return best
 
 
-congestion_score = envelope_clearance
+congestion_score = min_clear_gap
 
 
-def min_clear_gap(ctx: dict) -> Optional[float]:
-    """Minimum pairwise physical clear gap between insulation surfaces (mm), taken
-    as the larger of the along-gap and the out-gap per pair.  None for a single element."""
+def envelope_clearance(ctx: dict, envelope_mm: float = LEGACY_ENVELOPE_MM) -> Optional[float]:
+    """Revision 3.0 definition (paper section 5.1): minimum pairwise clearance
+    between routing envelopes of ``envelope_mm`` per side along the surface."""
     if len(ctx["elements"]) < 2:
         return None
     best = float("inf")
     for a, b, sk in _pairs(ctx):
-        ga = abs(a["along_mm"] - b["along_mm"]) - (_along(a, sk) + _along(b, sk)) / 2 \
-            - a["insulation_mm"] - b["insulation_mm"]
-        go = abs(a["out_mm"] - b["out_mm"]) - (_depth(a, sk) + _depth(b, sk)) / 2
-        best = min(best, max(ga, go))
+        da = abs(a["along_mm"] - b["along_mm"]) - (_span(a, sk) + _span(b, sk)) / 2 - 2.0 * envelope_mm
+        do = abs(a["out_mm"] - b["out_mm"]) - (_depth(a, sk) + _depth(b, sk)) / 2
+        best = min(best, max(da, do))
     return best
 
 
-def neighbour_gaps(ctx: dict, kind: str = "envelope") -> List[float]:
+def neighbour_gaps(ctx: dict, kind: str = "insulation") -> List[float]:
     """Clear gaps between along-adjacent neighbours within each generative row.
 
-    ``kind``: 'envelope' (between routing envelopes = the generator's sampled
-    gap), 'insulation' (between insulation surfaces) or 'bare' (between bare
-    element surfaces).  These are the samples compared with the IFC
-    measurements in verify/compare_gaps.py.
+    ``kind``: 'insulation' (between insulation surfaces: in revision 4.0 the
+    generator's sampled gap), 'bare' (between bare element surfaces, the
+    quantity an IFC measurement of an uninsulated model yields) or 'envelope'
+    (insulation gap minus 2 x 25 mm: the sampled gap of revision 3.0).  These
+    are the samples compared with the measurements in verify/compare_gaps.py.
     """
+    if kind not in ("insulation", "bare", "envelope"):
+        raise ValueError(f"kind must be insulation | bare | envelope, got {kind!r}")
     sk = ctx["surface"]["kind"]
     out: List[float] = []
     for lvl in sorted({e["level"] for e in ctx["elements"]}):
@@ -128,7 +127,7 @@ def neighbour_gaps(ctx: dict, kind: str = "envelope") -> List[float]:
                 out.append(bare)
                 continue
             ins = bare - a["insulation_mm"] - b["insulation_mm"]
-            out.append(ins if kind == "insulation" else ins - 2.0 * CLEARANCE_MM)
+            out.append(ins if kind == "insulation" else ins - 2.0 * LEGACY_ENVELOPE_MM)
     return out
 
 
@@ -225,17 +224,18 @@ def filter_contexts(data: Iterable[dict], pipes: CountSpec = None, trays: CountS
     return out
 
 
-def tier_summary(data: Iterable[dict]) -> Dict[str, Dict[str, float]]:
-    """Per-tier medians: contexts, elements, envelope clearance, physical clear
-    gap, total load, bundle width (the structured form of :func:`per_tier_table`)."""
+def tier_summary(data: Iterable[dict], legacy_envelope: bool = False) -> Dict[str, Dict[str, float]]:
+    """Per-tier medians: contexts, elements, physical clear gap, total load,
+    bundle width -- plus the revision 3.0 envelope clearance when requested."""
     rows: Dict[str, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
     for c in data:
         t = c["tier"]
         rows[t]["n"].append(c["n_elements"])
-        ec, cg = envelope_clearance(c), min_clear_gap(c)
-        if ec is not None:
-            rows[t]["clr"].append(ec)
-            rows[t]["gap"].append(cg)
+        g = min_clear_gap(c)
+        if g is not None:
+            rows[t]["gap"].append(g)
+            if legacy_envelope:
+                rows[t]["env"].append(envelope_clearance(c))
         rows[t]["load"].append(c["total_load_kN"])
         rows[t]["bw"].append(c["bundle_width_mm"])
     out: Dict[str, Dict[str, float]] = {}
@@ -243,10 +243,12 @@ def tier_summary(data: Iterable[dict]) -> Dict[str, Dict[str, float]]:
         if t not in rows:
             continue
         m = rows[t]
-        out[t] = {"n_ctx": len(m["n"]), "elements": median(m["n"]),
-                  "envelope_clearance_mm": median(m["clr"]) if m["clr"] else None,
-                  "clear_gap_mm": median(m["gap"]) if m["gap"] else None,
-                  "load_kN": median(m["load"]), "bundle_width_mm": median(m["bw"])}
+        row = {"n_ctx": len(m["n"]), "elements": median(m["n"]),
+               "clear_gap_mm": median(m["gap"]) if m["gap"] else None,
+               "load_kN": median(m["load"]), "bundle_width_mm": median(m["bw"])}
+        if legacy_envelope:
+            row["envelope_clearance_mm"] = median(m["env"]) if m["env"] else None
+        out[t] = row
     return out
 
 
@@ -284,12 +286,18 @@ def tier_ranges_table(data: Iterable[dict]) -> str:
     return "\n".join(lines)
 
 
-def per_tier_table(data: Iterable[dict]) -> str:
+def per_tier_table(data: Iterable[dict], legacy_envelope: bool = False) -> str:
     """Per-tier medians as a fixed-width text table (the standard reporting format)."""
-    s = tier_summary(data)
-    lines = [f"{'tier':<6}{'n_ctx':>6}{'elems':>7}{'env-clear mm':>14}{'clear-gap mm':>14}{'load kN':>9}{'width mm':>10}"]
+    s = tier_summary(data, legacy_envelope)
+    head = f"{'tier':<6}{'n_ctx':>6}{'elems':>7}{'clear-gap mm':>14}"
+    if legacy_envelope:
+        head += f"{'env-clear mm':>14}"
+    lines = [head + f"{'load kN':>9}{'width mm':>10}"]
     for t, m in s.items():
-        clr = f"{m['envelope_clearance_mm']:>14.0f}" if m["envelope_clearance_mm"] is not None else f"{'-':>14}"
         gap = f"{m['clear_gap_mm']:>14.0f}" if m["clear_gap_mm"] is not None else f"{'-':>14}"
-        lines.append(f"{t:<6}{m['n_ctx']:>6}{m['elements']:>7.0f}{clr}{gap}{m['load_kN']:>9.2f}{m['bundle_width_mm']:>10.0f}")
+        line = f"{t:<6}{m['n_ctx']:>6}{m['elements']:>7.0f}{gap}"
+        if legacy_envelope:
+            env = m.get("envelope_clearance_mm")
+            line += f"{env:>14.0f}" if env is not None else f"{'-':>14}"
+        lines.append(line + f"{m['load_kN']:>9.2f}{m['bundle_width_mm']:>10.0f}")
     return "\n".join(lines)
