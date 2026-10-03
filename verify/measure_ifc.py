@@ -21,7 +21,7 @@ the format of ``verify/measured_gaps.json``.
 
 STATUS.  The shipped ``measured_gaps*.json`` are the authors' original
 measurements (June 2026).  This script is the documented procedure made
-executable; it was not re-run for release 3.5.0 because the Duplex Apartment
+executable; it was not re-run for release 4.0.0 because the Duplex Apartment
 IFC files are not redistributed here (buildingSMART's sample-file repository has
 since been reorganised; the files remain available from buildingSMART community
 mirrors).  ``--self-check`` compares a fresh run with the shipped sample so that

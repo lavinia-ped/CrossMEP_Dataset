@@ -271,6 +271,13 @@ rather than a trapeze depth; pipe sizes stop at DN100 and substrates at
 concrete. Each is a deliberate scope boundary of this revision, listed in
 `DATASHEET.md`.
 
+## Presenting the dataset
+
+`docs/TALK.md` is a ten-minute talk for a construction audience (slide by
+slide, with speaker notes and the questions practitioners ask), and
+`docs/figures/` holds its figures, regenerated from the released data by
+`python scripts/make_figures.py` (`pip install matplotlib`).
+
 ## Repository layout
 
 ```
@@ -279,6 +286,8 @@ data/v4.0/           current data revision (four splits)
 data/v3.0/           the paper release (four splits + its gallery), frozen
 schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
 verify/              IFC measurement procedure, measured samples, distribution comparison
+scripts/             figure generation
+docs/                talk narrative and figures
 tests/               119 checks: derivations, geometry, generation over seeds, byte-exact
                      regeneration of both revisions, schema, paper numbers, metrics, CLI, shims
 ```

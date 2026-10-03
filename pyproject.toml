@@ -24,6 +24,7 @@ dependencies = ["numpy>=1.22"]
 [project.optional-dependencies]
 test = ["pytest>=7", "jsonschema>=4", "scipy>=1.9"]
 ifc = ["ifcopenshell>=0.7"]
+figures = ["matplotlib>=3.7"]
 
 [project.scripts]
 crossmep = "crossmep.cli:main"
