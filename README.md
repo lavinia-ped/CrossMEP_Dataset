@@ -274,9 +274,14 @@ concrete. Each is a deliberate scope boundary of this revision, listed in
 ## Presenting the dataset
 
 `docs/TALK.md` is a ten-minute talk for a construction audience (slide by
-slide, with speaker notes and the questions practitioners ask), and
-`docs/figures/` holds its figures, regenerated from the released data by
-`python scripts/make_figures.py` (`pip install matplotlib`).
+slide, with speaker notes and the questions practitioners ask);
+`docs/CrossMEP_CIBW78_talk.pptx` is that talk as a deck (11 slides plus two
+appendix slides, speaker notes included); `docs/figures/` holds the figures.
+Everything regenerates from the released data: `python scripts/make_figures.py`
+(`pip install matplotlib "qrcode[pil]"`) rebuilds the figures and the numbers
+the deck reads, `node docs/deck/build_deck.js` rebuilds the deck (`npm install
+pptxgenjs react-icons react react-dom sharp`), and `docs/deck/preview.py`
+renders a trace of the build for layout checks where LibreOffice is unavailable.
 
 ## Repository layout
 
