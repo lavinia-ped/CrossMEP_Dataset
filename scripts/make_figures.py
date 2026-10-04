@@ -357,6 +357,68 @@ def fig_catalog_coverage(bench):
     return cov["overall"]
 
 
+# --- title art: a congested section drawn light-on-transparent for a dark slide --
+
+def fig_title_art(bench):
+    ctx = next(c for c in bench if c["tier"] == "C8" and c["surface"]["kind"] == "ceiling" and c["n_levels"] == 3
+               and len({e["trade"] for e in c["elements"]}) >= 3)
+    light = {t: "#CADCFC" for t in TRADE_COLOR}           # one light ink, identity by shape only
+    fig = plt.figure(figsize=(6.4, 4.0))
+    ax = fig.add_axes([0, 0, 1, 1])
+    x0, x1, y0, y1 = content_bbox(ctx)
+    fit_limits(fig, ax, x0 - 40, x1 + 40, y0 - 40, SLAB_MM + 2)
+    xl = ax.get_xlim()
+    ax.add_patch(Rectangle((xl[0], 0), xl[1] - xl[0], SLAB_MM, fc="none", ec="#CADCFC", lw=0.8, hatch="////", alpha=0.5, zorder=0))
+    saved = dict(TRADE_COLOR)
+    TRADE_COLOR.update(light)
+    try:
+        draw_elements(ax, ctx, label_elements=False)
+    finally:
+        TRADE_COLOR.update(saved)
+    fig.savefig(os.path.join(OUT, "title_art.png"), dpi=200, transparent=True)
+    plt.close(fig)
+    return ctx["context_id"]
+
+
+# --- numbers the slide deck reads (docs/deck/build_deck.js) ---------------------
+
+def write_deck_data(bench, bench_v3):
+    cg = _compare_gaps_module()
+    mep = np.array(json.load(open(cg.MEASURED_MEP)))
+    pl = np.array(json.load(open(cg.MEASURED_PLUMBING)))
+    r4 = cg.compare(bench, mep, pl, "4.0")
+    r3 = cg.compare(bench_v3, mep, pl, "3.0")
+    cov = cm.catalog_coverage(bench, [(48.0, 54.0, 2.5), (108.0, 114.0, 4.0)])
+    tiers = [f"C{n}" for n in range(1, 9)]
+    summ = cm.tier_summary(bench)
+    data = {
+        "tiers": tiers,
+        "tier_medians": {t: {"clear_gap_mm": summ[t]["clear_gap_mm"], "load_kN": summ[t]["load_kN"],
+                             "bundle_width_mm": summ[t]["bundle_width_mm"]} for t in tiers},
+        "coverage_pct": {t: cov[t] for t in tiers}, "coverage_overall_pct": cov["overall"],
+        "non_pipe_elements": cov["non_pipe_elements"], "kind_totals": cm.kind_totals(bench),
+        "w1": {"v4_insulation": r4["w1"]["insulation"], "v4_bare": r4["w1"]["bare"],
+               "v3_envelope": r3["w1"]["envelope"], "v3_insulation": r3["w1"]["insulation"],
+               "real_to_real": r4["baselines"]["real_to_real"],
+               "fixed_floor_gap": r4["baselines"]["fixed_floor_gap_to_mep"]},
+        "measured": r4["measured"], "fit": {k: v for k, v in r4["fit"].items()},
+        "share_measured_below_75": r4["baselines"]["share_measured_mep_below_75mm"],
+        "min_insulation_gap_v3": r3["generated"]["insulation"]["min"],
+    }
+    with open(os.path.join(OUT, "deck_data.json"), "w") as f:
+        json.dump(data, f, indent=1)
+
+
+def write_qr(url="https://github.com/lavinia-ped/CrossMEP_Dataset"):
+    try:
+        import qrcode
+    except ImportError:
+        print("qrcode not installed; skipping QR (pip install qrcode[pil])")
+        return
+    img = qrcode.make(url, box_size=10, border=2)
+    img.save(os.path.join(OUT, "qr_repo.png"))
+
+
 def main() -> int:
     os.makedirs(OUT, exist_ok=True)
     bench, bench_v3 = cm.load("benchmark"), cm.load("benchmark", "3.0")
@@ -366,6 +428,9 @@ def main() -> int:
     print("04: W1 v4 / v3 =", fig_gaps_vs_measured(bench, bench_v3))
     print("05:", fig_v3_vs_v4(bench, bench_v3))
     print("06: overall coverage", fig_catalog_coverage(bench))
+    print("title art:", fig_title_art(bench))
+    write_deck_data(bench, bench_v3)
+    write_qr()
     print("wrote", sorted(os.listdir(OUT)))
     return 0
 
