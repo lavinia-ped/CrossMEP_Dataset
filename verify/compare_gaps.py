@@ -22,8 +22,8 @@ What is computed
    * ``insulation``  clear gap between insulation surfaces.  In revision 4.0 this
                      IS the generator's sampled gap (in 3.0 it is the draw + 50 mm).
    * ``bare``        clear gap between bare element surfaces: the quantity the IFC
-                     measurement actually produces (the Duplex model carries no
-                     insulation geometry).  Differs from ``insulation`` by the
+                     measurement records (it meshes flow segments, i.e. bare pipe
+                     surfaces).  Differs from ``insulation`` by the
                      insulation of the pair.
    * ``envelope``    revision 3.0 only: the 3.0 sampled gap, measured between
                      routing envelopes (insulation gap minus 50 mm) -- the

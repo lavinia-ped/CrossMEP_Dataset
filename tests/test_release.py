@@ -133,7 +133,7 @@ def test_benchmark_composition_pinned(benchmark, benchmark_v3):
     """Composition of the RELEASED benchmark (same in both revisions).  NOTE: the
     paper's Figure 3a reports 2,668 pipes / 962 conduits / 576 trays / 294 ducts,
     computed on an internal v3.4 build with a different pipe library; the public
-    files give the values below (README.md, 'Known issues')."""
+    files give the values below (README.md, 'Versions and relation to the paper')."""
     expect = {"pipe": 2529, "cable_tray": 569, "duct": 261, "conduit": 1141}
     assert cm.kind_totals(benchmark) == cm.kind_totals(benchmark_v3) == expect
 
