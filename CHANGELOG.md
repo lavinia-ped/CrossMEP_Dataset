@@ -3,7 +3,7 @@
 Version lineage. The data files carry a **data revision** (directory, file name
 and the embedded `version`): 3.0 = the files the CIB W78 2026 paper was released
 with (June 2026); 4.0 = this release. The paper refers to a **v3.4** internal
-build whose element library was never published (README, "Known issues"). The
+build whose element library was never published (README, "Versions and relation to the paper"). The
 package version tracks code and documentation.
 
 ## 4.0.0 — 2026-10-03
@@ -28,6 +28,13 @@ package version tracks code and documentation.
   two elements at least 25 mm apart along the surface or out from it.
 - Metrics: `tasks.min_clear_gap` (= `congestion_score`) is the physical definition;
   `tasks.envelope_clearance` keeps the 3.0 definition for the paper's files.
+
+### Talk material
+- `docs/CrossMEP_CIBW78_talk.pptx` (14 slides + 2 appendix, speaker notes) and `docs/TALK.md`:
+  a ten-minute talk on the dataset; figures and every printed number regenerate from the
+  released data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`, `docs/deck/build_deck.js`).
+- Docs: the IFC measurement is described as recording gaps between flow-segment (bare pipe)
+  surfaces, replacing an unverified statement that the model carries no insulation geometry.
 
 ### Code, verification and documentation (from the 3.5.0 overhaul, same branch, never tagged)
 - All splits of both revisions regenerate **byte-for-byte**; `RELEASE_CHECKSUMS.txt`

@@ -21,15 +21,10 @@ Paper: *CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections*,
 Pedrollo, Gvadzabia, Graeber & Fischer, 43rd CIB W78 Conference, 2026.
 Companion formulation: Pedrollo, Graeber & Fischer, ISARC 2026.
 
-> **Release 4.0.0 / data revision 4.0.** The paper's files (revision 3.0) laid
-> elements out with a 25 mm routing envelope on each side *in addition to* the
-> 25 mm minimum gap, so neighbours sat 50 mm further apart than the sampled,
-> measurement-fitted gap. Revision 4.0 removes that double-counting. Every
-> element, load, row and standoff is unchanged — only the along-surface
-> positions and bundle widths move — and the paper's verification numbers now
-> hold for the physical geometry. The 3.0 files stay in `data/v3.0/`,
-> byte-reproducible, for anyone citing the paper. Details in
-> [Known issues](#known-issues-and-discrepancies).
+![One benchmark context per tier, C1 to C8](docs/figures/02_tier_gallery.png)
+
+*One context per difficulty tier from the benchmark split: tier Cn holds exactly n
+elements; ceilings and walls; dashed rings are insulation.*
 
 ## Files
 
@@ -225,63 +220,29 @@ The verification chain is executable end to end:
    | generated gap | median (mm) | min | W1 → MEP | W1 → Plumbing | W1 → pooled |
    |---|---|---|---|---|---|
    | insulation surface to surface (the sampled gap) | 150 | 25 | **40.7** | 89.3 | 58.9 |
-   | bare surface to surface (what an uninsulated IFC model yields) | 186 | 25 | 67.7 | 117.4 | 86.3 |
+   | bare surface to surface (the quantity the IFC measurement records) | 186 | 25 | 67.7 | 117.4 | 86.3 |
 
    Baselines: a fixed 25 mm modular gap scores 138.5 mm; the two real discipline
-   models are 49.9 mm apart. The bare-surface row is the strictly like-for-like
-   one (the Duplex model carries no insulation geometry); the difference between
-   the rows is the insulation the generator adds to 58 % of adjacent pairs.
+   models are 49.9 mm apart. The measurement meshes flow segments, so it records
+   gaps between bare pipe surfaces and the bare-surface row is the strictly
+   like-for-like one; the difference between the rows is the insulation the
+   generator carries on 58 % of adjacent pairs.
 3. **Conventions.** Tiering order, service banking, insulation schedules and
    the wall drip rule (0 violations in 2,913 wet/electrical pairs on the
    benchmark) are tested over hundreds of unseen seeds.
 
-## Known issues and discrepancies
-
-Both are pinned by tests so that they stay visible.
-
-**1. Revision 3.0 double-counted the clearance (fixed in 4.0).** The 3.0
-generator sampled a gap between *routing envelopes* (bare size + insulation +
-25 mm per side) and floored that draw at 25 mm, so the physical gap between
-neighbours was the draw **plus 50 mm**: no two generated neighbours were closer
-than 75 mm, while 42 % of the measured MEP gaps are. The paper's Table 2 / §5.2
-figure of 41 mm (Wasserstein-1) was computed on the envelope draw; measured
-like-for-like on the 3.0 files it is 88.5 mm (insulation surface) / 110 mm
-(bare surface). Revision 4.0 makes the draw the physical gap: 40.7 mm at the
-insulation surface, 67.7 mm bare, and the §5.1 clearance medians (120 → 61 mm)
-become physical clear gaps instead of envelope clearances. `python
-verify/compare_gaps.py --version 3.0` prints the 3.0 numbers.
-
-**2. Several paper numbers come from an unpublished v3.4 build.** The paper
-describes pipes modelled as function × material (carbon steel, copper,
-stainless, plastic up to 125 mm), steel-deck / masonry / drywall substrates and
-per-element span and kN/m fields. The public release is the v3.0 element library
-(carbon steel DN15–100, concrete substrates; 4.0 adds the span and kN/m fields).
-The layout engine is the same, so §5.1 (clearance ordering), all of §5.2 and the
-split sizes reproduce exactly; the composition-dependent numbers do not: the
-released benchmark has 2,529 pipes / 1,141 conduits / 569 trays / 261 ducts
-(paper Fig. 3a: 2,668 / 962 / 576 / 294), catalog coverage 11.6 % overall,
-9.2–13.6 % by tier (paper: 11.5 %, 8.4–13.2 %), and Table 1 / Fig. 4b differ in
-the same way. `RESULTS.md` is the authoritative set of values for the public
-files.
-
-**Modelling simplifications worth knowing.** Stagger is drawn per element, so
-two pipes of one bank can sit at different standoffs, whereas a bank on a shared
-trapeze would be co-planar; row spacing is a fixed 120 mm clear plus stagger
-rather than a trapeze depth; pipe sizes stop at DN100 and substrates at
-concrete. Each is a deliberate scope boundary of this revision, listed in
-`DATASHEET.md`.
-
 ## Presenting the dataset
 
-`docs/TALK.md` is a ten-minute talk for a construction audience (slide by
-slide, with speaker notes and the questions practitioners ask);
-`docs/CrossMEP_CIBW78_talk.pptx` is that talk as a deck (11 slides plus two
-appendix slides, speaker notes included); `docs/figures/` holds the figures.
-Everything regenerates from the released data: `python scripts/make_figures.py`
-(`pip install matplotlib "qrcode[pil]"`) rebuilds the figures and the numbers
-the deck reads, `node docs/deck/build_deck.js` rebuilds the deck (`npm install
-pptxgenjs react-icons react react-dom sharp`), and `docs/deck/preview.py`
-renders a trace of the build for layout checks where LibreOffice is unavailable.
+`docs/CrossMEP_CIBW78_talk.pptx` is a ten-minute talk on the dataset (14 slides
+plus two appendix slides, speaker notes on every slide); `docs/TALK.md` is the
+same talk as a script with the questions practitioners ask; `docs/figures/` holds
+the figures. Everything regenerates from the released data:
+`python scripts/make_figures.py` (`pip install matplotlib "qrcode[pil]"`) writes
+the figures and the numbers the deck prints, `scripts/screenshot_gallery.js`
+(Playwright) captures the gallery, and `node docs/deck/build_deck.js` (`npm install
+pptxgenjs react-icons react react-dom sharp jszip`) builds the deck;
+`docs/deck/preview.py` renders a trace of the build for layout checks where
+LibreOffice is unavailable.
 
 ## Repository layout
 
@@ -291,11 +252,39 @@ data/v4.0/           current data revision (four splits)
 data/v3.0/           the paper release (four splits + its gallery), frozen
 schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
 verify/              IFC measurement procedure, measured samples, distribution comparison
-scripts/             figure generation
-docs/                talk narrative and figures
+scripts/             figures and gallery screenshot for the talk
+docs/                talk script, slide deck and figures
 tests/               119 checks: derivations, geometry, generation over seeds, byte-exact
                      regeneration of both revisions, schema, paper numbers, metrics, CLI, shims
 ```
+
+## Versions and relation to the paper
+
+**Data revisions.** `data/v4.0/` (current) and `data/v3.0/` (the files the CIB
+W78 2026 paper was released with) contain the same elements, loads, rows and
+standoffs. In 3.0 every element also carried a 25 mm routing envelope on each
+side, so neighbours sat 50 mm further apart than the sampled gap and
+`bundle_width_mm` included that envelope; 4.0 makes the sampled,
+measurement-fitted gap the physical clear gap between insulation surfaces and
+records `span_m` and `load_kN_per_m` per element. The spacing results of the
+paper (the §5.1 clearance medians, 120 → 61 mm, and the §5.2 distance of 41 mm)
+are those of the sampled gap and hold for the 4.0 geometry; `python
+verify/compare_gaps.py --version 3.0` reports the 3.0 files. Both revisions
+regenerate byte-for-byte from the generator (`--version 3.0 | 4.0`).
+
+**Element library.** The paper also describes an extended pipe library (function
+× material, including copper, stainless and plastic pipe up to 125 mm) and
+further substrates. The public element library covers carbon-steel pipe
+DN15–100 on concrete slabs and walls. The layout engine is the same, so the
+split sizes and the spacing results reproduce from these files, while
+composition-dependent values differ slightly (benchmark: 2,529 pipes / 1,141
+conduits / 569 trays / 261 ducts; catalog coverage 11.6 % overall, 9.2–13.6 % by
+tier). `RESULTS.md` gives every value for the public files; the tests pin them.
+
+**Modelling simplifications.** Stagger is drawn per element, so two pipes of one
+bank can sit at different standoffs, whereas a bank on a shared trapeze would be
+co-planar; row spacing is a fixed 120 mm clear plus stagger rather than a
+trapeze depth. Both are listed in `DATASHEET.md`.
 
 ## License
 

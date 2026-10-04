@@ -111,7 +111,7 @@ def neighbour_gaps(ctx: dict, kind: str = "insulation") -> List[float]:
 
     ``kind``: 'insulation' (between insulation surfaces: in revision 4.0 the
     generator's sampled gap), 'bare' (between bare element surfaces, the
-    quantity an IFC measurement of an uninsulated model yields) or 'envelope'
+    quantity an IFC measurement of flow segments records) or 'envelope'
     (insulation gap minus 2 x 25 mm: the sampled gap of revision 3.0).  These
     are the samples compared with the measurements in verify/compare_gaps.py.
     """

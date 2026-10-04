@@ -101,7 +101,7 @@ every element with a 25 mm routing envelope on top of the 25 mm gap floor, so
 its physical gaps are 50 mm wider than the sampled ones; the paper's 41 mm
 figure holds for the sampled gap only (physically 88.5 mm at the insulation
 surface). Resolved in revision 4.0; the 3.0 files remain as released. (2) The
-Duplex model carries no insulation geometry, so the strictly like-for-like
+measurement meshes flow segments, i.e. bare pipe surfaces, so the strictly like-for-like
 comparison is the bare-surface one (67.7 mm). (3) Both measured models belong
 to one residential project, which directly validates small-bore, low-count
 statistics; congested high-count scenes are grounded in coordination practice

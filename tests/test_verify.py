@@ -84,7 +84,7 @@ def test_revision_4_insulation_gap_is_the_sampled_gap(result_v4):
 
 
 def test_revision_4_bare_gap(result_v4):
-    """Bare-surface gaps (the quantity an uninsulated IFC model yields) are wider
+    """Bare-surface gaps (the quantity the IFC measurement records) are wider
     by the pair's insulation: W1 67.7 mm to the MEP model."""
     w = result_v4["w1"]["bare"]
     assert result_v4["generated"]["bare"]["median"] == pytest.approx(186, abs=1)
@@ -95,7 +95,7 @@ def test_revision_4_bare_gap(result_v4):
 
 def test_revision_3_definitions(result_v3):
     """The paper release: the 41 mm held only for the envelope draw; physically no
-    two neighbours were closer than 75 mm (README 'Known issues', resolved in 4.0)."""
+    two neighbours were closer than 75 mm (README, 'Versions and relation to the paper')."""
     assert result_v3["w1"]["envelope"]["mep"] == pytest.approx(40.7, abs=0.15)
     assert result_v3["generated"]["insulation"]["min"] == pytest.approx(74.9, abs=0.2)
     assert result_v3["w1"]["insulation"]["mep"] == pytest.approx(88.5, abs=0.2)

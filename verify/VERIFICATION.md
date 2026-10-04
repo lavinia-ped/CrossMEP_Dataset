@@ -15,7 +15,7 @@ collections (the file names used in June 2026 were `Ifc2x3_Duplex_MEP.ifc` and
 3. Group parallel runs by axis and elevation band (400 mm); cluster across the
    axis with a 1.2 m break; per cluster compute run multiplicity, in-bundle
    elevation spread, and clear gaps between adjacent runs (surface to surface;
-   the model carries no insulation geometry, so these are bare-surface gaps).
+   the procedure meshes flow segments only, so these are gaps between bare pipe surfaces).
 
 ```bash
 pip install ifcopenshell
