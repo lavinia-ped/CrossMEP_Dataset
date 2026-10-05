@@ -3,6 +3,7 @@
     generate   regenerate a canonical split, sample tiers, or build a custom composition
     validate   run the validator and schema check over dataset files
     results    print the per-tier tables, kind totals and catalog coverage (RESULTS.md)
+    evaluate   score a method's per-context outcomes: per tier with intervals, paired comparison
     gallery    render the interactive HTML gallery for a dataset file
     checksums  print SHA-256 digests of the released files
 """
@@ -137,6 +138,44 @@ def cmd_results(a: argparse.Namespace) -> int:
     return 0
 
 
+def _read_results(path: str) -> dict:
+    with open(path) as f:
+        obj = json.load(f)
+    obj = obj.get("results", obj) if isinstance(obj, dict) else obj
+    if not isinstance(obj, dict):
+        raise SystemExit(f"{path}: expected a JSON object {{context_id: outcome}}")
+    return obj
+
+
+def _parse_weights(text: str) -> dict:
+    try:
+        return {k.strip(): float(v) for k, v in (part.split("=") for part in text.split(","))}
+    except ValueError:
+        raise SystemExit("--weights must look like C1=4,C2=2,C3=1")
+
+
+def cmd_evaluate(a: argparse.Namespace) -> int:
+    from .evaluate import EvaluationError, compare, render, render_comparison, score
+    payload = read_payload(a.file) if a.file else read_payload(split_path(a.split, version=a.version or DATA_VERSION))
+    contexts = payload["contexts"]
+    results = _read_results(a.results)
+    try:
+        s = score(results, contexts, _parse_weights(a.weights) if a.weights else None, a.threshold,
+                  n_boot=a.n_boot, seed=a.seed)
+        c = compare(results, _read_results(a.against), contexts, n_boot=a.n_boot, seed=a.seed) if a.against else None
+    except EvaluationError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    if a.json:
+        print(json.dumps({"score": s, **({"comparison": c} if c else {})}, indent=1))
+    else:
+        print(render(s, os.path.basename(a.results)))
+        if c:
+            print()
+            print(render_comparison(c, os.path.basename(a.results), os.path.basename(a.against)))
+    return 0
+
+
 def cmd_gallery(a: argparse.Namespace) -> int:
     from .render import render_gallery_html
     ctxs = contexts_from_payload(read_payload(a.file))
@@ -181,6 +220,19 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--version", dest="version", choices=list(DATA_VERSIONS), help=f"data revision (default {DATA_VERSION})")
     r.add_argument("--file", help="any dataset file instead of a released split")
     r.set_defaults(func=cmd_results)
+
+    e = sub.add_parser("evaluate", help="score per-context outcomes of a method (per tier, intervals, paired test)")
+    e.add_argument("results", help="JSON object {context_id: outcome}; outcome = true/false or a number")
+    e.add_argument("--split", default="benchmark", choices=list(RELEASE_SPLITS))
+    e.add_argument("--version", dest="version", choices=list(DATA_VERSIONS), help=f"data revision (default {DATA_VERSION})")
+    e.add_argument("--file", help="score against any dataset file instead of a released split")
+    e.add_argument("--against", help="a second results file: paired comparison (results - against)")
+    e.add_argument("--weights", help="tier weights of a target mix, e.g. C1=40,C2=25,C3=15 (normalised)")
+    e.add_argument("--threshold", type=float, help="report the first tier whose interval lies below this value")
+    e.add_argument("--n-boot", type=int, default=2000)
+    e.add_argument("--seed", type=int, default=0)
+    e.add_argument("--json", action="store_true")
+    e.set_defaults(func=cmd_evaluate)
 
     ga = sub.add_parser("gallery", help="render the interactive HTML gallery")
     ga.add_argument("file")

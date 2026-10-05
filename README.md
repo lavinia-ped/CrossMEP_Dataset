@@ -12,8 +12,9 @@ section: which services pass (pipes by DN and service, cable trays, ducts,
 conduit groups), their bare size and insulation, what each weighs per metre and
 at the support spacing it was sized for, how far apart they are, how they stack,
 and what they hang from (slab or wall, substrate, thickness). CrossMEP is that
-section in numbers — 7,000 of them — with the spacing and stacking drawn to match
-measurements on a built project, and **nothing about the support itself**: no
+section in numbers — 7,000 of them — with the spacing drawn from measurements on
+a built project and checked on sections of two open buildings, and **nothing
+about the support itself**: no
 channel, rods, clamps or anchors, because that is the answer the dataset exists
 to let a method find.
 
@@ -87,6 +88,21 @@ cm.min_clear_gap(ctx)                             # minimum pairwise physical cl
 cm.validate(ctx)                                  # full validator on a dict
 ```
 
+Scoring a method (stdlib only): one outcome per context — feasible or not, or a
+cost — gives per-tier results with 95 % intervals, the tier-balanced mean, an
+optional mean weighted to a building's mix, and paired tests between methods.
+
+```python
+from crossmep.evaluate import score, compare, render
+s = score(my_results, data)                       # {context_id: True/False or a number}
+print(render(s))
+compare(my_results, baseline_results, data)       # paired bootstrap + exact McNemar
+```
+
+```bash
+python -m crossmep evaluate my_results.json --against baseline.json --threshold 0.5
+```
+
 ## Reproduce the release
 
 ```bash
@@ -95,7 +111,9 @@ python -m crossmep generate --split benchmark --version 3.0 --out b3.json
 sha256sum benchmark.json b3.json; cat RELEASE_CHECKSUMS.txt           # identical digests
 python -m crossmep validate                       # validator + JSON Schema over all eight files
 python -m crossmep results                        # per-tier tables, kinds, catalog coverage
-python verify/compare_gaps.py                     # section 5.2: lognormal fit, KS, Wasserstein-1
+python verify/compare_gaps.py                     # section 5.2 as published (June 2026 duplex samples)
+python verify/compare_sections.py --sensitivity   # section 5.2 on sections of two open buildings, with intervals
+python verify/tier_trends.py                      # section 5.1 with intervals and a population estimate
 python verify/catalog_stress.py                   # section 5.3: error bars, sensitivity, demand curve
 python -m pytest                                  # everything above as tests
 ```
@@ -134,9 +152,14 @@ pipe of any service, a single tray, duct or conduit). Benchmark split, revision
 | C8 | 62 | 1.71 | 1448 |
 
 The clear gap is the physical gap between insulation surfaces; these are the
-values of the paper's §5.1 (120 → 61 mm). Load and width medians are monotone in
-count; clearance is near-monotone (C5/C6 and C7/C8 swap at 125 contexts per
-tier). Difficulty here means scene complexity, not solver hardness. Full tables,
+values of the paper's §5.1 (120 → 61 mm). With 2,000 freshly generated contexts
+per tier (`verify/tier_trends.py`), load rises at every tier (Spearman ρ with the
+tier +0.56 on the benchmark); the clear gap shrinks overall (-0.36) but widens
+again at C6, and the bundle width dips there, because from six elements the
+generator stacks in two or three rows (median elements per row 5 at C5, 3 at C6).
+That is a property of the generator, not sampling noise; the C7/C8 swap of the
+benchmark gap medians is noise. The tier controls the element count; difficulty
+here means scene complexity, not solver hardness. Full tables,
 the Table-1-style ranges on the train split and the 3.0 values are in
 `RESULTS.md`.
 
@@ -209,25 +232,29 @@ The verification chain is executable end to end:
    fill). Tests pin the derived values to the frozen release tables and check
    every element in the released files against the library, including the
    recorded `span_m` and `load_kN_per_m`.
-2. **Layout statistics vs. a built project.** Clear gaps, run multiplicity and
-   in-bundle elevation spread were measured on two discipline models of the
-   openly licensed buildingSMART Duplex Apartment (MEP: 427 segments; Plumbing:
-   231) with IfcOpenShell — procedure in `verify/measure_ifc.py`, samples in
-   `verify/measured_gaps*.json`. `verify/compare_gaps.py` refits the gap
-   lognormal (n = 73, μ = 5.018, σ = 0.848, KS p = 0.53 — equal to the
-   generator's constants) and computes Wasserstein-1 distances for each gap
-   definition. Revision 4.0 benchmark:
+2. **Spacing vs. open buildings.** `verify/measure_ifc.py` cuts IFC models into
+   sections every 250 mm, as a context is defined, and measures the clear gap
+   between side-by-side runs (bare surfaces); `verify/compare_sections.py`
+   compares the generated pipe gaps with them, with bootstrap intervals and the
+   noise floor of each sample. Models: buildingSMART Duplex Apartment (MEP,
+   Plumbing) and Medical-Dental Clinic (Plumbing; a real building), CC BY 4.0;
+   derived records and attribution in `verify/measured/`. Wasserstein-1, mm, pairs
+   weighted by shared length:
 
-   | generated gap | median (mm) | min | W1 → MEP | W1 → Plumbing | W1 → pooled |
-   |---|---|---|---|---|---|
-   | insulation surface to surface (the sampled gap) | 150 | 25 | **40.7** | 89.3 | 58.9 |
-   | bare surface to surface (the quantity the IFC measurement records) | 186 | 25 | 67.7 | 117.4 | 86.3 |
+   | | Clinic | Duplex MEP | Duplex Plumbing |
+   |---|---|---|---|
+   | generated (benchmark, 4.0) | **28** (16–44) | 70 (57–99) | 85 (59–132) |
+   | Clinic | — | 71 | 85 |
+   | Duplex MEP | | — | 26 |
 
-   Baselines: a fixed 25 mm modular gap scores 138.5 mm; the two real discipline
-   models are 49.9 mm apart. The measurement meshes flow segments, so it records
-   gaps between bare pipe surfaces and the bare-surface row is the strictly
-   like-for-like one; the difference between the rows is the insulation the
-   generator carries on 58 % of adjacent pairs.
+   The generator is as close to the clinic (797 pipe pairs), which it was not
+   fitted to, as the duplex's two models are to each other, and as far from the
+   small duplex (74 and 41 pairs) as the clinic is; a fixed 25 mm gap is 189 mm
+   away. The result holds across 11 settings of the cut (27–36 mm). The
+   gap lognormal itself (n = 73, μ = 5.018, σ = 0.848, KS p = 0.53) was fitted to
+   gaps measured on the duplex in June 2026; `verify/compare_gaps.py` reproduces
+   the paper's §5.2 numbers from those shipped samples, which the documented
+   June procedure does not regenerate (`verify/VERIFICATION.md`).
 3. **Conventions.** Tiering order, service banking, insulation schedules and
    the wall drip rule (0 violations in 2,913 wet/electrical pairs on the
    benchmark) are tested over hundreds of unseen seeds.
@@ -253,7 +280,7 @@ The verification chain is executable end to end:
 ## Presenting the dataset
 
 `docs/CrossMEP_CIBW78_talk.pptx` is a ten-minute talk on the dataset (14 slides
-plus three appendix slides, speaker notes on every slide); `docs/TALK.md` is the
+plus four appendix slides, speaker notes on every slide); `docs/TALK.md` is the
 same talk as a script with the questions practitioners ask; `docs/figures/` holds
 the figures. Everything regenerates from the released data:
 `python scripts/make_figures.py` (`pip install matplotlib "qrcode[pil]"`) writes
@@ -266,17 +293,18 @@ LibreOffice is unavailable.
 ## Repository layout
 
 ```
-crossmep/            package: model · library · layout · generate · io · tasks · catalog · render · cli
+crossmep/            package: model · library · layout · generate · io · tasks · catalog · evaluate · render · cli
 data/v4.0/           current data revision (four splits)
 data/v3.0/           the paper release (four splits + its gallery), frozen
 schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
-verify/              IFC measurement procedure, measured samples, distribution comparison,
-                     catalog stress test
+verify/              IFC section-cut measurement, measured records of two open buildings,
+                     distribution comparisons, tier trends, catalog stress test
 scripts/             figures and gallery screenshot for the talk
 docs/                talk script, slide deck and figures
-tests/               155 checks: derivations, geometry, generation over seeds, byte-exact
+tests/               189 checks: derivations, geometry, generation over seeds, byte-exact
                      regeneration of both revisions, schema, paper numbers, metrics, the catalog
-                     stress test (definitions, exact optimum vs brute force, bootstrap), CLI, shims
+                     stress test, the section-cut measurement (recomputed from the shipped
+                     segment tables), interval formulas and the evaluation harness, CLI, shims
 ```
 
 ## Versions and relation to the paper
@@ -290,7 +318,9 @@ measurement-fitted gap the physical clear gap between insulation surfaces and
 records `span_m` and `load_kN_per_m` per element. The spacing results of the
 paper (the §5.1 clearance medians, 120 → 61 mm, and the §5.2 distance of 41 mm)
 are those of the sampled gap and hold for the 4.0 geometry; `python
-verify/compare_gaps.py --version 3.0` reports the 3.0 files. Both revisions
+verify/compare_gaps.py --version 3.0` reports the 3.0 files. On sections of the
+held-out clinic, the 4.0 geometry is 28 mm from the measured pipe gaps and the
+3.0 geometry 65 mm (`verify/compare_sections.py`, `tests/test_sections.py`). Both revisions
 regenerate byte-for-byte from the generator (`--version 3.0 | 4.0`).
 
 **Element library.** The paper also describes an extended pipe library (function

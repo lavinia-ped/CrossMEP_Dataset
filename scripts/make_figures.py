@@ -8,9 +8,10 @@ Figures (benchmark split of the current data revision; 200 dpi):
 
     01_what_a_context_is.png    one C5 ceiling section with its fields called out
     02_tier_gallery.png         one context per tier, C1 to C8, ceilings and walls
-    03_tiers_stats.png          per-tier minimum clear gap and total load
-    04_gaps_vs_measured.png     generated clear gaps vs the Duplex Apartment measurement,
-                                with the fitted lognormal and the Wasserstein-1 distances
+    03_tiers_stats.png          per-tier minimum clear gap and total load, benchmark boxes and the
+                                population median of 2,000 generated contexts per tier (verify/tier_trends.py)
+    04_gaps_vs_buildings.png    generated pipe gaps vs pipe gaps measured on sections of two open
+                                buildings, with Wasserstein-1 distances and intervals (verify/compare_sections.py)
     05_generation_example.png   one generated context with its rows and a sampled gap annotated
     06_catalog_coverage.png     which pipe sizes the paper's two-size clamp catalog attaches, and the best
                                 share any k sizes could (verify/catalog_stress.py)
@@ -299,64 +300,90 @@ def _box(ax, data, labels, color, ylabel, title, fmt):
             ax.text(i + 0.26, np.median(d), fmt.format(np.median(d)), va="center", ha="left", fontsize=7.5, color=INK)
 
 
-def fig_tier_stats(bench):
+def fig_tier_stats(bench, trends):
     tiers = [f"C{n}" for n in range(1, 9)]
     gaps = [[cm.min_clear_gap(c) for c in bench if c["tier"] == t and c["n_elements"] > 1] for t in tiers[1:]]
     loads = [[c["total_load_kN"] for c in bench if c["tier"] == t] for t in tiers]
-    fig, (a, b) = plt.subplots(1, 2, figsize=(10, 3.8))
+    pop = trends["population"]
+    fig, (a, b) = plt.subplots(1, 2, figsize=(10, 3.9))
+    g2, g8 = np.median(gaps[0]), np.median(gaps[-1])
+    l1, l8 = np.median(loads[0]), np.median(loads[-1])
     _box(a, gaps, tiers[1:], BLUE, "minimum clear gap between elements (mm)",
-         "Tighter: median clear gap 120 mm (C2) to 62 mm (C8)", "{:.0f}")
+         f"Tighter overall: median gap {g2:.0f} mm (C2) to {g8:.0f} mm (C8)", "{:.0f}")
     _box(b, loads, tiers, BLUE, "total load at the support (kN)",
-         "Heavier: median load 0.10 kN (C1) to 1.71 kN (C8)", "{:.2f}")
+         f"Heavier at every step: {l1:.2f} kN (C1) to {l8:.2f} kN (C8)", "{:.2f}")
+    a.plot(range(1, 8), [pop["clear_gap_mm"]["per_tier"][t]["median"] for t in tiers[1:]], ls="none", marker="D",
+           ms=4.5, color=ORANGE, zorder=5, label="median of 2,000 generated contexts per tier")
+    b.plot(range(1, 9), [pop["load_kN"]["per_tier"][t]["median"] for t in tiers], ls="none", marker="D",
+           ms=4.5, color=ORANGE, zorder=5, label="median of 2,000 generated contexts per tier")
+    a.axvspan(4.5, 7.5, color=GRID, alpha=0.45, zorder=0, lw=0)
+    a.text(6.0, 432, "from C6: two or three rows", ha="center", va="top", fontsize=7.5, color=INK2)
     a.set_ylim(0, 450)
     b.set_ylim(0, 6.5)
-    fig.text(0.01, 0.01, "Benchmark split, 125 contexts per tier; boxes = interquartile range, line = median, whiskers = 1.5 IQR.",
+    a.legend(loc="upper right", bbox_to_anchor=(1.0, 0.91), fontsize=7.5)
+    fig.text(0.01, 0.045, "Boxes: benchmark split, 125 contexts per tier (interquartile range, median line, whiskers 1.5 IQR).",
              fontsize=7, color=MUTED)
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.text(0.01, 0.012, "From C6 the generator stacks elements in two or three rows, so the elements per row drop and the closest gap widens again.",
+             fontsize=7, color=MUTED)
+    fig.tight_layout(rect=(0, 0.075, 1, 1))
     fig.savefig(os.path.join(OUT, "03_tiers_stats.png"), dpi=200)
     plt.close(fig)
 
 
-# --- figure 4: gaps vs measured --------------------------------------------------
+# --- figure 4: generated vs measured pipe gaps on sections of two buildings -----
 
-def fig_gaps_vs_measured(bench):
-    cg = _compare_gaps_module()
-    mep = np.array(json.load(open(cg.MEASURED_MEP)))
-    pl = np.array(json.load(open(cg.MEASURED_PLUMBING)))
-    r = cg.compare(bench, mep, pl, "4.0")
-    m6 = mep[mep < 600]
-    g = np.array([v for c in bench for v in cm.neighbour_gaps(c, "insulation")])
+def fig_gaps_vs_buildings(bench, sec):
+    cs = _verify_module("compare_sections")
+    gen = np.concatenate(cs.generated_samples(bench))
+    gc, wc = cs.measured_sample(cs.load_measured("clinic_plumbing"))
+    fig, (ax, fx) = plt.subplots(1, 2, figsize=(10.6, 4.3), gridspec_kw={"width_ratios": [1.0, 1.15]})
     bins = np.arange(0, 601, 25)
-    fig, ax = plt.subplots(figsize=(10, 4.4))
-    ax.hist(m6, bins=bins, density=True, color=BLUE, alpha=0.55,
-            label=f"measured: Duplex Apartment MEP model, gaps between adjacent runs (n = {len(m6)})")
-    ax.hist(g[g < 600], bins=bins, density=True, histtype="step", color=ORANGE, lw=2.0,
-            label=f"generated: CrossMEP benchmark, gaps between adjacent elements (n = {np.sum(g < 600):,})")
-    x = np.linspace(25, 600, 400)
-    pdf = np.exp(-(np.log(x) - GAP_LOGNORMAL_MU) ** 2 / (2 * GAP_LOGNORMAL_SIGMA ** 2)) / (x * GAP_LOGNORMAL_SIGMA * np.sqrt(2 * np.pi))
-    ax.plot(x, pdf, color=INK, lw=1.2, ls=(0, (4, 3)),
-            label=f"lognormal fitted to the measured gaps above 25 mm (mu {GAP_LOGNORMAL_MU}, sigma {GAP_LOGNORMAL_SIGMA}, KS p = 0.53)")
-    ax.set_xlabel("clear gap between neighbours, surface to surface (mm)")
-    ax.set_ylabel("density")
+    ax.hist(gc, bins=bins, weights=wc, density=True, color=BLUE, alpha=0.5,
+            label=f"measured: Medical-Dental Clinic, {len(gc)} pipe pairs")
+    ax.hist(gen, bins=bins, density=True, histtype="step", color=ORANGE, lw=2.0,
+            label=f"generated: CrossMEP benchmark, {len(gen):,} pipe pairs")
     ax.set_xlim(0, 600)
-    ax.set_ylim(0, 0.0115)
-    ax.yaxis.grid(True)
-    ax.set_axisbelow(True)
-    ax.legend(loc="upper right")
-    w_ins, w_bare = r["w1"]["insulation"]["mep"], r["w1"]["bare"]["mep"]
-    ax.text(0.47, 0.62, "Wasserstein-1 distance, generated to measured\n"
-            f"  {w_ins:.0f} mm  between insulation surfaces\n"
-            f"  {w_bare:.0f} mm  between pipe surfaces\n"
-            f"  {r['baselines']['real_to_real']:.0f} mm  between the two real discipline models\n"
-            f"  {r['baselines']['fixed_floor_gap_to_mep']:.0f} mm  for a fixed 25 mm modular gap",
-            transform=ax.transAxes, ha="left", va="top", fontsize=8, color=INK2, family="monospace")
-    ax.set_title("Generated spacing follows the spacing measured on a built project", loc="left")
-    fig.text(0.01, 0.01, f"The generator applies a 25 mm minimum and caps a gap at {GAP_CAP_MM:.0f} mm (the spike); "
-             f"{100 * np.mean(m6 < 25):.0f} % of the measured gaps are below 25 mm.", fontsize=7, color=MUTED)
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
-    fig.savefig(os.path.join(OUT, "04_gaps_vs_measured.png"), dpi=200)
+    ax.set_ylim(0, 0.0062)
+    ax.set_yticks([])
+    ax.set_ylabel("share of pipe pairs")
+    ax.set_xlabel("clear gap between neighbouring pipes, bare surfaces (mm)")
+    ax.legend(loc="upper right", fontsize=7.5)
+    ax.set_title("A building the generator never saw", loc="left")
+
+    g, r = sec["gen_to_real"], sec["real_to_real"]
+    L = "length_weighted"
+    rows = [("generated  \u2194  Clinic", g["clinic_plumbing"][L], ORANGE),
+            ("Duplex MEP  \u2194  Duplex Plumbing", r["duplex_mep|duplex_plumbing"][L], BLUE),
+            ("generated  \u2194  Duplex MEP", g["duplex_mep"][L], ORANGE),
+            ("Clinic  \u2194  Duplex MEP", r["clinic_plumbing|duplex_mep"][L], BLUE),
+            ("generated  \u2194  Duplex Plumbing", g["duplex_plumbing"][L], ORANGE),
+            ("Clinic  \u2194  Duplex Plumbing", r["clinic_plumbing|duplex_plumbing"][L], BLUE)]
+    y = np.arange(len(rows))[::-1]
+    for yi, (label, v, col) in zip(y, rows):
+        fx.plot([v["lo"], v["hi"]], [yi, yi], color=col, lw=2.2, solid_capstyle="butt")
+        fx.plot([v["w1"]], [yi], marker="o", ms=6, color=col)
+        fx.text(v["hi"] + 4, yi, f"{v['w1']:.0f}", va="center", fontsize=8, color=INK)
+        if "noise_floor" in v:
+            fx.plot([v["noise_floor"]["median"]], [yi], marker="|", ms=11, mew=1.6, color=MUTED)
+    fixed = g["clinic_plumbing"][L]["fixed_25mm"]
+    fx.set_yticks(y, [x[0] for x in rows], fontsize=8)
+    fx.set_xlim(0, 160)
+    fx.set_ylim(-0.7, len(rows) - 0.3)
+    fx.xaxis.grid(True)
+    fx.set_axisbelow(True)
+    fx.set_xlabel("Wasserstein-1 distance (mm) with 95 % interval;  | = noise floor")
+    fx.set_title("Distances: generated (orange) and real (blue) models", loc="left")
+    fx.text(158, -0.55, f"a fixed 25 mm gap would be {fixed:.0f} mm from the clinic", ha="right", va="bottom",
+            fontsize=7.5, color=INK2)
+    fig.text(0.01, 0.045, "Sections every 250 mm through the buildingSMART Duplex Apartment (MEP and Plumbing models) and "
+             "Medical-Dental Clinic (Plumbing model), CC BY 4.0.", fontsize=7, color=MUTED)
+    fig.text(0.01, 0.012, "Gaps < 600 mm, pairs weighted by shared length. Intervals: bootstrap over contexts and pipe pairs; "
+             "noise floor: the distance a perfect generator would show at that sample size (verify/compare_sections.py).",
+             fontsize=7, color=MUTED)
+    fig.tight_layout(rect=(0, 0.075, 1, 1))
+    fig.savefig(os.path.join(OUT, "04_gaps_vs_buildings.png"), dpi=200)
     plt.close(fig)
-    return w_ins, w_bare
+    return g["clinic_plumbing"][L]["w1"]
 
 
 # --- figure 5: how a context is laid out ------------------------------------------
@@ -479,7 +506,7 @@ def fig_title_art(bench):
 
 # --- numbers the slide deck reads (docs/deck/build_deck.js) ---------------------
 
-def write_deck_data(splits, stress):
+def write_deck_data(splits, stress, trends, sections):
     bench = splits["benchmark"]
     cg = _compare_gaps_module()
     mep = np.array(json.load(open(cg.MEASURED_MEP)))
@@ -506,7 +533,7 @@ def write_deck_data(splits, stress):
                         "ceiling_pct": 100.0 * surf["ceiling"] / sum(surf.values())},
         "tier_medians": {t: {"clear_gap_mm": summ[t]["clear_gap_mm"], "load_kN": summ[t]["load_kN"],
                              "bundle_width_mm": summ[t]["bundle_width_mm"]} for t in tiers},
-        "catalog": stress, "kind_totals_benchmark": cm.kind_totals(bench),
+        "catalog": stress, "trends": trends, "sections": sections, "kind_totals_benchmark": cm.kind_totals(bench),
         "w1": {"insulation": r["w1"]["insulation"], "bare": r["w1"]["bare"],
                "real_to_real": r["baselines"]["real_to_real"],
                "fixed_floor_gap": r["baselines"]["fixed_floor_gap_to_mep"]},
@@ -535,13 +562,17 @@ def main() -> int:
     bench = splits["benchmark"]
     print("01:", fig_what_a_context_is(bench))
     print("02:", fig_tier_gallery(bench))
-    fig_tier_stats(bench)
-    print("04: W1 insulation / bare =", fig_gaps_vs_measured(bench))
+    trends = _verify_module("tier_trends").run(bench)
+    fig_tier_stats(bench, trends)
+    cs = _verify_module("compare_sections")
+    sections = cs.compare(bench)
+    sections["sensitivity"] = cs.sensitivity(bench)
+    print("04: W1 generated -> clinic (mm)", round(fig_gaps_vs_buildings(bench, sections), 1))
     print("05:", fig_generation_example(bench))
     stress = _verify_module("catalog_stress").stress_test(catalog.PAPER_CATALOG, splits=splits)
     print("06: attachable pipes (%)", round(fig_catalog_coverage(stress), 1))
     print("title art:", fig_title_art(bench))
-    write_deck_data(splits, stress)
+    write_deck_data(splits, stress, trends, sections)
     write_qr()
     print("wrote", sorted(os.listdir(OUT)))
     return 0

@@ -5,7 +5,7 @@ speaker notes). Audience: CIB W78, a mix of BIM and IT researchers and MEP and
 construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
-Timing: 14 slides in about 9.5 minutes; three appendix slides for questions.
+Timing: 14 slides in about 9.5 minutes; four appendix slides for questions.
 
 ---
 
@@ -43,7 +43,7 @@ were public. Project models are proprietary, the open ones are not organised
 around supports, and any one project covers one narrow slice. So we built
 CrossMEP: 7,000 contexts with about 31,500 elements, stratified into eight tiers,
 deliberately unlabeled, with every constant traced to its source, checked
-against an open IFC project, and released openly with the generator."
+against open IFC buildings, and released openly with the generator."
 
 ## 4. A context is the section at one hanger: the brief, not the answer (1:40)
 
@@ -111,31 +111,47 @@ trades, surfaces and stacking — so the element count is the one controlled
 difficulty axis. Note the walls: the section rotates, and electrical sits above
 water."
 
-## 9. Experiment 1: as the count rises, scenes get tighter and heavier (5:20)
+## 9. Experiment 1: higher tiers are heavier and, on average, tighter (5:20)
 
-**Show:** box plots of minimum clear gap and total load per tier.
+**Show:** per-tier boxes of the closest gap and the load (benchmark), with the
+median of 2,000 freshly generated contexts per tier as diamonds; C6–C8 shaded
+("two or three rows").
 
-**Say:** "First experiment: are the tiers actually ordered? The element count is
-exact by construction, so we look at congestion. The median closest gap between
-elements falls from 120 mm at C2 to about 60 mm at C8, and the median load at
-the support rises from 0.1 to 1.7 kilonewtons. The trend is near-monotone — with
-125 contexts per tier, neighbouring tiers can swap — so difficulty is carried
-jointly by count, congestion and load, with count as the controlled axis."
+**Say:** "First experiment: are the tiers ordered by difficulty? The count is
+exact by construction, so we look at congestion and load. The boxes are the
+benchmark; the diamonds are medians over 2,000 freshly generated contexts per
+tier — the generator itself, not sampling noise. Load at the support rises at
+every step, from 0.1 to 1.7 kilonewtons. Congestion rises overall — the closest
+gap falls from 120 to about 62 millimetres — but at C6 the generator starts
+stacking in two or three rows, so each row holds fewer elements and the gap
+widens again. So the tier fixes the count; congestion and load follow on
+average, and methods should be compared tier by tier."
 
-## 10. Experiment 2: generated spacing follows a built project (6:15)
+**Numbers** (`verify/tier_trends.py`): rank correlation of tier with load
++0.56, with the closest gap -0.36; population median gap
+C5 70 mm, C6 75 mm; elements per row (median) 5 at C5, 3 at C6.
 
-**Show:** measured vs generated gap distributions with the fitted lognormal and
-the Wasserstein-1 distances.
+## 10. Experiment 2: generated spacing matches a building it never saw (6:15)
 
-**Say:** "Second experiment: is the spacing realistic? We parsed two discipline
-models of the open buildingSMART Duplex Apartment with IfcOpenShell and measured
-the gaps between parallel runs. They are irregular, not modular — the median is
-about 108 mm. The generator samples a lognormal fitted to those gaps. The
-distance between generated and measured distributions is 41 mm between
-insulation surfaces and 68 mm between pipe surfaces; the building's own two
-discipline models are 50 mm apart, and a fixed modular gap would be 139 mm away.
-So the generated spacing sits in the range of the variation between two real
-models of one building."
+**Show:** left, gaps between side-by-side pipes measured on the clinic vs
+generated; right, Wasserstein-1 distances with 95 % intervals between the
+generator and three real models, and between the real models themselves.
+
+**Say:** "Second experiment: is the spacing realistic? We took two open buildings
+from buildingSMART — a residential duplex and a medical-dental clinic, which is a
+real building — and cut sections every 250 millimetres, the way a context is
+defined, measuring the gap between pipes running side by side. On the left, the
+clinic, which the generator never saw: the generated gaps follow the measured
+ones closely. On the right, the distances. Generated to clinic: 28 millimetres,
+about as close as the duplex's own two models are to each other. The small
+duplex is as far from the generator as it is from the clinic. A fixed modular gap
+would be about 190 millimetres off."
+
+**Numbers** (`verify/compare_sections.py`, pairs weighted by shared length):
+generated ↔ clinic 28 mm (95 % CI 16–44; noise floor 8); duplex MEP ↔ duplex
+Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85;
+797 measured pipe pairs on the clinic, 74 and 41 on the duplex. Across 11 settings
+of the cut, generated ↔ clinic stays at 27–36 mm.
 
 ## 11. Experiment 3: a two-size clamp catalog attaches 1 pipe in 9 (7:05)
 
@@ -154,18 +170,20 @@ sizes placed where the pipes are would attach 43 per cent, six sizes 80, and
 twelve sizes every pipe. So 'what should the catalog contain' becomes a
 measurement."
 
-## 12. Using CrossMEP: load, filter, generate, inspect (7:50)
+## 12. Using CrossMEP: train, evaluate, report (7:50)
 
-**Show:** six lines of Python; the interactive gallery; three uses (curriculum,
-stratified evaluation, probes).
+**Show:** six lines of Python, including `score` and `compare`; the interactive
+gallery; train, evaluate, report.
 
-**Say:** "Using it takes a few lines. Load a split — the loader needs only the
-Python standard library — filter by composition, test your own catalog against
-the benchmark, or generate your own mix with the same rules. There is an
-interactive gallery for inspection. And because there are no labels, the same
-files serve reinforcement learning, constraint-programming baselines and human
-benchmarking: a curriculum over the tiers, per-tier evaluation, and held-out
-seeds and custom compositions as probes."
+**Say:** "Using it takes a few lines. Load a split — only the Python standard
+library is needed — filter by composition, or generate your own mix with the
+same rules; there is an interactive gallery for inspection. Because there are no
+labels, the same files serve reinforcement learning, constraint-programming
+baselines and human benchmarking, and we ship the scoring too: train on the
+generator with as many seeds as you like, from C1 up to C8; evaluate on the
+benchmark, the same 125 contexts per tier for every method; and report per tier
+with 95 per cent intervals and paired tests, so two methods can be compared
+fairly."
 
 ## 13. Scope, and what comes next (8:40)
 
@@ -173,22 +191,24 @@ seeds and custom compositions as probes."
 
 **Say:** "Its scope: one section at one support — routing, branches and spacing
 are outside it, although the span is recorded so a method can vary it. Realism
-is checked on one open residential project; congested racks rest on practice
+is checked on sections of two open buildings; congested racks rest on practice
 and standards. The trade mix is a design choice, and the data is not for
-structural design. Next: measuring per-tier feasibility collapse in a
-multi-element synthesis environment, verification on commercial corridor
-models, and an expert plausibility review — which is where we would value your
-eye."
+structural design. Next: a public checker for support designs, with best-known
+costs, so methods can be compared on the answer and not only on the brief; the
+catalog as an input, so a method is tested on catalogs it has never seen; and a
+real test set from commercial projects, with supports designed by engineers —
+which is where we would value your eye."
 
 ## 14. CrossMEP: the brief, not the answer (9:10)
 
 **Say:** "CrossMEP is the brief, not the answer: 7,000 support-design problems,
-every number traced to its source, checked against a built project, and open.
+every number traced to its source, checked against two open buildings, and open.
 The QR code takes you to the data, the code and the gallery. Thank you."
 
-**Appendix slides:** per-tier statistics of the benchmark split; the catalog
-stress test with error bars (per tier, per split, sensitivity to the diameter rule
-and bin tolerance); one stored record in JSON.
+**Appendix slides:** per-tier statistics of the benchmark split; the realism
+check in detail (samples, both weightings, noise floors, sensitivity to the cut);
+the catalog stress test with error bars (per tier, per split, sensitivity to the
+diameter rule and bin tolerance); one stored record in JSON.
 
 ---
 
@@ -200,17 +220,43 @@ median of 150 mm and quartiles of 85–263 mm, taken from measurement. If your
 practice uses 50 mm, it is one documented constant, and the fit can be redone
 above 50 mm.
 
-**"Why two distances, 41 and 68 mm?"** The measurement records gaps between pipe
-surfaces (it meshes the flow segments); CrossMEP elements also carry
-insulation. Between insulation surfaces the generated gaps are 41 mm from the
-measured ones, between pipe surfaces 68 mm; the building's own two discipline
-models are 50 mm apart, and a fixed modular gap is 139 mm away.
+**"How exactly was the spacing measured?"** With IfcOpenShell: every flow
+segment of the model is meshed; horizontal runs are cut by sections every
+250 mm; runs whose centres lie within 400 mm of height form a row; the clear gap
+between neighbours in a row is measured between bare pipe surfaces (the
+measurement meshes flow segments only, so insulation is not included). Each pair of pipes counts by the
+length over which they run side by side, so the distribution is what a designer
+meets at a random hanger. The result barely moves with these settings
+(27–36 mm across 11 variations).
 
-**"A quarter of the measured gaps are under 25 mm. Why does the generator never
-produce them?"** The generator treats 25 mm as a design minimum and fits the
-distribution above it (n = 73 measured gaps), so it reproduces the spacing of
-separately supported runs, not touching ones. Runs on a common clamp or
-modelling overlaps in the IFC are likely sources of the very small gaps.
+**"The paper reports 41 mm against the duplex. Why different numbers?"** The
+paper compared with gaps measured in June 2026 by grouping parallel runs. We have
+since measured on sections — the definition of a context — and added a second,
+real building. The section-based numbers are on the slide; the repository keeps
+both and explains the difference (`verify/VERIFICATION.md`).
+
+**"Why is the duplex further away than the clinic?"** It is a small residential
+model (74 and 41 pipe pairs) with its own habits: a quarter of its pipe gaps
+are below 25 mm and many sit near 470 mm. It is as far from the clinic as from the
+generator, so it is the duplex that is unusual, and its intervals are wide.
+
+**"A quarter of the duplex's gaps are under 25 mm. Why does the generator never
+produce them?"** The generator treats 25 mm as a design minimum, so it reproduces
+the spacing of separately supported runs, not touching ones; runs on a common
+clamp or modelling overlaps are likely sources of the very small gaps. In the
+clinic only 2 % of pipe gaps are below 25 mm.
+
+**"Why does the closest gap widen again at C6?"** From six elements the generator
+starts stacking in two or three rows (C5: about half the contexts on one row; C6:
+almost none), so each row holds fewer elements and the tightest pair is less
+tight. The tier controls the element count, not congestion at every step; that
+is why results should be reported per tier.
+
+**"How should results on CrossMEP be reported?"** Per tier, with intervals, on
+the benchmark split, which no method trains on: `python -m crossmep evaluate
+results.json` takes one outcome per context (feasible or not, or a cost) and
+prints per-tier rates with 95 % intervals, the tier-balanced mean, a mean weighted
+to a building's mix if given, and a paired test against another method.
 
 **"What is the spike at 500 mm?"** The generator caps a sampled gap at 500 mm,
 a design parameter; everything the lognormal would place beyond lands there.
@@ -250,8 +296,8 @@ filter to pull exactly the composition you want (for example three pipes and one
 tray on a wall), and a generator for your own mix.
 
 **"Can I run the comparison on my own project?"** Yes: `verify/measure_ifc.py`
-and `verify/compare_gaps.py` take any IFC model that exports element sizes and
-give the same statistics and distances for your building.
+cuts any IFC model into sections and measures the gaps; `verify/compare_sections.py`
+gives the same distances and intervals for your building.
 
 **"What catalog is that? Is it a manufacturer's range?"** It is the two-size clamp
 family the paper describes as the safe-to-share catalog of the companion SSA
