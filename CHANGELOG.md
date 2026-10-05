@@ -8,6 +8,13 @@ package version tracks code and documentation.
 
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
+### Generator Studio
+- `docs/studio/index.html` (built by `scripts/build_studio.py`): set the generator's
+  parameters (tier or exact composition, surface, seed) and browse its real outputs
+  with drawings, element tables, closest-pair dimensions, the spacing drawn and the
+  reproducing Python call. `tests/test_studio.py` checks the embedded data against
+  fresh runs.
+
 ### Verification on sections of two open buildings
 - `verify/measure_ifc.py` rewritten: the models are cut into sections every 250 mm
   (the definition of a context) and the clear gap between side-by-side runs is

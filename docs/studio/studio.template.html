@@ -1,0 +1,585 @@
+<title>CrossMEP Generator Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a generator bench. Parameters on the left; on the right, top to bottom:
+   what this run produced, one section in full, every section of the run, and the
+   spacing the run drew. Same family as the MEP Support Design Studio. */
+:root {
+  --bg: #f1f3f0;
+  --panel: #fbfcfa;
+  --ink: #1a221f;
+  --muted: #5a6560;
+  --rule: #d5dad5;
+  --strong: #26332e;
+  --chip: #e6ebe7;
+  --accent: #eb6834;
+  --focus: #2a78d6;
+  --series: #2a78d6;
+  --shadow: 0 10px 30px rgba(20, 30, 25, .18);
+  /* The drawing sheet stays light in both themes, so its inks do too. */
+  --sheet: #fbfbf8;
+  --dwg-ink: #1f2a26;
+  --dwg-muted: #6b7570;
+  --dwg-surface: #8f9893;
+  --dwg-dim: #c4471c;
+  --t-domestic: #2a78d6;
+  --t-heating: #eb6834;
+  --t-chilled: #1baf7a;
+  --t-sprinkler: #e34948;
+  --t-electrical: #4a3aa7;
+  --t-ventilation: #008300;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "Barlow", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131816; --panel: #1a211e; --ink: #e7ebe8; --muted: #9ba7a1; --rule: #313c37; --strong: #dfe7e2;
+    --chip: #25302b; --accent: #d95926; --focus: #3987e5; --series: #3987e5; --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131816; --panel: #1a211e; --ink: #e7ebe8; --muted: #9ba7a1; --rule: #313c37; --strong: #dfe7e2;
+  --chip: #25302b; --accent: #d95926; --focus: #3987e5; --series: #3987e5; --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); margin: 0; }
+button, select { font: inherit; color: inherit; }
+button:focus-visible, .card-open:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; padding-inline: 20px; padding-block: 18px 12px; border-bottom: 1px solid var(--rule); }
+.brand { display: grid; gap: 2px; }
+.eyebrow { font: 500 11px/1.2 var(--font-data); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 30px/1.05 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+h2 { font: 700 19px/1.2 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+.top p { margin: 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
+.app { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; padding-inline: 20px; padding-block: 18px 48px; max-width: 1480px; margin: 0 auto; }
+@media (max-width: 960px) { .app { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; min-width: 0; }
+aside.controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: start; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); overflow-y: auto; }
+@media (max-width: 960px) { aside.controls { position: static; max-height: none; } }
+aside.controls > * { min-width: 0; }
+.lbl { font: 600 13px/1.3 var(--font-body); color: var(--ink); margin-bottom: 6px; display: block; }
+.help { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--panel); padding: 7px 12px; cursor: pointer; font-size: 14px; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--strong); color: var(--bg); font-weight: 600; }
+.tiers { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.tiers button { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; padding: 6px 0; cursor: pointer; font: 500 13px var(--font-data); }
+.tiers button[aria-pressed="true"] { background: var(--strong); color: var(--bg); border-color: var(--strong); }
+.stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 0; }
+.stepper + .stepper { border-top: 1px solid var(--rule); }
+.stepper .name { font-size: 14px; }
+.stepper .name small { display: block; color: var(--muted); font-size: 12px; }
+.stepbox { display: inline-flex; align-items: center; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.stepbox button { width: 34px; height: 32px; border: 0; background: var(--panel); cursor: pointer; font-size: 17px; line-height: 1; }
+.stepbox button:disabled { opacity: .35; cursor: default; }
+.stepbox output { min-width: 32px; text-align: center; font: 500 15px var(--font-data); border-inline: 1px solid var(--rule); padding: 5px 0; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+pre { margin: 0; font: 12.5px/1.5 var(--font-data); background: var(--chip); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+.ghost { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+details.rules summary, details.json summary { cursor: pointer; font: 600 14px var(--font-body); }
+.rules dl { margin: 8px 0 0; display: grid; gap: 10px; }
+.rules dt { font: 500 11px/1.2 var(--font-data); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.rules dd { margin: 3px 0 0; font-size: 13.5px; }
+.rules ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+main { display: grid; gap: 16px; min-width: 0; align-content: start; }
+.summary { display: grid; gap: 10px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.stat { display: grid; gap: 1px; min-width: 0; }
+.stat b { font: 600 18px/1.2 var(--font-data); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12.5px; color: var(--muted); }
+.stat em { font-style: normal; font: 400 11.5px var(--font-data); color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { font: 500 10.5px/1 var(--font-data); letter-spacing: .03em; text-transform: uppercase; background: var(--chip); border-radius: 999px; padding: 4px 7px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.detail { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); grid-template-areas: "sheet facts" "table table"; gap: 16px 18px; }
+.detail .sheet { grid-area: sheet; align-self: start; }
+.detail .facts { grid-area: facts; }
+.detail .table-wrap { grid-area: table; }
+@media (max-width: 1100px) { .detail { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sheet" "facts" "table"; } }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.sheet svg { display: block; width: 100%; height: auto; }
+.sheet.big svg { max-height: 62vh; }
+.facts { display: grid; gap: 12px; align-content: start; min-width: 0; }
+.meta { font: 400 13px/1.45 var(--font-data); color: var(--muted); }
+.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px 14px; margin: 0; }
+.kv div { min-width: 0; }
+.kv dt { font-size: 12px; color: var(--muted); }
+.kv dd { margin: 0; font: 500 15px var(--font-data); font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 4px 10px 4px 0; white-space: nowrap; vertical-align: bottom; }
+td { border-bottom: 1px solid var(--rule); padding: 5px 10px 5px 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.num, th.num { text-align: right; }
+td .dot { margin-right: 6px; vertical-align: 0; }
+.json pre { max-height: 300px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 8px; }
+.grid-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .card-open { padding: 8px; } .kpi span { font-size: 10.5px; } .card-title span { display: none; } }
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 0; min-width: 0; }
+.card.is-selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.card-open { all: unset; display: grid; gap: 8px; padding: 10px; cursor: pointer; border-radius: 10px; width: 100%; box-sizing: border-box; }
+.card .sheet { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; }
+.card .sheet svg { width: 100%; height: 100%; }
+.card-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.card-title b { font: 700 16px/1.15 var(--font-display); }
+.card-title span { font: 400 12px var(--font-data); color: var(--muted); }
+.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.kpi { display: grid; }
+.kpi b { font: 600 14px/1.2 var(--font-data); font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 11.5px; color: var(--muted); }
+.chart-wrap { position: relative; }
+#hist { display: block; width: 100%; height: auto; }
+#hist text { fill: var(--muted); font: 11px var(--font-data); }
+#hist .axis { stroke: var(--rule); }
+#hist .grid { stroke: var(--rule); stroke-opacity: .6; }
+#hist .bar { fill: var(--series); }
+#hist .bar:hover { opacity: .8; }
+#hist .curve { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; }
+#hist .lab { fill: var(--ink); font: 600 12px var(--font-body); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
+.legend i.line { height: 0; border-top: 2px dashed var(--ink); border-radius: 0; vertical-align: 3px; }
+.tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 9px; font: 12px/1.45 var(--font-data); box-shadow: var(--shadow); white-space: nowrap; }
+.boot { margin: 48px auto; max-width: 64ch; padding-inline: 20px; color: var(--muted); font-size: 15px; text-align: center; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 100ch; }
+footer a { color: inherit; }
+@media (prefers-reduced-motion: no-preference) { .card { transition: border-color .15s; } }
+</style>
+
+<header class="top">
+  <div class="brand">
+    <div class="eyebrow">Problem generator for MEP support synthesis</div>
+    <h1>CrossMEP Generator Studio</h1>
+  </div>
+  <p>Set the generator's parameters and see the cross-sections it produces. Every section on this page is an output of the released CrossMEP generator, stored with the Python call that reproduces it.</p>
+</header>
+
+<p class="boot" id="boot" role="status">Loading the generator outputs…</p>
+<div class="app" id="app" hidden>
+  <aside class="panel controls" aria-labelledby="p-title">
+    <h2 id="p-title">Parameters</h2>
+    <div>
+      <span class="lbl" id="mode-lbl">Choose the elements</span>
+      <div class="seg" role="group" aria-labelledby="mode-lbl">
+        <button type="button" id="mode-tier" aria-pressed="true">By tier</button>
+        <button type="button" id="mode-custom" aria-pressed="false">By composition</button>
+      </div>
+    </div>
+    <div id="tier-ctl">
+      <span class="lbl" id="tier-lbl">Tier: number of elements</span>
+      <div class="tiers" id="tiers" role="group" aria-labelledby="tier-lbl"></div>
+      <p class="help">The tier fixes the element count. Everything else is drawn by the generator, with the 78 / 22 % ceiling / wall mix of the release.</p>
+    </div>
+    <div id="custom-ctl" hidden>
+      <span class="lbl">Composition</span>
+      <div id="steppers"></div>
+      <p class="help" id="total-help"></p>
+      <span class="lbl" id="surf-lbl" style="margin-top: 10px;">Mounting surface</span>
+      <div class="seg" role="group" aria-labelledby="surf-lbl">
+        <button type="button" id="surf-ceiling" aria-pressed="true">Ceiling</button>
+        <button type="button" id="surf-wall" aria-pressed="false">Wall</button>
+      </div>
+    </div>
+    <div class="stepper" style="border: 0; padding: 0;">
+      <div class="name"><span class="lbl" style="margin: 0;">Seed</span><small id="seed-help"></small></div>
+      <div class="stepbox">
+        <button type="button" id="seed-dec" aria-label="Previous seed">−</button>
+        <output id="seed-val" aria-live="polite">0</output>
+        <button type="button" id="seed-inc" aria-label="Next seed">+</button>
+      </div>
+    </div>
+    <div>
+      <div class="code-head"><span class="lbl" style="margin: 0;">Reproduce this run in Python</span><button type="button" class="ghost" id="copy">Copy</button></div>
+      <pre id="code"></pre>
+    </div>
+    <details class="rules" open>
+      <summary>What the generator decides</summary>
+      <dl>
+        <div><dt>You set</dt><dd id="rule-set"></dd></div>
+        <div><dt>It draws</dt><dd><ul>
+          <li>Surface: ceiling or wall (78 / 22 %), concrete C25 or C30, 150 to 300 mm thick</li>
+          <li>Services the way trades run: hot and cold pairs, heating flow and return, sprinkler mains with branches, chilled-water banks, cable trays, ducts, conduit groups of 2 to 6</li>
+          <li>Sizes from standard series: steel pipe DN15 to 100 (EN 10255), trays 150 to 600 (IEC 61537), ducts (EN 1505 / 1506), conduits Ø20 to 50 (IEC 61386)</li>
+          <li>Rows: one for a single element, one or two up to five elements, two or three above (two at most on a wall); bulky services nearest the surface</li>
+          <li id="rule-gap"></li>
+        </ul></dd></div>
+        <div><dt>It computes and checks</dt><dd><ul>
+          <li>Insulation from the service (heated and chilled lines)</li>
+          <li>Load at the support: weight per metre times the support span (published water-service spans for pipes; 2.0 m trays and conduits; 2.4 m ducts)</li>
+          <li>Positions along and out from the surface; every pair of insulation surfaces at least 25 mm apart</li>
+        </ul></dd></div>
+      </dl>
+    </details>
+  </aside>
+
+  <main>
+    <section class="panel summary" aria-labelledby="sum-title">
+      <div class="eyebrow">This run</div>
+      <h2 id="sum-title"></h2>
+      <div class="stats" id="stats"></div>
+      <div class="chips" id="kind-chips"></div>
+    </section>
+
+    <section class="panel detail" aria-labelledby="d-title">
+      <div class="sheet big" id="d-sheet"></div>
+      <div class="facts">
+        <div>
+          <div class="eyebrow" id="d-eyebrow"></div>
+          <h2 id="d-title"></h2>
+          <div class="meta" id="d-meta"></div>
+        </div>
+        <dl class="kv" id="d-kv"></dl>
+        <details class="json"><summary>Stored record (JSON)</summary><pre id="d-json"></pre></details>
+      </div>
+      <div class="table-wrap"><table id="d-table"></table></div>
+    </section>
+
+    <section aria-labelledby="g-title" style="display: grid; gap: 10px;">
+      <div class="grid-head">
+        <h2 id="g-title">Every section of this run</h2>
+        <p class="hint">Select one to see it in full. The orange line marks the closest pair.</p>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="h-title" style="display: grid; gap: 8px;">
+      <h2 id="h-title">Spacing drawn in this run</h2>
+      <p class="hint" id="h-hint"></p>
+      <div class="legend"><span><i style="background: var(--series)"></i>neighbour gaps in this run</span><span><i class="line"></i>the fitted distribution the gaps are drawn from</span></div>
+      <div class="chart-wrap" id="hist-wrap">
+        <svg id="hist" viewBox="0 0 760 230" role="img" aria-labelledby="h-title"></svg>
+        <div class="tip" id="tip" hidden></div>
+      </div>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
+</div>
+
+<script>
+/* ---------- Data: base64(gzip(JSON)) written by scripts/build_studio.py ---------- */
+const DATA_GZ = "__DATA_GZ__";
+
+const KINDS = [["pipes", "Pipes", "steel, DN15 to 100"], ["trays", "Cable trays", "150 to 600 wide"], ["ducts", "Ducts", "round or rectangular"], ["conduits", "Conduits", "Ø20 to 50, in groups"]];
+const KIND_OF = { pipe: "pipes", cable_tray: "trays", duct: "ducts", conduit: "conduits" };
+const KIND_NAME = { pipe: "pipe", cable_tray: "cable tray", duct: "duct", conduit: "conduit" };
+const SERVICE = { domestic_hot: "domestic hot water", domestic_cold: "domestic cold water", heating: "heating", chilled: "chilled water",
+  sprinkler: "sprinkler", tray: "electrical", conduit: "electrical", duct: "ventilation" };
+const TRADES = ["domestic", "heating", "chilled", "sprinkler", "electrical", "ventilation"];
+const TRADE_NAME = { domestic: "domestic water", heating: "heating", chilled: "chilled water", sprinkler: "sprinkler", electrical: "electrical", ventilation: "ventilation" };
+const SURFACE_BAND_MM = 60;
+
+let D = null;
+const state = { mode: "tier", tier: "C5", seed: 0, comp: { pipes: 2, trays: 1, ducts: 0, conduits: 0 }, surface: "ceiling", sel: 0 };
+const $ = (id) => document.getElementById(id);
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const fmt = (x, d = 0) => (x == null || Number.isNaN(x)) ? "—" : x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const median = (xs) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+async function boot() {
+  try {
+    const bytes = Uint8Array.from(atob(DATA_GZ), (c) => c.charCodeAt(0));
+    const text = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    D = JSON.parse(text);
+  } catch (err) {
+    $("boot").textContent = "This browser could not unpack the stored generator outputs (it needs DecompressionStream). Open the page in a current version of Chrome, Edge, Firefox or Safari.";
+    return;
+  }
+  $("boot").hidden = true;
+  $("app").hidden = false;
+  buildControls();
+  render();
+}
+
+/* ---------- Controls ---------- */
+function buildControls() {
+  $("tiers").innerHTML = Array.from({ length: 8 }, (_, i) => `<button type="button" data-tier="C${i + 1}" aria-pressed="false">C${i + 1}</button>`).join("");
+  $("tiers").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-tier]"); if (!b) return; state.tier = b.dataset.tier; state.sel = 0; render(); });
+  $("steppers").innerHTML = KINDS.map(([k, name, sub]) => `<div class="stepper"><div class="name">${name}<small>${sub}</small></div>
+    <div class="stepbox"><button type="button" data-k="${k}" data-d="-1" aria-label="Fewer ${name.toLowerCase()}">−</button><output id="v-${k}">0</output><button type="button" data-k="${k}" data-d="1" aria-label="More ${name.toLowerCase()}">+</button></div></div>`).join("");
+  $("steppers").addEventListener("click", (ev) => {
+    const b = ev.target.closest("button[data-k]"); if (!b || b.disabled) return;
+    state.comp[b.dataset.k] += Number(b.dataset.d); state.sel = 0; render();
+  });
+  $("mode-tier").onclick = () => { state.mode = "tier"; state.seed = Math.min(state.seed, D.meta.tier_seeds - 1); state.sel = 0; render(); };
+  $("mode-custom").onclick = () => { state.mode = "custom"; state.seed = Math.min(state.seed, D.meta.custom_seeds - 1); state.sel = 0; render(); };
+  $("surf-ceiling").onclick = () => { state.surface = "ceiling"; state.sel = 0; render(); };
+  $("surf-wall").onclick = () => { state.surface = "wall"; state.sel = 0; render(); };
+  $("seed-dec").onclick = () => { state.seed -= 1; state.sel = 0; render(); };
+  $("seed-inc").onclick = () => { state.seed += 1; state.sel = 0; render(); };
+  $("copy").onclick = async () => {
+    const text = $("code").textContent;
+    try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent = "Selected"; }
+    setTimeout(() => { $("copy").textContent = "Copy"; }, 1600);
+  };
+  $("grid").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; state.sel = Number(b.dataset.i); renderDetail(); markSelected(); });
+  const g = D.meta.gap;
+  $("rule-gap").textContent = `Clear gaps between neighbours from a lognormal fitted to gaps measured on an open IFC model (μ ${g.mu}, σ ${g.sigma}), at least ${fmt(g.floor_mm)} mm and at most ${fmt(g.cap_mm)} mm; a small stagger within each row`;
+}
+
+function batch() {
+  if (state.mode === "tier") return D.tiers[state.tier][String(state.seed)];
+  const c = state.comp;
+  return D.custom[`p${c.pipes}t${c.trays}d${c.ducts}c${c.conduits}|${state.surface}`][String(state.seed)];
+}
+
+function syncControls() {
+  const tier = state.mode === "tier";
+  $("mode-tier").setAttribute("aria-pressed", tier); $("mode-custom").setAttribute("aria-pressed", !tier);
+  $("tier-ctl").hidden = !tier; $("custom-ctl").hidden = tier;
+  $("tiers").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tier === state.tier));
+  const nSeeds = tier ? D.meta.tier_seeds : D.meta.custom_seeds;
+  $("seed-val").textContent = state.seed;
+  $("seed-dec").disabled = state.seed <= 0; $("seed-inc").disabled = state.seed >= nSeeds - 1;
+  $("seed-help").textContent = `0 to ${nSeeds - 1} stored here; any integer works in Python`;
+  const c = state.comp, total = c.pipes + c.trays + c.ducts + c.conduits, M = D.meta.max;
+  for (const [k] of KINDS) {
+    $(`v-${k}`).textContent = c[k];
+    $("steppers").querySelector(`[data-k="${k}"][data-d="1"]`).disabled = c[k] >= M[k] || total >= D.meta.max_total;
+    $("steppers").querySelector(`[data-k="${k}"][data-d="-1"]`).disabled = c[k] <= 0 || total <= 1;
+  }
+  $("total-help").textContent = `${total} element${total === 1 ? "" : "s"}. Up to ${D.meta.max_total} are stored here; the generator accepts up to 12.`;
+  $("surf-ceiling").setAttribute("aria-pressed", state.surface === "ceiling"); $("surf-wall").setAttribute("aria-pressed", state.surface === "wall");
+  $("rule-set").textContent = tier
+    ? `The tier (${state.tier}: exactly ${state.tier.slice(1)} element${state.tier === "C1" ? "" : "s"}) and the seed.`
+    : "How many pipes, cable trays, ducts and conduits, the surface, and the seed.";
+  if (tier) {
+    $("code").textContent = `from crossmep.generate import generate_dataset\nrun = generate_dataset(${D.meta.tier_batch}, seed=${state.seed}, tier="${state.tier}")\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`;
+  } else {
+    $("code").textContent = `from crossmep.generate import generate_custom\nrun = generate_custom(${D.meta.custom_batch}, pipes=${c.pipes}, trays=${c.trays}, ducts=${c.ducts},\n                     conduits=${c.conduits}, surface="${state.surface}", seed=${state.seed})\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`;
+  }
+}
+
+/* ---------- Geometry (the same definitions as crossmep.tasks) ---------- */
+function screen(ctx) {
+  const sk = ctx.surface.kind;
+  return ctx.elements.map((e, i) => ({ e, i, X: sk === "ceiling" ? e.along_mm : e.out_mm, Y: sk === "ceiling" ? e.out_mm : e.along_mm,
+    w: e.width_mm, h: e.height_mm, ins: e.insulation_mm }));
+}
+function closestPair(ctx) {
+  const g = screen(ctx); let best = null;
+  for (let a = 0; a < g.length; a++) for (let b = a + 1; b < g.length; b++) {
+    const A = g[a], B = g[b];
+    const dx = Math.abs(A.X - B.X) - (A.w + B.w) / 2 - A.ins - B.ins;
+    const dy = Math.abs(A.Y - B.Y) - (A.h + B.h) / 2 - A.ins - B.ins;
+    const gap = Math.max(dx, dy);
+    if (!best || gap < best.gap) best = { gap, A, B, horizontal: dx >= dy };
+  }
+  return best;
+}
+function neighbourGaps(ctx) {
+  const sk = ctx.surface.kind, out = [];
+  const along = (e) => (sk === "ceiling" ? e.width_mm : e.height_mm);
+  const levels = [...new Set(ctx.elements.map((e) => e.level))].sort((a, b) => a - b);
+  for (const lv of levels) {
+    const row = ctx.elements.filter((e) => e.level === lv).sort((a, b) => a.along_mm - b.along_mm);
+    for (let i = 1; i < row.length; i++) {
+      const a = row[i - 1], b = row[i];
+      out.push((b.along_mm - a.along_mm) - (along(a) + along(b)) / 2 - a.insulation_mm - b.insulation_mm);
+    }
+  }
+  return out;
+}
+
+/* ---------- Drawing ---------- */
+function drawContext(ctx, opts = {}) {
+  const sk = ctx.surface.kind, g = screen(ctx), T = SURFACE_BAND_MM;
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const s of g) {
+    x0 = Math.min(x0, s.X - s.w / 2 - s.ins); x1 = Math.max(x1, s.X + s.w / 2 + s.ins);
+    y0 = Math.min(y0, s.Y - s.h / 2 - s.ins); y1 = Math.max(y1, s.Y + s.h / 2 + s.ins);
+  }
+  if (sk === "ceiling") { y0 = Math.min(y0, -T); } else { x0 = Math.min(x0, -T); }
+  const span = Math.max(x1 - x0, y1 - y0, 300);
+  const pad = span * 0.08, fs = Math.max(13, span * 0.026), labelRoom = opts.labels ? fs * 2.2 : 0;
+  let vx = x0 - pad, vy = y0 - pad, vw = x1 - x0 + 2 * pad, vh = y1 - y0 + 2 * pad + labelRoom;
+  if (opts.aspect) {                                           // letterbox to a fixed aspect for the thumbnails
+    const want = opts.aspect;
+    if (vw / vh < want) { const nw = vh * want; vx -= (nw - vw) / 2; vw = nw; } else { const nh = vw / want; vy -= (nh - vh) / 2; vh = nh; }
+  }
+  const parts = [];
+  const hatchId = `h${Math.random().toString(36).slice(2, 8)}`;
+  parts.push(`<defs><pattern id="${hatchId}" width="${fs * 0.7}" height="${fs * 0.7}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="${fs * 0.7}" stroke="var(--dwg-surface)" stroke-width="1" vector-effect="non-scaling-stroke"/></pattern></defs>`);
+  if (sk === "ceiling") parts.push(`<rect x="${vx}" y="${-T}" width="${vw}" height="${T}" fill="url(#${hatchId})"/><line x1="${vx}" y1="0" x2="${vx + vw}" y2="0" stroke="var(--dwg-surface)" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`);
+  else parts.push(`<rect x="${-T}" y="${vy}" width="${T}" height="${vh}" fill="url(#${hatchId})"/><line x1="0" y1="${vy}" x2="0" y2="${vy + vh}" stroke="var(--dwg-surface)" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`);
+  const placed = [];
+  for (const s of g) {
+    const col = `var(--t-${s.e.trade})`;
+    if (s.e.shape === "round") {
+      if (s.ins > 0) parts.push(`<circle cx="${s.X}" cy="${s.Y}" r="${s.w / 2 + s.ins}" fill="none" stroke="${col}" stroke-width="1" stroke-dasharray="3 3" vector-effect="non-scaling-stroke" opacity=".8"/>`);
+      parts.push(`<circle cx="${s.X}" cy="${s.Y}" r="${s.w / 2}" fill="${col}" fill-opacity=".08" stroke="${col}" stroke-width="${opts.labels ? 1.8 : 1.4}" vector-effect="non-scaling-stroke"><title>${esc(s.e.label)} · ${esc(SERVICE[s.e.service] || s.e.service)}</title></circle>`);
+    } else {
+      parts.push(`<rect x="${s.X - s.w / 2}" y="${s.Y - s.h / 2}" width="${s.w}" height="${s.h}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-width="${opts.labels ? 1.8 : 1.4}" vector-effect="non-scaling-stroke"><title>${esc(s.e.label)} · ${esc(SERVICE[s.e.service] || s.e.service)}</title></rect>`);
+    }
+    if (opts.labels) {
+      const text = s.e.kind === "pipe" ? s.e.label : s.e.label.replace(/ (conduit|tray|duct)$/, "");
+      const dup = s.e.kind === "conduit" && placed.some((p) => p.t === text && Math.abs(p.x - s.X) < span * 0.12 && Math.abs(p.y - s.Y) < span * 0.12);
+      if (!dup) {
+        placed.push({ t: text, x: s.X, y: s.Y });
+        const ty = s.e.shape === "round" ? s.Y + s.w / 2 + s.ins + fs * 1.05 : s.Y + fs * 0.35;
+        const fill = s.e.shape === "round" ? "var(--dwg-ink)" : "var(--dwg-ink)";
+        parts.push(`<text x="${s.X}" y="${ty}" font-size="${fs * 0.82}" text-anchor="middle" fill="${fill}" font-family="IBM Plex Mono, ui-monospace, monospace">${esc(text)}</text>`);
+      }
+    }
+  }
+  const cp = opts.highlight !== false && ctx.elements.length > 1 ? closestPair(ctx) : null;
+  if (cp) {
+    const { A, B } = cp, stroke = `stroke="var(--dwg-dim)" stroke-width="${opts.labels ? 2 : 1.6}" vector-effect="non-scaling-stroke"`;
+    if (cp.horizontal) {
+      const [L, R] = A.X < B.X ? [A, B] : [B, A];
+      const xa = L.X + L.w / 2 + L.ins, xb = R.X - R.w / 2 - R.ins, y = (Math.max(L.Y - L.h / 2, R.Y - R.h / 2) + Math.min(L.Y + L.h / 2, R.Y + R.h / 2)) / 2;
+      const yy = Number.isFinite(y) ? y : (L.Y + R.Y) / 2;
+      parts.push(`<line x1="${xa}" y1="${yy}" x2="${xb}" y2="${yy}" ${stroke}/><line x1="${xa}" y1="${yy - fs * 0.4}" x2="${xa}" y2="${yy + fs * 0.4}" ${stroke}/><line x1="${xb}" y1="${yy - fs * 0.4}" x2="${xb}" y2="${yy + fs * 0.4}" ${stroke}/>`);
+      if (opts.labels) parts.push(`<text x="${(xa + xb) / 2}" y="${yy - fs * 0.6}" font-size="${fs * 0.86}" text-anchor="middle" fill="var(--dwg-dim)" font-weight="600" font-family="Barlow, sans-serif">${fmt(cp.gap)} mm</text>`);
+    } else {
+      const [U, W] = A.Y < B.Y ? [A, B] : [B, A];
+      const ya = U.Y + U.h / 2 + U.ins, yb = W.Y - W.h / 2 - W.ins, x = (U.X + W.X) / 2;
+      parts.push(`<line x1="${x}" y1="${ya}" x2="${x}" y2="${yb}" ${stroke}/><line x1="${x - fs * 0.4}" y1="${ya}" x2="${x + fs * 0.4}" y2="${ya}" ${stroke}/><line x1="${x - fs * 0.4}" y1="${yb}" x2="${x + fs * 0.4}" y2="${yb}" ${stroke}/>`);
+      if (opts.labels) parts.push(`<text x="${x + fs * 0.6}" y="${(ya + yb) / 2 + fs * 0.3}" font-size="${fs * 0.86}" fill="var(--dwg-dim)" font-weight="600" font-family="Barlow, sans-serif">${fmt(cp.gap)} mm</text>`);
+    }
+  }
+  if (opts.labels) {                                                   // scale bar: 200 mm
+    const L = 200, sx = vx + pad * 0.5, sy = vy + vh - fs * 0.6;
+    parts.push(`<line x1="${sx}" y1="${sy}" x2="${sx + L}" y2="${sy}" stroke="var(--dwg-muted)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><line x1="${sx}" y1="${sy - fs * 0.3}" x2="${sx}" y2="${sy + fs * 0.3}" stroke="var(--dwg-muted)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><line x1="${sx + L}" y1="${sy - fs * 0.3}" x2="${sx + L}" y2="${sy + fs * 0.3}" stroke="var(--dwg-muted)" stroke-width="1.5" vector-effect="non-scaling-stroke"/><text x="${sx + L + fs * 0.4}" y="${sy + fs * 0.3}" font-size="${fs * 0.75}" fill="var(--dwg-muted)" font-family="IBM Plex Mono, ui-monospace, monospace">200 mm</text>`);
+    const surfLabel = sk === "ceiling" ? `slab, ${ctx.surface.thickness_mm} mm` : `wall, ${ctx.surface.thickness_mm} mm`;
+    if (sk === "ceiling") parts.push(`<text x="${vx + vw - pad * 0.5}" y="${-T / 2 + fs * 0.3}" font-size="${fs * 0.75}" text-anchor="end" fill="var(--dwg-muted)" font-family="IBM Plex Mono, ui-monospace, monospace">${surfLabel}</text>`);
+    else parts.push(`<text x="${-T / 2}" y="${vy + pad * 0.5}" font-size="${fs * 0.75}" text-anchor="middle" fill="var(--dwg-muted)" font-family="IBM Plex Mono, ui-monospace, monospace" transform="rotate(-90 ${-T / 2} ${vy + pad * 0.5})"> </text>`);
+  }
+  const label = `Cross-section: ${ctx.n_elements} element${ctx.n_elements === 1 ? "" : "s"} on a ${sk}`;
+  return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" role="img" aria-label="${esc(label)}" preserveAspectRatio="xMidYMid meet">${parts.join("")}</svg>`;
+}
+
+/* ---------- Rendering ---------- */
+function render() {
+  syncControls();
+  const run = batch();
+  if (state.sel >= run.length) state.sel = 0;
+  renderSummary(run);
+  renderDetail();
+  renderGrid(run);
+  renderHist(run);
+  renderFooter();
+}
+
+function kindCounts(run) {
+  const k = { pipe: 0, cable_tray: 0, duct: 0, conduit: 0 }, trades = {};
+  for (const c of run) for (const e of c.elements) { k[e.kind] += 1; trades[e.trade] = (trades[e.trade] || 0) + 1; }
+  return { k, trades };
+}
+
+function renderSummary(run) {
+  const n = run.length, els = run.reduce((s, c) => s + c.n_elements, 0);
+  const ceil = run.filter((c) => c.surface.kind === "ceiling").length;
+  const loads = run.map((c) => c.total_load_kN), gaps = run.map((c) => (c.elements.length > 1 ? closestPair(c).gap : null)).filter((x) => x != null);
+  const widths = run.map((c) => c.bundle_width_mm);
+  const comp = state.comp;
+  $("sum-title").textContent = state.mode === "tier"
+    ? `${n} sections of tier ${state.tier}, seed ${state.seed}`
+    : `${n} sections: ${[["pipes", "pipe"], ["trays", "tray"], ["ducts", "duct"], ["conduits", "conduit"]].filter(([k]) => comp[k]).map(([k, s]) => `${comp[k]} ${s}${comp[k] > 1 ? "s" : ""}`).join(" + ")} on a ${state.surface}, seed ${state.seed}`;
+  const ref = state.mode === "tier" ? D.benchmark_medians[state.tier] : null;
+  const refTxt = (v, d, unit) => (ref && v != null ? `<em>benchmark ${fmt(v, d)} ${unit}</em>` : "");
+  $("stats").innerHTML = [
+    `<div class="stat"><b>${fmt(els)}</b><span>elements</span></div>`,
+    `<div class="stat"><b>${ceil} / ${n - ceil}</b><span>ceiling / wall</span></div>`,
+    `<div class="stat"><b>${fmt(median(loads), 2)} kN</b><span>median load at the support</span>${refTxt(ref && ref.load_kN, 2, "kN")}</div>`,
+    `<div class="stat"><b>${gaps.length ? fmt(median(gaps)) + " mm" : "—"}</b><span>median closest gap</span>${refTxt(ref && ref.clear_gap_mm, 0, "mm")}</div>`,
+    `<div class="stat"><b>${fmt(median(widths))} mm</b><span>median bundle width</span>${refTxt(ref && ref.bundle_width_mm, 0, "mm")}</div>`,
+  ].join("");
+  const { k, trades } = kindCounts(run);
+  const kindChips = Object.entries(k).filter(([, v]) => v).map(([kk, v]) => `<span class="chip">${v} ${KIND_NAME[kk]}${v > 1 ? "s" : ""}</span>`);
+  const tradeChips = TRADES.filter((t) => trades[t]).map((t) => `<span class="chip"><span class="dot" style="background: var(--t-${t})"></span>${trades[t]} ${TRADE_NAME[t]}</span>`);
+  $("kind-chips").innerHTML = kindChips.concat(tradeChips).join("");
+}
+
+function renderDetail() {
+  const run = batch(), ctx = run[state.sel];
+  syncControls();
+  $("d-sheet").innerHTML = drawContext(ctx, { labels: true });
+  $("d-eyebrow").textContent = state.mode === "tier" ? `Tier ${ctx.tier}` : "Custom composition";
+  $("d-title").textContent = `Section ${state.sel + 1} of ${run.length}`;
+  const s = ctx.surface;
+  $("d-meta").textContent = `${s.kind === "ceiling" ? "Hung from a slab" : "Fixed to a wall"} · ${s.substrate.replace("concrete_", "concrete ")} · ${s.thickness_mm} mm thick`;
+  const cp = ctx.elements.length > 1 ? closestPair(ctx) : null;
+  $("d-kv").innerHTML = [
+    ["Elements", fmt(ctx.n_elements)], ["Rows", fmt(ctx.n_levels)], ["Total load at the support", `${fmt(ctx.total_load_kN, 2)} kN`],
+    ["Bundle width", `${fmt(ctx.bundle_width_mm)} mm`], ["Closest clear gap", cp ? `${fmt(cp.gap)} mm` : "— (one element)"],
+  ].map(([a, b]) => `<div><dt>${a}</dt><dd>${b}</dd></div>`).join("");
+  const rows = ctx.elements.map((e, i) => `<tr><td>${i + 1}</td><td><span class="dot" style="background: var(--t-${e.trade})"></span>${KIND_NAME[e.kind]}</td><td>${esc(SERVICE[e.service] || e.service)}</td><td>${esc(e.label)}</td>
+    <td class="num">${e.insulation_mm ? fmt(e.insulation_mm) : "—"}</td><td class="num">${fmt(e.load_kN_per_m, 3)} × ${fmt(e.span_m, 1)} = ${fmt(e.load_kN, 2)}</td>
+    <td class="num">${e.level + 1}</td><td class="num">${fmt(e.along_mm)}</td><td class="num">${fmt(e.out_mm)}</td></tr>`).join("");
+  $("d-table").innerHTML = `<thead><tr><th>#</th><th>Element</th><th>Service</th><th>Size</th><th class="num">Insulation, mm</th><th class="num">Load, kN/m × m = kN</th><th class="num">Row</th><th class="num">Along, mm</th><th class="num">Out, mm</th></tr></thead><tbody>${rows}</tbody>`;
+  $("d-json").textContent = JSON.stringify(ctx, null, 1);
+}
+
+function renderGrid(run) {
+  $("grid").innerHTML = run.map((c, i) => {
+    const cp = c.elements.length > 1 ? closestPair(c) : null;
+    return `<article class="card${i === state.sel ? " is-selected" : ""}" data-card="${i}"><button type="button" class="card-open" data-i="${i}" aria-label="Show section ${i + 1}">
+      <div class="sheet">${drawContext(c, { aspect: 4 / 3 })}</div>
+      <div class="card-title"><b>Section ${i + 1}</b><span>${c.tier === "custom" ? "custom" : c.tier} · ${c.surface.kind}</span></div>
+      <div class="kpis"><div class="kpi"><b>${c.n_elements}</b><span>elements</span></div><div class="kpi"><b>${fmt(c.total_load_kN, 2)}</b><span>kN load</span></div><div class="kpi"><b>${cp ? fmt(cp.gap) : "—"}</b><span>mm closest</span></div></div>
+    </button></article>`;
+  }).join("");
+}
+function markSelected() {
+  $("grid").querySelectorAll(".card").forEach((el) => el.classList.toggle("is-selected", Number(el.dataset.card) === state.sel));
+}
+
+function renderHist(run) {
+  const gaps = run.flatMap(neighbourGaps), g = D.meta.gap;
+  const W = 760, H = 230, m = { l: 44, r: 14, t: 14, b: 34 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const bw = 25, maxX = 525, nb = maxX / bw;
+  const counts = new Array(nb).fill(0);
+  for (const x of gaps) counts[Math.min(nb - 1, Math.max(0, Math.floor(x / bw)))] += 1;
+  const pdf = (x) => Math.exp(-((Math.log(x) - g.mu) ** 2) / (2 * g.sigma ** 2)) / (x * g.sigma * Math.sqrt(2 * Math.PI));
+  const expected = (x) => gaps.length * bw * pdf(x);
+  let ymax = Math.max(1, ...counts);
+  for (let x = 30; x < maxX; x += 5) ymax = Math.max(ymax, expected(x));
+  ymax = Math.ceil(ymax * 1.1);
+  const sx = (x) => m.l + (x / maxX) * iw, sy = (y) => m.t + ih - (y / ymax) * ih;
+  const step = ymax <= 5 ? 1 : ymax <= 12 ? 2 : ymax <= 30 ? 5 : 10;
+  const parts = [];
+  for (let y = 0; y <= ymax; y += step) parts.push(`<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${sy(y)}" y2="${sy(y)}"/><text x="${m.l - 6}" y="${sy(y) + 4}" text-anchor="end">${y}</text>`);
+  for (let x = 0; x <= 500; x += 100) parts.push(`<text x="${sx(x)}" y="${H - m.b + 16}" text-anchor="middle">${x}</text>`);
+  parts.push(`<text x="${m.l + iw / 2}" y="${H - 4}" text-anchor="middle">clear gap between neighbours in a row, mm</text>`);
+  counts.forEach((cnt, i) => {
+    if (!cnt) return;
+    const x = sx(i * bw) + 1, w = Math.max(1, sx((i + 1) * bw) - sx(i * bw) - 2), y = sy(cnt), h = sy(0) - y;
+    const r = Math.min(4, w / 2, h);
+    parts.push(`<path class="bar" data-i="${i}" d="M${x},${sy(0)} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + w - r},${y} Q${x + w},${y} ${x + w},${y + r} L${x + w},${sy(0)} Z"/>`);
+  });
+  let d = "";
+  for (let x = g.floor_mm; x <= g.cap_mm; x += 4) d += `${d ? "L" : "M"}${sx(x).toFixed(1)},${sy(expected(x)).toFixed(1)}`;
+  parts.push(`<path class="curve" d="${d}"/>`);
+  parts.push(`<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${sy(0)}" y2="${sy(0)}"/>`);
+  $("hist").innerHTML = parts.join("");
+  $("h-hint").textContent = gaps.length
+    ? `${gaps.length} gaps between neighbouring elements of the same row, between insulation surfaces. Each is one draw from the fitted distribution, floored at ${fmt(g.floor_mm)} mm and capped at ${fmt(g.cap_mm)} mm.`
+    : "This run has no neighbours in a row (one element per row), so no gap was drawn.";
+  const tip = $("tip");
+  $("hist").onmousemove = (ev) => {
+    const b = ev.target.closest(".bar");
+    if (!b) { tip.hidden = true; return; }
+    const i = Number(b.dataset.i), r = $("hist-wrap").getBoundingClientRect();
+    tip.innerHTML = `${i * bw}–${(i + 1) * bw} mm: <b>${counts[i]}</b> gap${counts[i] === 1 ? "" : "s"}`;
+    tip.hidden = false;
+    tip.style.left = `${Math.min(ev.clientX - r.left + 12, r.width - tip.offsetWidth - 4)}px`;
+    tip.style.top = `${ev.clientY - r.top - 34}px`;
+  };
+  $("hist").onmouseleave = () => { tip.hidden = true; };
+}
+
+function renderFooter() {
+  $("footer").innerHTML = `<p>Every section is an output of the CrossMEP generator (package ${esc(D.meta.package)}, data revision ${esc(D.meta.data_revision)}), stored by <code>scripts/build_studio.py</code> with the Python call above; the call returns the same section on any machine. Benchmark medians come from the released benchmark split (125 contexts per tier).</p>
+  <p>Data CC BY 4.0, code MIT · <a href="https://github.com/lavinia-ped/CrossMEP_Dataset" target="_blank" rel="noopener">github.com/lavinia-ped/CrossMEP_Dataset</a> · Synthetic sections for research: not for the structural design of real installations.</p>`;
+}
+
+boot();
+</script>
