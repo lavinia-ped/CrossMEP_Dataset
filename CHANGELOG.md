@@ -6,7 +6,46 @@ with (June 2026); 4.0 = this release. The paper refers to a **v3.4** internal
 build whose element library was never published (README, "Versions and relation to the paper"). The
 package version tracks code and documentation.
 
-## 4.0.0 — 2026-10-03
+## 4.0.0 — 2026-10-05 (not yet tagged)
+
+### Verification on sections of two open buildings
+- `verify/measure_ifc.py` rewritten: the models are cut into sections every 250 mm
+  (the definition of a context) and the clear gap between side-by-side runs is
+  measured; the geometry core needs no IfcOpenShell and is unit-tested. Measured
+  the buildingSMART Duplex Apartment (MEP, Plumbing) and Medical-Dental Clinic
+  (Plumbing, HVAC) models, CC BY 4.0; records, meshed segment tables, SHA-256 of
+  the sources and attribution in `verify/measured/`.
+- `verify/compare_sections.py`: generated vs measured pipe gaps with Wasserstein-1,
+  95 % bootstrap intervals (contexts / pipe pairs), the noise floor of each sample,
+  real-to-real distances, a fixed-gap baseline and a sensitivity analysis over 11
+  cut settings. Generated ↔ clinic (held out) 28 mm (16–44); duplex MEP ↔
+  Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85; revision 3.0
+  ↔ clinic 65.
+- The June 2026 duplex samples (`measured_gaps*.json`, the source of the
+  generator's gap fit and of the paper's §5.2 numbers) do not regenerate with the
+  procedure documented at the time (re-run: 131 gaps, median −24 mm, against 103,
+  median 108). Kept and documented; the old procedure remains as
+  `measure_ifc.py --legacy`.
+
+### Experiment 1 with intervals
+- `verify/tier_trends.py`: benchmark medians with bootstrap intervals, the median
+  of 2,000 generated contexts per tier, steps between tiers and Spearman's ρ.
+  Load rises at every tier; the clear gap shrinks overall (ρ −0.36) but widens at
+  C6, where the generator starts stacking in two or three rows (5 → 3 elements per
+  row), and bundle width dips there too. The README's earlier statement that width
+  medians are monotone was wrong and is corrected.
+
+### Evaluation harness
+- `crossmep/evaluate.py` (stdlib) and `python -m crossmep evaluate`: per-tier
+  results with Wilson (binary) or bootstrap (continuous) intervals, tier-balanced
+  and weighted means, the first tier whose interval lies below a threshold, and
+  paired comparisons (stratified paired bootstrap, exact McNemar). Missing or
+  unknown context ids are errors.
+
+### Talk
+- Slides 9, 10, 12 and 13 rebuilt on the new evidence (population medians, the
+  held-out building, train / evaluate / report, next steps); a new appendix slide
+  with the realism check in detail. 189 tests.
 
 ### Data revision 4.0
 - **Removed the double-counted clearance.** Revision 3.0 laid elements out with a
@@ -75,7 +114,7 @@ package version tracks code and documentation.
   (lognormal fit n = 73, μ = 5.018, σ = 0.848, KS p = 0.53; baselines 138.5 / 49.9 mm)
   for every gap definition; `verify/measure_ifc.py` makes the IfcOpenShell procedure
   executable with a `--self-check`.
-- Tests 41 → 155: derived constants pinned; every released element checked against
+- Tests 41 → 189: derived constants pinned; every released element checked against
   the library; validator unit tests; invariants over 29 seeds; byte-exact regeneration
   of eight files; schema conformance; paper numbers that reproduce and the released
   values of those that do not; metric unit tests; CLI and shims.

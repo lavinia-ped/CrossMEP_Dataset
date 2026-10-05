@@ -1,33 +1,111 @@
-# Verification against a built project
+# Verification against open buildings
 
-Layout statistics of CrossMEP were verified against the openly licensed
-buildingSMART "Duplex Apartment" IFC project — its MEP discipline export
-(427 flow segments) and its Plumbing export (231 sized segments). The models are
-not redistributed here; they are available from buildingSMART community sample
-collections (the file names used in June 2026 were `Ifc2x3_Duplex_MEP.ifc` and
-`Ifc2x3_Duplex_Plumbing.ifc`).
+The layout statistics of CrossMEP are checked against open IFC models of two
+buildings from buildingSMART's community sample files (CC BY 4.0): the **Duplex
+Apartment** (a small residential model; MEP and Plumbing discipline models) and
+the **Medical-Dental Clinic** (a real building, redacted; Plumbing and HVAC
+models). The IFC files are not redistributed; `verify/measured/README.md` gives
+their SHA-256 digests, the source and the attribution.
 
-## Procedure (`measure_ifc.py`, IfcOpenShell ≥ 0.7)
+## Section-cut measurement (current; `measure_ifc.py`, `compare_sections.py`)
 
-1. Take every `IfcFlowSegment`; read the nominal size from the `Size` property.
-2. Mesh each segment in world coordinates; derive the long axis and centre from
-   the bounding box; keep horizontal segments longer than 250 mm.
-3. Group parallel runs by axis and elevation band (400 mm); cluster across the
-   axis with a 1.2 m break; per cluster compute run multiplicity, in-bundle
-   elevation spread, and clear gaps between adjacent runs (surface to surface;
-   the procedure meshes flow segments only, so these are gaps between bare pipe surfaces).
+A context is the section across a run at one support, so the models are measured
+the same way (October 2026, IfcOpenShell 0.9):
+
+1. Mesh every `IfcFlowSegment`; record its kind (pipe, duct, cable carrier, from
+   its type), its `Size` property, its bounding box and the plan direction of its
+   long axis (principal component of the mesh vertices).
+2. Keep horizontal runs aligned with the x or y axis (within 2°), at least 250 mm
+   long and longer than tall.
+3. Cut sections perpendicular to each axis every 250 mm. Runs whose centres lie
+   within 400 mm of the lowest run of a band form one row (the generator's row,
+   whose stagger reaches 120 mm).
+4. Along each row, consecutive runs are neighbours if their clear gap between
+   bare surfaces is positive and below 1,200 mm. Each neighbour pair is recorded
+   once, with its gap and the number of sections it appears in (its shared
+   length / 250 mm).
 
 ```bash
 pip install ifcopenshell
-python verify/measure_ifc.py Ifc2x3_Duplex_MEP.ifc --gaps-out gaps.json --self-check verify/measured_gaps.json
+python verify/measure_ifc.py Clinic_Plumbing.ifc --name clinic_plumbing \
+    --out verify/measured/clinic_plumbing.json --segments-out verify/measured/segments/clinic_plumbing.json
+python verify/compare_sections.py --sensitivity
 ```
 
-The shipped `measured_gaps.json` (103 gaps) and `measured_gaps_plumbing.json`
-(61 gaps) are the original June 2026 outputs. The script was not re-run for
-release 4.0.0 (models not at hand); `--self-check` reports the agreement of any
-re-run with the shipped samples.
+`verify/measured/segments/` keeps the meshed segment tables, so every record is
+recomputed without IfcOpenShell (`tests/test_sections.py`).
 
-## Measured results
+### Measured pipe gaps (bare surfaces, < 600 mm)
+
+| model | pipe pairs | sections | median, mm (length-weighted) | IQR, mm | below 25 mm |
+|---|---|---|---|---|---|
+| Clinic, Plumbing | 797 | 3,833 | 203 (189) | 117–322 | 2 % |
+| Duplex, MEP | 74 | 204 | 177 (94) | 36–470 | 23 % |
+| Duplex, Plumbing | 41 | 112 | 114 (105) | 25–470 | 32 % |
+| generated (benchmark, 4.0) | 1,543 | — | 207 | 136–317 | 0 % |
+
+### Distances (Wasserstein-1, mm; 95 % bootstrap intervals)
+
+Primary: measured pairs weighted by shared length (the gap met at a random
+support location). Intervals resample contexts (generated) and pipe pairs
+(measured). Noise floor: median (95th percentile) distance a perfect generator
+would show at that sample size and weighting.
+
+| comparison | by length | each pair once | noise floor |
+|---|---|---|---|
+| generated ↔ Clinic, Plumbing | 28.3 (16.0–43.7) | 14.9 (11.3–23.5) | 8.2 (17.0) |
+| generated ↔ Duplex, MEP | 70.4 (56.9–98.7) | 94.1 (73.8–119.3) | 24.5 (46.1) |
+| generated ↔ Duplex, Plumbing | 85.3 (59.4–131.5) | 100.1 (84.6–125.2) | 33.7 (67.9) |
+| Clinic, Plumbing ↔ Duplex, MEP | 71.0 (54.0–100.5) | 88.0 (70.0–117.9) | — |
+| Clinic, Plumbing ↔ Duplex, Plumbing | 85.0 (54.6–137.3) | 94.1 (77.4–121.3) | — |
+| Duplex, MEP ↔ Duplex, Plumbing | 25.6 (24.5–124.0) | 24.9 (21.4–107.6) | — |
+
+A fixed 25 mm gap is 189 mm from the clinic. The clinic's 90 duct-duct
+pairs (HVAC model; median 350 mm) are not compared: the benchmark has only
+13 duct-duct neighbour pairs.
+
+Reading: the generator is 28 mm from the clinic, a building it was not
+fitted to, above that sample's noise floor but about as close as the duplex's
+two discipline models are to each other; the duplex is as far from the generator
+as from the clinic. The revision 3.0 files (the paper release) are farther from
+the clinic (65 mm by length): removing the double-counted clearance in 4.0 brought
+the generated spacing closer to a real building.
+
+### Sensitivity to the cut (W1 by length, mm)
+
+| variation | generated ↔ Clinic | generated ↔ Duplex MEP | generated ↔ Duplex Plumbing | Clinic ↔ Duplex MEP |
+|---|---|---|---|---|
+| as measured | 28.3 | 70.4 | 85.3 | 71.0 |
+| sections every 125 mm | 28.9 | 67.8 | 88.1 | 67.8 |
+| sections every 500 mm | 29.6 | 65.4 | 86.2 | 66.3 |
+| row band 200 mm | 36.0 | 79.7 | 110.6 | 68.9 |
+| row band 800 mm | 26.6 | 69.3 | 85.3 | 64.2 |
+| bundle break 600 mm | 28.3 | 70.4 | 85.3 | 71.0 |
+| bundle break 2,400 mm | 28.3 | 70.4 | 85.3 | 71.0 |
+| axis tolerance 1 deg | 28.6 | 70.4 | 85.3 | 71.2 |
+| axis tolerance 5 deg | 28.3 | 70.4 | 85.3 | 71.0 |
+| min. run length 100 mm | 30.0 | 72.1 | 86.7 | 73.7 |
+| min. run length 500 mm | 28.1 | 62.8 | 88.4 | 59.4 |
+
+## The June 2026 measurement (paper section 5.2)
+
+The generator's gap lognormal was fitted to gaps measured on the Duplex models in
+June 2026 (`measured_gaps.json`, 103 gaps; `measured_gaps_plumbing.json`, 61) by
+the procedure then documented: group parallel runs by axis and a 400 mm elevation
+band, cluster across the axis with a 1.2 m break, and take the gaps between
+across-sorted neighbours. `compare_gaps.py` reproduces the paper's section 5.2
+numbers from these shipped samples (below), and `tests/test_verify.py` pins them.
+
+That procedure, run on the same Duplex MEP file (`measure_ifc.py --legacy`),
+does **not** reproduce the shipped sample: it returns 131 gaps with a median of
+−24 mm against 103 gaps with a median of 108 mm. As documented it does not
+require two runs to pass through a common section and it pairs the collinear
+pieces of one run, which gives overlaps rather than gaps. The shipped samples
+were therefore produced by a variant that is not recorded. They remain in the
+repository because the generator constants and the paper's numbers derive from
+them; the section-cut measurement above is the verification of record.
+
+### June 2026 samples
 
 | statistic | MEP model | Plumbing model |
 |---|---|---|
@@ -37,7 +115,7 @@ re-run with the shipped samples.
 | clear gaps < 600 mm | n = 99, median 108, IQR 24–238 | n = 59, median 53, IQR 18–183 |
 | clear gaps, all | n = 103, median 111, IQR 28–271 | n = 61, median 54, IQR 19–202 |
 
-## Comparison (`compare_gaps.py`)
+### Comparison with the June 2026 samples (`compare_gaps.py`)
 
 The generator samples clear gaps from a lognormal fitted to the MEP gaps above
 the 25 mm clearance floor and below 600 mm (n = 73): μ = 5.018, σ = 0.848,
@@ -67,8 +145,9 @@ like-for-like comparison; the gap between the insulation and bare rows is the
 insulation the generator adds to 58 % of adjacent pairs, which the measurement
 (flow segments only) does not include.
 
-Re-running against a private commercial model requires only replacing the IFC
-path; sizes must be exported (property `Size` or equivalent) for step 1.
+Measuring another model (a private commercial one, for instance) needs only its
+IFC file: `measure_ifc.py` writes the record, and adding its name to
+`PIPE_MODELS` in `compare_sections.py` puts it into the comparison.
 
 ## Catalog stress test (`catalog_stress.py`, paper section 5.3)
 

@@ -86,28 +86,36 @@ domains; the insulation surfaces of any two elements at least 25 mm apart along
 the surface or out from it; per-row centering) and the test suite: JSON Schema
 conformance of all splits, geometric invariants over unseen seeds, byte-exact
 regeneration of all eight files, distribution drift, and convention compliance.
-Layout statistics were verified against two discipline models of the openly
-licensed buildingSMART Duplex Apartment project (MEP: 427 segments; Plumbing:
-231, meshed with IfcOpenShell): pipe-size mix, run multiplicity and elevation
-spread matched; gaps are sampled from a distribution fitted to measurement, and
-the generated gap distribution of revision 4.0 is 40.7 mm (Wasserstein-1) from
-the MEP model at the insulation surface and 67.7 mm at the bare surface, against
-49.9 mm between the two real discipline models and 138.5 mm for a fixed modular
-gap. Measured samples, the measurement procedure and the comparison script are
-under `verify/`.
+Spacing is verified on sections of two open buildings from buildingSMART's
+community sample files (CC BY 4.0): the Duplex Apartment (MEP and Plumbing
+models) and the Medical-Dental Clinic (Plumbing model; a real building, redacted).
+`verify/measure_ifc.py` cuts each model every 250 mm, as a context is defined, and
+measures the clear gap between side-by-side runs; `verify/compare_sections.py`
+compares the generated pipe gaps with it. Wasserstein-1, pairs weighted by shared
+length: generated ↔ clinic 28 mm (95 % CI 16–44; 797 measured pipe pairs),
+duplex MEP ↔ duplex Plumbing 26 mm, generated ↔ duplex 70 / 85 mm,
+clinic ↔ duplex 71 / 85 mm, a fixed 25 mm gap 189 mm; stable across 11
+settings of the cut (27–36 mm). The gap lognormal itself was fitted to gaps
+measured on the duplex in June 2026 (KS p = 0.53); the paper's §5.2 numbers (40.7
+mm at the insulation surface, 67.7 mm bare, 49.9 mm real-to-real) are reproduced
+from those shipped samples by `verify/compare_gaps.py`. Records, segment tables,
+procedure and attribution are under `verify/`.
 
 **Known verification limits.** (1) Revision 3.0 — the paper release — padded
 every element with a 25 mm routing envelope on top of the 25 mm gap floor, so
 its physical gaps are 50 mm wider than the sampled ones; the paper's 41 mm
-figure holds for the sampled gap only (physically 88.5 mm at the insulation
-surface). Resolved in revision 4.0; the 3.0 files remain as released. (2) The
-measurement meshes flow segments, i.e. bare pipe surfaces, so the strictly like-for-like
-comparison is the bare-surface one (67.7 mm). (3) Both measured models belong
-to one residential project, which directly validates small-bore, low-count
-statistics; congested high-count scenes are grounded in coordination practice
-and standards rather than measurement. (4) Trade-mix frequencies are plausible,
-not surveyed. (5) The IFC measurement was not re-run for this release; the
-shipped samples are the original June 2026 measurements.
+figure holds for the sampled gap only. Resolved in revision 4.0 (on the clinic:
+4.0 is 28 mm from the measured pipe gaps, 3.0 is 65 mm); the 3.0 files remain as
+released. (2) The measurement meshes flow segments, i.e. bare surfaces, so the
+comparison is between bare surfaces; only pipe-pipe gaps are compared (the
+benchmark has too few duct-duct neighbours). (3) Two open buildings, a small
+residential model and a two-storey clinic; congested high-count racks are
+grounded in coordination practice and standards rather than measurement. (4)
+Trade-mix frequencies are plausible, not surveyed. (5) The June 2026 duplex
+samples, to which the generator's gap distribution was fitted, cannot be
+regenerated with the procedure documented at the time (`verify/VERIFICATION.md`);
+they are kept because the generator constants and the paper's numbers derive from
+them.
 
 ## Preprocessing
 

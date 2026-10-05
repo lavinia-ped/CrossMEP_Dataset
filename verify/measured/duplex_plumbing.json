@@ -1,0 +1,645 @@
+{
+ "name": "duplex_plumbing",
+ "source": {
+  "file": "Duplex_Plumbing_20121113.ifc",
+  "sha256": "abfaf5c0979b6b4b05182aec7ada8945374bdb414db76c763724d549b41b212b",
+  "bytes": 31556138,
+  "ifcopenshell": "0.9.0"
+ },
+ "procedure": {
+  "version": "section-cut 1.0",
+  "min_length_mm": 250.0,
+  "angle_tol_deg": 2.0,
+  "step_mm": 250.0,
+  "band_mm": 400.0,
+  "break_mm": 1200.0
+ },
+ "counts": {
+  "flow_segments": 231,
+  "horizontal_runs": 79,
+  "runs_by_kind": {
+   "pipe": 79
+  },
+  "sections": 54,
+  "crossing_pairs": 27,
+  "row_bundle_sizes": {
+   "1": 73,
+   "2": 19,
+   "3": 7,
+   "4": 8,
+   "5": 10,
+   "6": 12
+  }
+ },
+ "summary": {
+  "all": {
+   "pairs": 41,
+   "median_mm": 114.3,
+   "p25_mm": 24.7,
+   "p75_mm": 470.2,
+   "length_weighted_median_mm": 105.2,
+   "share_below_25mm": 0.3170731707317073
+  },
+  "pipe-pipe": {
+   "pairs": 41,
+   "median_mm": 114.3,
+   "p25_mm": 24.7,
+   "p75_mm": 470.2,
+   "length_weighted_median_mm": 105.2,
+   "share_below_25mm": 0.3170731707317073
+  },
+  "pairs_by_kind": {
+   "pipe-pipe": 49
+  }
+ },
+ "pairs": [
+  {
+   "a": "0Rt1BXEtP6E8c0r6LHZfsp",
+   "b": "1zKaZ_JrfEMueroYicWcCf",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 512.6,
+   "gap_min_mm": 512.6,
+   "gap_max_mm": 512.6,
+   "n_sections": 13
+  },
+  {
+   "a": "0Rt1BXEtP6E8c0r6LHZfsp",
+   "b": "2h405XijT83A$BX7w5ki4U",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 202.1,
+   "gap_min_mm": 202.1,
+   "gap_max_mm": 202.1,
+   "n_sections": 2
+  },
+  {
+   "a": "0Rt1BXEtP6E8c0r6LHZfsp",
+   "b": "2h405XijT83A$BX7w5ki6j",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 364.6,
+   "gap_min_mm": 364.6,
+   "gap_max_mm": 364.6,
+   "n_sections": 7
+  },
+  {
+   "a": "0Rt1BXEtP6E8c0r6LHZfsp",
+   "b": "2h405XijT83A$BX7w5ki7I",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 284.6,
+   "gap_min_mm": 284.6,
+   "gap_max_mm": 284.6,
+   "n_sections": 9
+  },
+  {
+   "a": "0Rt1BXEtP6E8c0r6LHZfsp",
+   "b": "3vbdROJTj6exgKEqnbQlxl",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 651.2,
+   "gap_min_mm": 651.2,
+   "gap_max_mm": 651.2,
+   "n_sections": 4
+  },
+  {
+   "a": "1IZXvLt0135hZAfFKHqx7f",
+   "b": "2h405XijT83A$BX7w5ki9o",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 468.0,
+   "gap_min_mm": 468.0,
+   "gap_max_mm": 468.0,
+   "n_sections": 1
+  },
+  {
+   "a": "1ezehqTWzEAOCZ6I_hanYW",
+   "b": "2h405XijT83A$BX7w5ki7H",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 867.0,
+   "gap_min_mm": 867.0,
+   "gap_max_mm": 867.0,
+   "n_sections": 3
+  },
+  {
+   "a": "1ezehqTWzEAOCZ6I_hanYm",
+   "b": "2h405XijT83A$BX7w5ki5X",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 20.5,
+   "gap_min_mm": 20.5,
+   "gap_max_mm": 20.5,
+   "n_sections": 7
+  },
+  {
+   "a": "1sBpwf_5X5n90HmDYYs$tR",
+   "b": "2h405XijT83A$BX7w5ki8W",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.0,
+   "gap_min_mm": 470.0,
+   "gap_max_mm": 470.0,
+   "n_sections": 1
+  },
+  {
+   "a": "1uUs2cHDPBOxkzgUctDpG0",
+   "b": "2h405XijT83A$BX7w5ki5z",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 362.0,
+   "gap_min_mm": 362.0,
+   "gap_max_mm": 362.0,
+   "n_sections": 1
+  },
+  {
+   "a": "1uUs2cHDPBOxkzgUctDpHl",
+   "b": "2h405XijT83A$BX7w5ki4V",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 761.0,
+   "gap_min_mm": 761.0,
+   "gap_max_mm": 761.0,
+   "n_sections": 2
+  },
+  {
+   "a": "1uUs2cHDPBOxkzgUctDpHl",
+   "b": "2h405XijT83A$BX7w5ki6l",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 834.0,
+   "gap_min_mm": 834.0,
+   "gap_max_mm": 834.0,
+   "n_sections": 1
+  },
+  {
+   "a": "1uUs2cHDPBOxkzgUctDpHl",
+   "b": "3SbUSoADD5J9EhkdXSkfxp",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 761.0,
+   "gap_min_mm": 761.0,
+   "gap_max_mm": 761.0,
+   "n_sections": 2
+  },
+  {
+   "a": "1zKaZ_JrfEMueroYicWc2P",
+   "b": "1zKaZ_JrfEMueroYicWcCf",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 135.7,
+   "gap_min_mm": 135.7,
+   "gap_max_mm": 135.7,
+   "n_sections": 1
+  },
+  {
+   "a": "1zKaZ_JrfEMueroYicWcCf",
+   "b": "2h405XijT83A$BX7w5ki5X",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 105.2,
+   "gap_min_mm": 105.2,
+   "gap_max_mm": 105.2,
+   "n_sections": 12
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki41",
+   "b": "2h405XijT83A$BX7w5ki5g",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 919.7,
+   "gap_min_mm": 919.7,
+   "gap_max_mm": 919.7,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki41",
+   "b": "2h405XijT83A$BX7w5ki6g",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 5.3,
+   "gap_min_mm": 5.3,
+   "gap_max_mm": 5.3,
+   "n_sections": 6
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki4U",
+   "b": "2h405XijT83A$BX7w5ki6j",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 114.3,
+   "gap_min_mm": 114.3,
+   "gap_max_mm": 114.3,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki4V",
+   "b": "2h405XijT83A$BX7w5ki9$",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 24.7,
+   "gap_min_mm": 24.7,
+   "gap_max_mm": 24.7,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki4h",
+   "b": "2h405XijT83A$BX7w5ki6j",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 1125.6,
+   "gap_min_mm": 1125.6,
+   "gap_max_mm": 1125.6,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5A",
+   "b": "2h405XijT83A$BX7w5ki8W",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.2,
+   "gap_min_mm": 23.2,
+   "gap_max_mm": 23.2,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5F",
+   "b": "2h405XijT83A$BX7w5ki5z",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 568.7,
+   "gap_min_mm": 568.7,
+   "gap_max_mm": 568.7,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5I",
+   "b": "2h405XijT83A$BX7w5ki7w",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.0,
+   "gap_min_mm": 23.0,
+   "gap_max_mm": 23.0,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5S",
+   "b": "2h405XijT83A$BX7w5ki7l",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.0,
+   "gap_min_mm": 23.0,
+   "gap_max_mm": 23.0,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5l",
+   "b": "2h405XijT83A$BX7w5ki6D",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.0,
+   "gap_min_mm": 23.0,
+   "gap_max_mm": 23.0,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5l",
+   "b": "2h405XijT83A$BX7w5ki9$",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 518.6,
+   "gap_min_mm": 518.6,
+   "gap_max_mm": 518.6,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5o",
+   "b": "2h405XijT83A$BX7w5ki63",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 24.7,
+   "gap_min_mm": 24.7,
+   "gap_max_mm": 24.7,
+   "n_sections": 3
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki5z",
+   "b": "2h405XijT83A$BX7w5ki87",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 48.1,
+   "gap_min_mm": 48.1,
+   "gap_max_mm": 48.1,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki63",
+   "b": "2h405XijT83A$BX7w5ki79",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.2,
+   "gap_min_mm": 470.2,
+   "gap_max_mm": 470.2,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki63",
+   "b": "2h405XijT83A$BX7w5ki7M",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.2,
+   "gap_min_mm": 470.2,
+   "gap_max_mm": 470.2,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6D",
+   "b": "2h405XijT83A$BX7w5ki6l",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.2,
+   "gap_min_mm": 470.2,
+   "gap_max_mm": 470.2,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6D",
+   "b": "2h405XijT83A$BX7w5ki9$",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.2,
+   "gap_min_mm": 470.2,
+   "gap_max_mm": 470.2,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6j",
+   "b": "2h405XijT83A$BX7w5ki7I",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 54.6,
+   "gap_min_mm": 54.6,
+   "gap_max_mm": 54.6,
+   "n_sections": 9
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6l",
+   "b": "3SbUSoADD5J9EhkdXSkfxp",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 24.7,
+   "gap_min_mm": 24.7,
+   "gap_max_mm": 24.7,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6p",
+   "b": "2h405XijT83A$BX7w5ki7j",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.0,
+   "gap_min_mm": 23.0,
+   "gap_max_mm": 23.0,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki6y",
+   "b": "2h405XijT83A$BX7w5ki7M",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 23.0,
+   "gap_min_mm": 23.0,
+   "gap_max_mm": 23.0,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki74",
+   "b": "2h405XijT83A$BX7w5ki8w",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 591.6,
+   "gap_min_mm": 591.6,
+   "gap_max_mm": 591.6,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki79",
+   "b": "2h405XijT83A$BX7w5ki8b",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 34.4,
+   "gap_min_mm": 34.4,
+   "gap_max_mm": 34.4,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7G",
+   "b": "2h405XijT83A$BX7w5ki8c",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 530.0,
+   "gap_min_mm": 530.0,
+   "gap_max_mm": 530.0,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7G",
+   "b": "2h405XijT83A$BX7w5kiAW",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 24.7,
+   "gap_min_mm": 24.7,
+   "gap_max_mm": 24.7,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7M",
+   "b": "2h405XijT83A$BX7w5ki7T",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 470.2,
+   "gap_min_mm": 470.2,
+   "gap_max_mm": 470.2,
+   "n_sections": 3
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7M",
+   "b": "2h405XijT83A$BX7w5ki8c",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 34.4,
+   "gap_min_mm": 34.4,
+   "gap_max_mm": 34.4,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7M",
+   "b": "2h405XijT83A$BX7w5ki9r",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 34.4,
+   "gap_min_mm": 34.4,
+   "gap_max_mm": 34.4,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7T",
+   "b": "2h405XijT83A$BX7w5kiAY",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 24.7,
+   "gap_min_mm": 24.7,
+   "gap_max_mm": 24.7,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7X",
+   "b": "2h405XijT83A$BX7w5ki87",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 446.8,
+   "gap_min_mm": 446.8,
+   "gap_max_mm": 446.8,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki7X",
+   "b": "2h405XijT83A$BX7w5ki8w",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 34.4,
+   "gap_min_mm": 34.4,
+   "gap_max_mm": 34.4,
+   "n_sections": 1
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki87",
+   "b": "2h405XijT83A$BX7w5ki8w",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 506.6,
+   "gap_min_mm": 506.6,
+   "gap_max_mm": 506.6,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki8W",
+   "b": "2h405XijT83A$BX7w5kiAW",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 520.1,
+   "gap_min_mm": 520.1,
+   "gap_max_mm": 520.1,
+   "n_sections": 2
+  },
+  {
+   "a": "2h405XijT83A$BX7w5ki8r",
+   "b": "2h405XijT83A$BX7w5ki8t",
+   "kinds": [
+    "pipe",
+    "pipe"
+   ],
+   "gap_mm": 813.7,
+   "gap_min_mm": 813.7,
+   "gap_max_mm": 813.7,
+   "n_sections": 3
+  }
+ ]
+}

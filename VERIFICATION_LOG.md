@@ -84,12 +84,13 @@ not source-traceable to a single document).
 
 | Item | Value | Source | Status |
 |---|---|---|---|
-| Duplex MEP measurements | 427 segments; 103 clear gaps (99 < 600 mm): median 108, IQR 24–238 mm (< 600); 28–271 (all) | measured June 2026 from the Duplex MEP IFC with IfcOpenShell; procedure `verify/measure_ifc.py`; sample `measured_gaps.json` | VERIFIED |
-| Duplex Plumbing measurements | 231 sized segments; 61 gaps (59 < 600): median 53, IQR 18–183 (< 600); 19–202 (all); sizes DN25/40/15 dominant | `measured_gaps_plumbing.json` | VERIFIED |
-| Wasserstein-1, revision 4.0 (gaps < 600 mm) | insulation surface: → MEP **40.7**, → Plumbing 89.3, → pooled 58.9 mm; bare surface: 67.7 / 117.4 / 86.3 mm | `python verify/compare_gaps.py`, test-pinned | VERIFIED (computed) |
-| Wasserstein-1, revision 3.0 | envelope draw (the paper's definition): 40.7 / 89.3 / 58.9; insulation surface: 88.5 / 137.6 / 106.9; bare: 109.9 / 159.6 / 128.4 mm | `python verify/compare_gaps.py --version 3.0`, test-pinned | VERIFIED (computed) |
-| Baselines | fixed 25 mm gap → MEP 138.5 mm; MEP ↔ Plumbing (real-to-real) 49.9 mm | same | VERIFIED (computed) |
-| Re-execution of the IFC measurement | not re-run for 4.0.0 | the Duplex files are not redistributed here and buildingSMART's sample repository has been reorganised; `measure_ifc.py --self-check` compares any re-run with the shipped sample | OUTSTANDING |
+| Duplex MEP measurements (June 2026) | 427 segments; 103 clear gaps (99 < 600 mm): median 108, IQR 24–238 mm (< 600); 28–271 (all) | shipped sample `measured_gaps.json`; the generator's gap lognormal is fitted to it | SHIPPED; NOT REPRODUCIBLE with the documented June procedure (re-run October 2026: 131 gaps, median −24 mm; `measure_ifc.py --legacy`) |
+| Duplex Plumbing measurements (June 2026) | 231 sized segments; 61 gaps (59 < 600): median 53, IQR 18–183 (< 600); 19–202 (all) | `measured_gaps_plumbing.json` | SHIPPED |
+| Wasserstein-1 against the June samples, revision 4.0 | insulation surface: → MEP **40.7**, → Plumbing 89.3, → pooled 58.9 mm; bare surface: 67.7 / 117.4 / 86.3 mm | `python verify/compare_gaps.py`, test-pinned (the paper's §5.2) | VERIFIED (computed) |
+| Wasserstein-1 against the June samples, revision 3.0 | envelope draw (the paper's definition): 40.7 / 89.3 / 58.9; insulation surface: 88.5 / 137.6 / 106.9; bare: 109.9 / 159.6 / 128.4 mm | `python verify/compare_gaps.py --version 3.0`, test-pinned | VERIFIED (computed) |
+| Baselines against the June samples | fixed 25 mm gap → MEP 138.5 mm; MEP ↔ Plumbing (real-to-real) 49.9 mm | same | VERIFIED (computed) |
+| Section-cut measurement (October 2026) | sections every 250 mm, rows within 400 mm of height, bare surfaces; Duplex MEP 74 pipe pairs, Duplex Plumbing 41, Medical-Dental Clinic Plumbing 797 | `verify/measure_ifc.py` on the CC BY 4.0 buildingSMART files (SHA-256 in `verify/measured/README.md`); records recomputed from the shipped segment tables in `tests/test_sections.py` | VERIFIED (measured) |
+| Wasserstein-1 on sections, revision 4.0 (pipe-pipe, by length) | → Clinic **28.3** (16.0–43.7); → Duplex MEP 70.4; → Duplex Plumbing 85.3; Clinic ↔ Duplex 71.0 / 85.0; Duplex MEP ↔ Plumbing 25.6; revision 3.0 → Clinic 65.1 mm | `python verify/compare_sections.py --sensitivity`, test-pinned; stable across 11 cut settings (27–36 mm) | VERIFIED (computed) |
 
 ## 8. Reproducibility
 
@@ -102,5 +103,5 @@ not source-traceable to a single document).
 
 ## 9. Outstanding
 - Verbatim reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 (paywalled; library check).
-- Re-running `verify/measure_ifc.py` on the Duplex models and committing the report.
+- Refitting the gap distribution to the section-cut measurements (a data revision; the released files keep the June 2026 fit).
 - Per-group (co-planar bank) stagger with re-calibration against the measured elevation spread.
