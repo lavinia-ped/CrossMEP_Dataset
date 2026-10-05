@@ -277,6 +277,18 @@ The verification chain is executable end to end:
    be installed. Try your own catalog: `python verify/catalog_stress.py --bins
    40:60:2.0,100:120:3.0`.
 
+## Generator Studio
+
+`docs/studio/index.html` is an interactive page: choose a tier or an exact
+composition, a mounting surface and a seed, and browse the sections the
+generator produces, each drawn to scale with its element table, its closest pair
+dimensioned, the spacing drawn in the run against the fitted distribution, and
+the Python call that reproduces it. It embeds real outputs of the released
+generator (tiers C1–C8 × seeds 0–9, 12 sections each; 247 compositions × ceiling /
+wall × seeds 0–2, 4 sections each); `python scripts/build_studio.py` rebuilds it,
+and `tests/test_studio.py` checks the embedded sections against fresh generator
+runs. Open the file in a browser; it needs no server.
+
 ## Presenting the dataset
 
 `docs/CrossMEP_CIBW78_talk.pptx` is a ten-minute talk on the dataset (14 slides
@@ -300,7 +312,7 @@ schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
 verify/              IFC section-cut measurement, measured records of two open buildings,
                      distribution comparisons, tier trends, catalog stress test
 scripts/             figures and gallery screenshot for the talk
-docs/                talk script, slide deck and figures
+docs/                talk script, slide deck, figures, Generator Studio (docs/studio/)
 tests/               189 checks: derivations, geometry, generation over seeds, byte-exact
                      regeneration of both revisions, schema, paper numbers, metrics, the catalog
                      stress test, the section-cut measurement (recomputed from the shipped
