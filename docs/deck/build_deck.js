@@ -227,6 +227,7 @@ async function main() {
   });
 
   const comp = D.composition;
+  const CAT = D.catalog, CB = CAT.benchmark;
   const w1ins = D.w1.insulation.mep, w1bare = D.w1.bare.mep, real = D.w1.real_to_real, fixed = D.w1.fixed_floor_gap;
   const gapC2 = D.tier_medians.C2.clear_gap_mm, gapC8 = D.tier_medians.C8.clear_gap_mm;
   const loadC1 = D.tier_medians.C1.load_kN, loadC8 = D.tier_medians.C8.load_kN;
@@ -438,18 +439,32 @@ async function main() {
   // ========================================================================= 11 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 3: a two-bin clamp catalog covers 1 pipe in 9", { placeholder: "title" });
-    s.addChart(pres.ChartType.bar, [{ name: "pipes the catalog can attach (%)", labels: D.tiers, values: D.tiers.map((t) => D.coverage_pct[t]) }],
-      chartStyle({ x: 0.6, y: 1.5, w: 7.6, h: 5.1, barDir: "col", barGapWidthPct: 150, dataLabelFormatCode: "0.0",
-        valAxisLabelFormatCode: "0", valAxisMinVal: 0, valAxisMaxVal: 25, valAxisMajorUnit: 5,
-        title: "Share of pipes the catalog can attach, by tier (%)", objectName: "coverage chart" }));
-    tile(s, 8.5, 1.55, 4.23, 1.55, `${fmt1(D.coverage_overall_pct)} %`, "of the benchmark’s pipes can be attached with two clamp bins (48–54 mm at 2.5 kN; 108–114 mm at 4.0 kN)", { labelSize: 11 });
-    tile(s, 8.5, 3.3, 4.23, 1.55, `0 of ${fmtInt(D.non_pipe_elements)}`, "trays, ducts and conduits: a clamp catalog defines no attachment for them", { labelSize: 11 });
-    panel(s, 8.5, 5.05, 4.23, 1.55, "catalog note card");
-    s.addText([{ text: "Loads never bind; diameter and kind do. ", options: { bold: true } },
-      { text: "“Generalise the catalog” becomes a measured requirement: small-bore clamps first, then tray, duct and conduit attachments." }],
-      { x: 8.75, y: 5.15, w: 3.75, h: 1.35, fontSize: 12.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "catalog note" });
-    s.addNotes("The third experiment connects the dataset to the task it serves. We take a released two-bin clamp catalog and ask which elements it can attach. 11.6 per cent of pipes, roughly uniform across tiers, and none of the trays, ducts and conduits. Load never binds; diameter and kind do. So the dataset turns 'generalise the catalog' into a measured requirement: small-bore clamps first, then tray, duct and conduit attachments. (7:05)");
+    s.addText("Experiment 3: a two-size clamp catalog attaches 1 pipe in 9", { placeholder: "title" });
+    const sizes = Object.keys(CAT.by_size);
+    s.addChart(pres.ChartType.bar, [
+      { name: "attachable", labels: sizes, values: sizes.map((k) => CAT.by_size[k].covered) },
+      { name: "no size fits", labels: sizes, values: sizes.map((k) => CAT.by_size[k].pipes - CAT.by_size[k].covered) }],
+      chartStyle({ x: 0.6, y: 1.45, w: 6.0, h: 3.55, barDir: "col", barGrouping: "stacked", barGapWidthPct: 45,
+        chartColors: [THEME.colors.accent1, "CFCDC3"], dataLabelPosition: "ctr", dataLabelFormatCode: "#,##0;;;",
+        dataLabelFontSize: 9, dataLabelColor: THEME.colors.dk1, valAxisLabelFormatCode: "#,##0", valAxisMinVal: 0,
+        valAxisMaxVal: 600, valAxisMajorUnit: 100, showLegend: true, legendPos: "b", legendFontSize: 10, legendColor: INK2,
+        title: "Pipes by nominal size: what the two-size catalog attaches", objectName: "attach by size chart" }));
+    const curve = CAT.demand.curve;
+    s.addChart(pres.ChartType.bar, [{ name: "best possible share (%)", labels: curve.map((r) => String(r.k)), values: curve.map((r) => r.pct) }],
+      chartStyle({ x: 6.75, y: 1.45, w: 5.98, h: 3.55, barDir: "col", barGapWidthPct: 45, dataLabelFormatCode: "0",
+        dataLabelFontSize: 9, valAxisLabelFormatCode: "0", valAxisMinVal: 0, valAxisMaxVal: 100, valAxisMajorUnit: 20,
+        showCatAxisTitle: true, catAxisTitle: `number of clamp sizes, each fitting a ${CAT.demand.width_mm} mm diameter window`,
+        catAxisTitleFontSize: 10, catAxisTitleColor: INK2,
+        title: "Best share of pipes (%) that any k clamp sizes could attach", objectName: "demand chart" }));
+    const tw = (12.13 - 2 * 0.2) / 3;
+    const k2 = curve.find((r) => r.k === 2).pct, k6 = curve.find((r) => r.k === 6).pct;
+    tile(s, 0.6, 5.1, tw, 1.6, `${fmt1(CB.pct_pipes)} %`,
+      `of benchmark pipes attachable with the paper’s two sizes (95 % CI ${fmt1(CB.ci[0])}–${fmt1(CB.ci[1])}); every one is DN40`, { labelSize: 11 });
+    tile(s, 0.6 + tw + 0.2, 5.1, tw, 1.6, `${fmt1(k2)} %`,
+      `with two sizes placed where the pipes are; ${Math.round(k6)} % with six, and every pipe with ${curve.length}`, { labelSize: 11 });
+    tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
+      `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
+    s.addNotes(`The third experiment connects the dataset to the task it serves: what must a catalog of clamps cover? Take the two-size catalog from the paper as an illustration. It attaches ${fmt1(CB.pct_pipes)} per cent of the pipes - ${CB.covered} of ${fmtInt(CB.pipes)}, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])} - and every one is a single size, DN40. Load never binds: the heaviest pipe is ${CB.max_pipe_load_kN.toFixed(2)} kilonewtons against a ${CB.min_bin_capacity_kN.toFixed(1)} kilonewton clamp. Trays, ducts and conduits are not covered at all. On the right is what the dataset asks of any catalog: two sizes placed where the pipes are would attach ${Math.round(k2)} per cent, six sizes ${Math.round(k6)}, and ${curve.length} sizes every pipe. So 'what should the catalog contain' becomes a measurement. (7:05)`);
   }
 
   // ========================================================================= 12 using it
@@ -548,6 +563,44 @@ async function main() {
     tile(s, 8.5, 2.95, 4.23, 1.2, `${Math.round(w1ins)} / ${Math.round(w1bare)} mm`, "Wasserstein-1, generated to measured gaps: insulation / pipe surfaces", { bigSize: 24, labelSize: 11 });
     tile(s, 8.5, 4.35, 4.23, 1.2, `KS p = ${D.fit.ks_p.toFixed(2)}`, `lognormal fit to the measured gaps above 25 mm (n = ${D.fit.n})`, { bigSize: 24, labelSize: 11 });
     s.addNotes("Backup: per-tier medians on the benchmark split, and the fit statistics behind experiment 2.");
+  }
+  {
+    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
+    s.addText("Appendix: the catalog stress test, with error bars", { placeholder: "title" });
+    const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "center" } });
+    const cell = (t, a, b) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "center", bold: !!b } });
+    const ci = (v) => `${fmt1(v.pct)} (${fmt1(v.lo)}–${fmt1(v.hi)})`;
+    const tiers = Object.keys(CB.per_tier);
+    const popTiers = CAT.population ? CAT.population.per_tier : {};
+    const rowsT = [[hdr("tier"), hdr("pipes"), hdr("benchmark %  (95 % CI)"), hdr("population %  (95 % CI)")]];
+    for (const t of tiers) {
+      const v = CB.per_tier[t];
+      rowsT.push([cell(t), cell(String(v.pipes)), cell(ci(v)), cell(popTiers[t] ? ci(popTiers[t]) : "—")]);
+    }
+    s.addTable(rowsT, { x: 0.6, y: 1.5, w: 6.4, colW: [0.8, 0.9, 2.35, 2.35], fontFace: THEME.bodyFontFace, fontSize: 11,
+      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "per tier catalog table" });
+    const rowsS = [[hdr("attach diameter rule", "left"), hdr("bins ±0 mm"), hdr("bins ±0.5 mm"), hdr("bins ±1 mm")]];
+    for (const rule of ["service", "bare", "insulated"]) {
+      const r = CAT.sensitivity.filter((x) => x.rule === rule);
+      rowsS.push([cell(rule === "service" ? "service (paper)" : rule, "left", rule === "service"), ...r.map((x) => cell(fmt1(x.pct_benchmark)))]);
+    }
+    s.addTable(rowsS, { x: 0.6, y: 4.85, w: 6.4, colW: [2.2, 1.4, 1.4, 1.4], fontFace: THEME.bodyFontFace, fontSize: 11,
+      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "sensitivity table" });
+    caption(s, "% of benchmark pipes attachable when both bin edges are widened by the stated amount. DN100 (114.3 mm) lies 0.3 mm above the 108–114 mm bin, so the headline moves with the diameter rule and the edge tolerance.",
+      { x: 0.6, y: 6.25, w: 6.4, h: 0.55 }, "sensitivity caption");
+    const rowsP = [[hdr("split", "left"), hdr("pipes"), hdr("% attachable (95 % CI)")]];
+    for (const [name, v] of Object.entries(CAT.splits)) {
+      rowsP.push([cell(name, "left"), cell(fmtInt(v.pipes)), cell(ci({ pct: v.pct, lo: v.ci[0], hi: v.ci[1] }))]);
+    }
+    s.addTable(rowsP, { x: 7.3, y: 1.5, w: 5.43, colW: [1.4, 1.2, 2.83], fontFace: THEME.bodyFontFace, fontSize: 11,
+      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "split catalog table" });
+    bullets(s, [
+      `Intervals: cluster bootstrap over contexts (${fmtInt(CAT.settings.n_boot)} resamples), because the elements of one context are correlated`,
+      CAT.population ? `Population: ${fmtInt(CAT.population.contexts_per_tier)} freshly generated contexts per tier; overall ${fmt1(CAT.population.overall.pct)} % (95 % CI ${fmt1(CAT.population.overall.lo)}–${fmt1(CAT.population.overall.hi)})` : "",
+      "Only size and capacity are tested, so coverage is an upper bound on what can be installed",
+      "Best possible share with k sizes: exact optimum over the distinct attach diameters",
+    ].filter(Boolean), { x: 7.3, y: 3.4, w: 5.43, h: 3.3 }, 12, "stress method bullets");
+    s.addNotes("Backup for questions on experiment 3. Per tier, the benchmark has only 125 contexts, so its intervals are wide; the population estimate from two thousand generated contexts per tier shows the tiers are about equal. The headline depends on the attach-diameter rule and on bin-edge tolerance because one nominal size, DN100, sits 0.3 millimetres outside a bin. Only size and capacity are tested - clearance, insert orientation and anchors are not - so the coverage is an upper bound on what can be installed.");
   }
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });

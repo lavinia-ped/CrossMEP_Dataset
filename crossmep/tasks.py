@@ -26,12 +26,13 @@ from collections import defaultdict
 from statistics import median
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple, Union
 
+from . import catalog as _catalog
 from .io import DATA_VERSION, ROOT, read_payload, split_path
 from .model import MEPContext, revision_for, validate_context
 
 TIER_ORDER: List[str] = [f"C{n}" for n in range(1, 9)]
 KINDS = ("pipe", "cable_tray", "duct", "conduit")
-COLD = frozenset({"chilled", "domestic_cold"})
+COLD = _catalog.COLD
 """Services clamped over a rigid insert at the insulated diameter (cold lines);
 hot and bare lines are clamped on the bare pipe."""
 LEGACY_ENVELOPE_MM = 25.0      # routing envelope of data revision 3.0
@@ -135,30 +136,22 @@ def neighbour_gaps(ctx: dict, kind: str = "insulation") -> List[float]:
 # Tasks                                                                        #
 # --------------------------------------------------------------------------- #
 
-def catalog_coverage(data: Iterable[dict], clamp_bins: Sequence[ClampBin]) -> Dict[str, float]:
+def catalog_coverage(data: Iterable[dict], clamp_bins: Sequence[ClampBin], rule: str = "service",
+                     tol_mm: float = 0.0) -> Dict[str, float]:
     """Share of pipes a clamp catalog covers, per tier and overall (percent).
 
-    ``clamp_bins`` = [(lo_mm, hi_mm, capacity_kN), ...].  The tested diameter is
-    service-correct: the insulated outer diameter for cold lines (clamped over a
-    rigid insert), the bare outer diameter otherwise.  Non-pipe elements are
-    counted separately: a clamp catalog never covers them.
+    ``clamp_bins`` = [(lo_mm, hi_mm, capacity_kN), ...].  The tested diameter
+    follows ``rule`` (default: the insulated diameter for cold lines, which are
+    clamped over a rigid insert, the bare diameter otherwise); ``tol_mm`` widens
+    every bin on both sides.  Non-pipe elements are counted separately: a clamp
+    catalog never covers them.  Definitions, outcome decomposition, error bars
+    and the catalog-independent demand curve: :mod:`crossmep.catalog` and
+    ``verify/catalog_stress.py``.
     """
-    per: Dict[str, List[int]] = defaultdict(lambda: [0, 0])
-    nonpipe = 0
-    for c in data:
-        for e in c["elements"]:
-            if e["kind"] != "pipe":
-                nonpipe += 1
-                continue
-            dia = e["width_mm"] + (2 * e["insulation_mm"] if e["service"] in COLD else 0.0)
-            ok = any(lo <= dia <= hi and e["load_kN"] <= cap for lo, hi, cap in clamp_bins)
-            per[c["tier"]][0] += int(ok)
-            per[c["tier"]][1] += 1
-    out: Dict[str, float] = {t: round(100.0 * a / b, 1) for t, (a, b) in sorted(per.items())}
-    tot_ok = sum(v[0] for v in per.values())
-    tot_n = sum(v[1] for v in per.values())
-    out["overall"] = round(100.0 * tot_ok / tot_n, 1) if tot_n else 0.0
-    out["non_pipe_elements"] = nonpipe
+    s = _catalog.summary(data, clamp_bins, rule, tol_mm)
+    out: Dict[str, float] = {t: round(v["pct_pipes"], 1) for t, v in s["per_tier"].items() if v["pipes"]}
+    out["overall"] = round(s["pct_pipes"], 1)
+    out["non_pipe_elements"] = s["not_pipe"]
     return out
 
 

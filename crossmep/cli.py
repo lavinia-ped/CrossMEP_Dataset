@@ -18,11 +18,12 @@ from . import __version__
 from .io import (DATA_VERSION, DATA_VERSIONS, RELEASE_SPLITS, ROOT, build_payload,
                  contexts_from_payload, read_payload, release_files, schema_path, sha256_file,
                  split_path, write_payload)
+from .catalog import PAPER_CATALOG
 from .model import validate_context
 
-RELEASED_CLAMP_BINS = [(48.0, 54.0, 2.5), (108.0, 114.0, 4.0)]
-"""The two-bin clamp catalog of the companion SSA code base used for the catalog
-stress test (paper section 5.3): (lo_mm, hi_mm, capacity_kN)."""
+RELEASED_CLAMP_BINS = [tuple(b) for b in PAPER_CATALOG]
+"""The paper's illustrative two-size clamp catalog (section 5.3): (lo_mm, hi_mm,
+capacity_kN).  See crossmep.catalog and verify/catalog_stress.py."""
 
 
 def _env_line() -> str:
@@ -119,7 +120,7 @@ def results_markdown(data: List[dict], name: str, version: str) -> str:
     kt = cm.kind_totals(data)
     lines += ["Element kinds: " + ", ".join(f"{k} {v}" for k, v in kt.items()) + f" (total {sum(kt.values())})", ""]
     cov = cm.catalog_coverage(data, RELEASED_CLAMP_BINS)
-    lines += ["Catalog coverage, released two-bin clamp catalog "
+    lines += ["Catalog coverage, the paper's illustrative two-size clamp catalog "
               f"{RELEASED_CLAMP_BINS}: " + ", ".join(f"{k} {v}" for k, v in cov.items()), ""]
     return "\n".join(lines)
 

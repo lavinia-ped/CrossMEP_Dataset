@@ -82,7 +82,7 @@ data = cm.load("benchmark")                       # revision 4.0; cm.load("bench
 print(cm.per_tier_table(data))                    # medians per tier (RESULTS.md)
 cm.filter_contexts(data, pipes=2, trays=1)        # exactly 2 pipes + 1 tray
 cm.filter_contexts(data, ducts=(1, None))         # at least one duct
-cm.catalog_coverage(data, [(48, 54, 2.5), (108, 114, 4.0)])
+cm.catalog_coverage(data, [(48, 54, 2.5), (108, 114, 4.0)])  # share of pipes a clamp catalog can attach
 cm.min_clear_gap(ctx)                             # minimum pairwise physical clear gap (= congestion_score)
 cm.validate(ctx)                                  # full validator on a dict
 ```
@@ -96,6 +96,7 @@ sha256sum benchmark.json b3.json; cat RELEASE_CHECKSUMS.txt           # identica
 python -m crossmep validate                       # validator + JSON Schema over all eight files
 python -m crossmep results                        # per-tier tables, kinds, catalog coverage
 python verify/compare_gaps.py                     # section 5.2: lognormal fit, KS, Wasserstein-1
+python verify/catalog_stress.py                   # section 5.3: error bars, sensitivity, demand curve
 python -m pytest                                  # everything above as tests
 ```
 
@@ -230,11 +231,29 @@ The verification chain is executable end to end:
 3. **Conventions.** Tiering order, service banking, insulation schedules and
    the wall drip rule (0 violations in 2,913 wet/electrical pairs on the
    benchmark) are tested over hundreds of unseen seeds.
+4. **Catalog stress test (paper §5.3).** `crossmep/catalog.py` states precisely
+   what "a clamp catalog attaches this element" means, and
+   `verify/catalog_stress.py` answers it with error bars instead of one number.
+   For the paper's two-size catalog (48–54 mm up to 2.5 kN; 108–114 mm up to
+   4.0 kN) on the benchmark:
+
+   | | |
+   |---|---|
+   | attachable pipes | 293 of 2,529 = **11.6 %** (95 % CI 10.1–13.0; cluster bootstrap over contexts) |
+   | population estimate | 10.8 % (10.5–11.2) from 16,000 generated contexts; per tier 10.4–11.4 % |
+   | sizes attached | DN40 only; DN100 (114.3 mm) lies 0.3 mm above the 108–114 mm bin |
+   | why the rest is missed | no size fits 2,236 pipes; none too heavy (0.88 kN vs 2.5 kN); 1,971 trays, ducts and conduits |
+   | sensitivity | 12.9 % with bins widened by 0.5 mm; 16.4 % with the bare diameter on every line |
+   | what any catalog needs | two well-placed 6 mm sizes would attach 43.0 %, six 80.1 %, twelve all |
+
+   Only size and capacity are tested, so coverage is an upper bound on what can
+   be installed. Try your own catalog: `python verify/catalog_stress.py --bins
+   40:60:2.0,100:120:3.0`.
 
 ## Presenting the dataset
 
 `docs/CrossMEP_CIBW78_talk.pptx` is a ten-minute talk on the dataset (14 slides
-plus two appendix slides, speaker notes on every slide); `docs/TALK.md` is the
+plus three appendix slides, speaker notes on every slide); `docs/TALK.md` is the
 same talk as a script with the questions practitioners ask; `docs/figures/` holds
 the figures. Everything regenerates from the released data:
 `python scripts/make_figures.py` (`pip install matplotlib "qrcode[pil]"`) writes
@@ -247,15 +266,17 @@ LibreOffice is unavailable.
 ## Repository layout
 
 ```
-crossmep/            package: model · library · layout · generate · io · tasks · render · cli
+crossmep/            package: model · library · layout · generate · io · tasks · catalog · render · cli
 data/v4.0/           current data revision (four splits)
 data/v3.0/           the paper release (four splits + its gallery), frozen
 schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
-verify/              IFC measurement procedure, measured samples, distribution comparison
+verify/              IFC measurement procedure, measured samples, distribution comparison,
+                     catalog stress test
 scripts/             figures and gallery screenshot for the talk
 docs/                talk script, slide deck and figures
-tests/               119 checks: derivations, geometry, generation over seeds, byte-exact
-                     regeneration of both revisions, schema, paper numbers, metrics, CLI, shims
+tests/               155 checks: derivations, geometry, generation over seeds, byte-exact
+                     regeneration of both revisions, schema, paper numbers, metrics, the catalog
+                     stress test (definitions, exact optimum vs brute force, bootstrap), CLI, shims
 ```
 
 ## Versions and relation to the paper
@@ -278,8 +299,8 @@ further substrates. The public element library covers carbon-steel pipe
 DN15–100 on concrete slabs and walls. The layout engine is the same, so the
 split sizes and the spacing results reproduce from these files, while
 composition-dependent values differ slightly (benchmark: 2,529 pipes / 1,141
-conduits / 569 trays / 261 ducts; catalog coverage 11.6 % overall, 9.2–13.6 % by
-tier). `RESULTS.md` gives every value for the public files; the tests pin them.
+conduits / 569 trays / 261 ducts; catalog coverage 11.6 % overall (95 % CI
+10.1–13.0), 9.2–13.6 % by 125-context tier). `RESULTS.md` gives every value for the public files; the tests pin them.
 
 **Modelling simplifications.** Stagger is drawn per element, so two pipes of one
 bank can sit at different standoffs, whereas a bank on a shared trapeze would be

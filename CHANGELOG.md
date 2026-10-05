@@ -29,8 +29,27 @@ package version tracks code and documentation.
 - Metrics: `tasks.min_clear_gap` (= `congestion_score`) is the physical definition;
   `tasks.envelope_clearance` keeps the 3.0 definition for the paper's files.
 
+### Catalog stress test (paper section 5.3)
+- `crossmep/catalog.py` (stdlib): the question stated precisely: attach-diameter rules
+  (`service`, `bare`, `insulated`), size bins with capacity, bin-edge tolerance, and a
+  single reason for every miss (`not_pipe`, `size`, `load`). `tasks.catalog_coverage`
+  delegates to it and returns the same numbers as before.
+- `verify/catalog_stress.py` (NumPy): the paper's single number with cluster-bootstrap
+  95 % intervals over contexts (overall, per tier, per split), a Monte Carlo population
+  estimate from the generator, the sizes that are attached, sensitivity to the diameter
+  rule and bin tolerance, and an exact catalog-independent demand curve (best share of
+  pipes that k clamp sizes of a given window width could attach). Any catalog can be
+  passed with `--bins`.
+- Findings on the released benchmark: the paper's two bins attach 11.6 % of pipes
+  (95 % CI 10.1–13.0), all of them DN40; load never binds (0.88 kN vs 2.5 kN); DN100
+  sits 0.3 mm above the 108–114 mm bin, so the headline moves to 12.9 % with 0.5 mm
+  tolerance; two best-placed 6 mm sizes would attach 43 %, six 80 %.
+- 36 tests (`tests/test_catalog.py`), including the DP against brute force and the
+  bootstrap's coverage on synthetic clustered data. Edge case fixed: a bootstrap
+  resample with no pipe is left out instead of turning the interval into NaN.
+
 ### Talk material
-- `docs/CrossMEP_CIBW78_talk.pptx` (14 slides + 2 appendix, speaker notes) and `docs/TALK.md`:
+- `docs/CrossMEP_CIBW78_talk.pptx` (14 slides + 3 appendix, speaker notes) and `docs/TALK.md`:
   a ten-minute talk on the dataset; figures and every printed number regenerate from the
   released data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`, `docs/deck/build_deck.js`).
 - Docs: the IFC measurement is described as recording gaps between flow-segment (bare pipe)
@@ -56,7 +75,7 @@ package version tracks code and documentation.
   (lognormal fit n = 73, μ = 5.018, σ = 0.848, KS p = 0.53; baselines 138.5 / 49.9 mm)
   for every gap definition; `verify/measure_ifc.py` makes the IfcOpenShell procedure
   executable with a `--self-check`.
-- Tests 41 → 119: derived constants pinned; every released element checked against
+- Tests 41 → 155: derived constants pinned; every released element checked against
   the library; validator unit tests; invariants over 29 seeds; byte-exact regeneration
   of eight files; schema conformance; paper numbers that reproduce and the released
   values of those that do not; metric unit tests; CLI and shims.
