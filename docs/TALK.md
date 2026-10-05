@@ -5,7 +5,7 @@ speaker notes). Audience: CIB W78, a mix of BIM and IT researchers and MEP and
 construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
-Timing: 14 slides in about 9.5 minutes; two appendix slides for questions.
+Timing: 14 slides in about 9.5 minutes; three appendix slides for questions.
 
 ---
 
@@ -137,16 +137,22 @@ discipline models are 50 mm apart, and a fixed modular gap would be 139 mm away.
 So the generated spacing sits in the range of the variation between two real
 models of one building."
 
-## 11. Experiment 3: a two-bin clamp catalog covers 1 pipe in 9 (7:05)
+## 11. Experiment 3: a two-size clamp catalog attaches 1 pipe in 9 (7:05)
 
-**Show:** coverage per tier; 11.6 %; 0 of 1,971 trays, ducts and conduits.
+**Show:** benchmark pipes by nominal size with the attachable ones in blue (only
+DN40); the best share of pipes any k clamp sizes could attach (43 % with two,
+80 % with six, 100 % with twelve); 11.6 % (95 % CI 10.1–13.0); 0 of 1,971 trays,
+ducts and conduits.
 
-**Say:** "The third experiment connects the dataset to the task it serves. We
-take a released two-bin clamp catalog and ask which elements it can attach.
-11.6 per cent of pipes, roughly uniform across tiers, and none of the trays,
-ducts and conduits. Load never binds; diameter and kind do. So the dataset turns
-'generalise the catalog' into a measured requirement: small-bore clamps first,
-then tray, duct and conduit attachments."
+**Say:** "The third experiment connects the dataset to the task it serves: what
+must a catalog of clamps cover? Take the two-size catalog from the paper as an
+illustration. It attaches 11.6 per cent of the pipes — 293 of 2,529, interval 10
+to 13 — and every one is a single size, DN40. Load never binds: the heaviest pipe
+is 0.88 kilonewtons against a 2.5 kilonewton clamp. Trays, ducts and conduits are
+not covered at all. On the right is what the dataset asks of any catalog: two
+sizes placed where the pipes are would attach 43 per cent, six sizes 80, and
+twelve sizes every pipe. So 'what should the catalog contain' becomes a
+measurement."
 
 ## 12. Using CrossMEP: load, filter, generate, inspect (7:50)
 
@@ -180,8 +186,9 @@ eye."
 every number traced to its source, checked against a built project, and open.
 The QR code takes you to the data, the code and the gallery. Thank you."
 
-**Appendix slides:** per-tier statistics of the benchmark split; one stored
-record in JSON.
+**Appendix slides:** per-tier statistics of the benchmark split; the catalog
+stress test with error bars (per tier, per split, sensitivity to the diameter rule
+and bin tolerance); one stored record in JSON.
 
 ---
 
@@ -245,3 +252,26 @@ tray on a wall), and a generator for your own mix.
 **"Can I run the comparison on my own project?"** Yes: `verify/measure_ifc.py`
 and `verify/compare_gaps.py` take any IFC model that exports element sizes and
 give the same statistics and distances for your building.
+
+**"What catalog is that? Is it a manufacturer's range?"** It is the two-size clamp
+family the paper describes as the safe-to-share catalog of the companion SSA
+codebase (48–54 mm up to 2.5 kN; 108–114 mm up to 4.0 kN), reflecting real
+configurations. It is deliberately small: a stress test, not a full range. The
+conclusion does not depend on it: the right-hand chart asks the same question of
+any catalog, namely how many sizes, and where, this dataset needs.
+
+**"How certain is 11.6 %?"** The 95 % interval over contexts is 10.1–13.0
+(cluster bootstrap: the elements of one context are correlated); over 16,000
+freshly generated contexts it is 10.8 % (10.5–11.2), and the eight tiers lie
+between 10.4 and 11.4 %. The value is sensitive to one edge: DN100
+(114.3 mm) lies 0.3 mm above the 108–114 mm bin, so widening the bins by 0.5 mm
+gives 12.9 %. What does not change is that only DN40 is attached.
+
+**"Is that coverage what a designer could install?"** No, it is an upper bound:
+only size and capacity are tested. Clearance to neighbours, the insert on cold
+lines, anchors and rods are not modelled.
+
+**"The paper says 11.5 %, the slide 11.6 %."** The paper's figure was computed
+on an internal build with a larger pipe library; the public files give 11.6 %
+and 1,971 trays, ducts and conduits (paper: 1,832). `RESULTS.md` lists every
+value for the public files and the tests pin them.

@@ -12,7 +12,8 @@ Figures (benchmark split of the current data revision; 200 dpi):
     04_gaps_vs_measured.png     generated clear gaps vs the Duplex Apartment measurement,
                                 with the fitted lognormal and the Wasserstein-1 distances
     05_generation_example.png   one generated context with its rows and a sampled gap annotated
-    06_catalog_coverage.png     share of pipes a two-bin clamp catalog covers, per tier
+    06_catalog_coverage.png     which pipe sizes the paper's two-size clamp catalog attaches, and the best
+                                share any k sizes could (verify/catalog_stress.py)
     title_art.png               a congested section in light ink for the dark title slide
     deck_data.json              every number the slide deck prints (docs/deck/build_deck.js)
     qr_repo.png                 QR code of the repository URL
@@ -42,6 +43,7 @@ from matplotlib.patches import Circle, Rectangle  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+import crossmep.catalog as catalog  # noqa: E402
 import crossmep.tasks as cm  # noqa: E402
 from crossmep.generate import CANONICAL_SPLITS  # noqa: E402
 from crossmep.layout import GAP_CAP_MM, GAP_LOGNORMAL_MU, GAP_LOGNORMAL_SIGMA  # noqa: E402
@@ -68,11 +70,15 @@ plt.rcParams.update({
 })
 
 
-def _compare_gaps_module():
-    spec = importlib.util.spec_from_file_location("compare_gaps", os.path.join(ROOT, "verify", "compare_gaps.py"))
+def _verify_module(name):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(ROOT, "verify", name + ".py"))
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
+
+
+def _compare_gaps_module():
+    return _verify_module("compare_gaps")
 
 
 # --- drawing a context ----------------------------------------------------------
@@ -393,31 +399,60 @@ def fig_generation_example(bench, context_id="mep_150"):
     return ctx["context_id"]
 
 
-# --- figure 6: catalog coverage --------------------------------------------------
+# --- figure 6: catalog stress test ----------------------------------------------
 
-def fig_catalog_coverage(bench):
-    bins = [(48.0, 54.0, 2.5), (108.0, 114.0, 4.0)]
-    cov = cm.catalog_coverage(bench, bins)
-    tiers = [f"C{n}" for n in range(1, 9)]
-    vals = [cov[t] for t in tiers]
-    fig, ax = plt.subplots(figsize=(7.6, 3.6))
-    ax.bar(tiers, vals, width=0.34, color=BLUE)
-    ax.axhline(cov["overall"], color=INK, lw=1.0)
-    ax.text(-0.45, cov["overall"] + 0.7, f"overall {cov['overall']:.1f} %", ha="left", fontsize=8, color=INK)
-    ax.set_xlim(-0.6, 7.6)
-    ax.set_ylim(0, 25)
-    ax.set_ylabel("pipes the catalog can attach (%)")
-    ax.yaxis.grid(True)
-    ax.set_axisbelow(True)
-    ax.set_title("A two-bin clamp catalog attaches 1 pipe in 9 - and no tray, duct or conduit", loc="left")
-    fig.text(0.01, 0.035, "Bins: 48-54 mm at 2.5 kN and 108-114 mm at 4.0 kN, tested on the bare OD for hot/bare lines and the insulated OD for cold lines.",
-             fontsize=7, color=MUTED)
-    fig.text(0.01, 0.005, f"{cov['non_pipe_elements']:,} of the 4,500 benchmark elements are trays, ducts or conduits, for which a clamp catalog defines no attachment.",
-             fontsize=7, color=MUTED)
-    fig.tight_layout(rect=(0, 0.07, 1, 1))
+def fig_catalog_coverage(stress):
+    """Left: pipes by nominal size, and which the paper's two-size catalog attaches.
+    Right: the best share of pipes any k clamp sizes could attach (exact optimum)."""
+    b, d = stress["benchmark"], stress["demand"]
+    sizes = list(stress["by_size"])
+    tot = [stress["by_size"][k]["pipes"] for k in sizes]
+    cov = [stress["by_size"][k]["covered"] for k in sizes]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.4, 4.1), gridspec_kw={"width_ratios": [1.0, 1.0]})
+    x = np.arange(len(sizes))
+    ax1.bar(x, tot, width=0.62, color=GRID, edgecolor=AXIS, linewidth=0.8, label="no size fits")
+    ax1.bar(x, cov, width=0.62, color=BLUE, label="attachable")
+    for xi, t, c in zip(x, tot, cov):
+        ax1.text(xi, t + 8, "all 293" if c == t and c else f"{t}", ha="center", va="bottom", fontsize=7.5,
+                 color=BLUE if c else INK2, fontweight="bold" if c else "normal")
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(sizes)
+    ax1.set_ylim(0, max(tot) * 1.16)
+    ax1.set_ylabel("benchmark pipes")
+    ax1.yaxis.grid(True)
+    ax1.set_axisbelow(True)
+    ax1.legend(loc="upper right", ncol=2, bbox_to_anchor=(1.0, 1.04))
+    ax1.set_title("Pipe sizes the two-size catalog attaches", loc="left")
+
+    curve = d["curve"]
+    ks = [r["k"] for r in curve]
+    ax2.plot(ks, [r["pct"] for r in curve], color=BLUE, lw=1.8, marker="o", ms=4.5)
+    k2 = next(r["pct"] for r in curve if r["k"] == 2)
+    k6 = next(r["pct"] for r in curve if r["k"] == 6)
+    ax2.plot([2], [b["pct_pipes"]], marker="D", ms=7, color=ORANGE, ls="none", zorder=5)
+    ax2.plot([2, 2], [b["pct_pipes"], k2], color=MUTED, lw=1.0, ls=(0, (3, 2)), zorder=1)
+    ax2.text(2.25, b["pct_pipes"], f"the paper's two sizes: {b['pct_pipes']:.1f} %", va="center", fontsize=8, color=ORANGE, fontweight="bold")
+    ax2.text(2.25, k2 - 5.0, f"two best-placed sizes: {k2:.1f} %", ha="left", va="center", fontsize=8, color=BLUE, fontweight="bold")
+    ax2.text(6.2, k6 - 5.0, f"six sizes: {k6:.0f} %", ha="left", va="center", fontsize=8, color=BLUE, fontweight="bold")
+    ax2.text(12.4, 103.0, f"{len(d['diameters'])} distinct diameters, all attached", ha="right", va="bottom", fontsize=8, color=BLUE, fontweight="bold")
+    ax2.set_xlim(0.5, 12.5)
+    ax2.set_ylim(0, 112)
+    ax2.set_xticks(ks)
+    ax2.set_xlabel(f"number of clamp sizes, each fitting a {d['width_mm']:g} mm diameter window")
+    ax2.set_ylabel("benchmark pipes attachable (%)")
+    ax2.yaxis.grid(True)
+    ax2.set_axisbelow(True)
+    ax2.set_title("What the dataset asks of any catalog", loc="left")
+    fig.suptitle(f"A two-size clamp catalog attaches {b['pct_pipes']:.1f} % of pipes (95 % CI {b['ci'][0]:.1f}-{b['ci'][1]:.1f}), all of them DN40",
+                 x=0.012, ha="left", fontsize=11, fontweight="bold", color=INK, y=0.985)
+    fig.text(0.012, 0.045, f"Benchmark: {b['pipes']:,} pipes. Bins 48-54 mm (2.5 kN) and 108-114 mm (4.0 kN); attach diameter = insulated OD for cold lines, bare OD otherwise. "
+             f"The heaviest pipe is {b['max_pipe_load_kN']:.2f} kN, so load never binds.", fontsize=7, color=MUTED)
+    fig.text(0.012, 0.012, f"{b['not_pipe']:,} of the {b['elements']:,} elements are trays, ducts or conduits, for which a pipe-clamp catalog defines no attachment. "
+             "Interval: cluster bootstrap over contexts (verify/catalog_stress.py).", fontsize=7, color=MUTED)
+    fig.tight_layout(rect=(0, 0.07, 1, 0.96))
     fig.savefig(os.path.join(OUT, "06_catalog_coverage.png"), dpi=200)
     plt.close(fig)
-    return cov["overall"]
+    return b["pct_pipes"]
 
 
 # --- title art: a congested section drawn light-on-transparent for a dark slide --
@@ -444,13 +479,12 @@ def fig_title_art(bench):
 
 # --- numbers the slide deck reads (docs/deck/build_deck.js) ---------------------
 
-def write_deck_data(splits):
+def write_deck_data(splits, stress):
     bench = splits["benchmark"]
     cg = _compare_gaps_module()
     mep = np.array(json.load(open(cg.MEASURED_MEP)))
     pl = np.array(json.load(open(cg.MEASURED_PLUMBING)))
     r = cg.compare(bench, mep, pl, "4.0")
-    cov = cm.catalog_coverage(bench, [(48.0, 54.0, 2.5), (108.0, 114.0, 4.0)])
     tiers = [f"C{n}" for n in range(1, 9)]
     summ = cm.tier_summary(bench)
     kinds, dn, trades, surf = Counter(), Counter(), Counter(), Counter()
@@ -472,8 +506,7 @@ def write_deck_data(splits):
                         "ceiling_pct": 100.0 * surf["ceiling"] / sum(surf.values())},
         "tier_medians": {t: {"clear_gap_mm": summ[t]["clear_gap_mm"], "load_kN": summ[t]["load_kN"],
                              "bundle_width_mm": summ[t]["bundle_width_mm"]} for t in tiers},
-        "coverage_pct": {t: cov[t] for t in tiers}, "coverage_overall_pct": cov["overall"],
-        "non_pipe_elements": cov["non_pipe_elements"], "kind_totals_benchmark": cm.kind_totals(bench),
+        "catalog": stress, "kind_totals_benchmark": cm.kind_totals(bench),
         "w1": {"insulation": r["w1"]["insulation"], "bare": r["w1"]["bare"],
                "real_to_real": r["baselines"]["real_to_real"],
                "fixed_floor_gap": r["baselines"]["fixed_floor_gap_to_mep"]},
@@ -505,9 +538,10 @@ def main() -> int:
     fig_tier_stats(bench)
     print("04: W1 insulation / bare =", fig_gaps_vs_measured(bench))
     print("05:", fig_generation_example(bench))
-    print("06: overall coverage", fig_catalog_coverage(bench))
+    stress = _verify_module("catalog_stress").stress_test(catalog.PAPER_CATALOG, splits=splits)
+    print("06: attachable pipes (%)", round(fig_catalog_coverage(stress), 1))
     print("title art:", fig_title_art(bench))
-    write_deck_data(splits)
+    write_deck_data(splits, stress)
     write_qr()
     print("wrote", sorted(os.listdir(OUT)))
     return 0
