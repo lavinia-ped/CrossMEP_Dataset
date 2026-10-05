@@ -20,6 +20,10 @@
   --shadow: 0 10px 30px rgba(20, 30, 25, .18);
   /* The drawing sheet stays light in both themes, so its inks do too. */
   --sheet: #fbfbf8;
+  --paper: #ffffff;
+  --dwg-center: #8b948f;
+  --dwg-insul: #edf1ee;
+  --dwg-concrete: #e7e9e4;
   --dwg-ink: #1f2a26;
   --dwg-muted: #6b7570;
   --dwg-surface: #8f9893;
@@ -95,14 +99,32 @@ main { display: grid; gap: 16px; min-width: 0; align-content: start; }
 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .chip { font: 500 10.5px/1 var(--font-data); letter-spacing: .03em; text-transform: uppercase; background: var(--chip); border-radius: 999px; padding: 4px 7px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.detail { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); grid-template-areas: "sheet facts" "table table"; gap: 16px 18px; }
-.detail .sheet { grid-area: sheet; align-self: start; }
-.detail .facts { grid-area: facts; }
-.detail .table-wrap { grid-area: table; }
-@media (max-width: 1100px) { .detail { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sheet" "facts" "table"; } }
+.detail { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.detail > * { min-width: 0; }
+.detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; align-items: start; }
+.detail-head .kv { flex: 1 1 280px; max-width: 680px; min-width: 0; }
+.views { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 1000px) { .views { grid-template-columns: minmax(0, 1fr); } }
+.view { margin: 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.view figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 13px; color: var(--muted); min-height: 30px; }
+.view figcaption b { font: 700 17px/1.2 var(--font-display); color: var(--ink); }
+.view figcaption .ghost { margin-left: auto; }
+.sheet.tech { background: var(--paper); height: 460px; display: flex; align-items: center; justify-content: center; }
+.sheet.tech svg { width: 100%; height: 100%; }
+.titleblock { display: grid; grid-template-columns: 1.3fr 1fr 1fr; border: 1px solid var(--dwg-ink); background: var(--paper); color: var(--dwg-ink); font: 11px/1.35 var(--font-data); }
+.titleblock div { padding: 4px 7px; border-left: 1px solid var(--dwg-ink); min-width: 0; overflow-wrap: anywhere; }
+.titleblock div:nth-child(3n + 1) { border-left: 0; }
+.titleblock div:nth-child(n + 4) { border-top: 1px solid var(--dwg-ink); }
+.titleblock small { display: block; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--dwg-muted); }
+.three-wrap { position: relative; height: 460px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); overflow: hidden; }
+.three-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.three-wrap canvas:active { cursor: grabbing; }
+.three-msg { margin: 0; padding: 16px; font-size: 13px; color: var(--dwg-muted); }
+.three-key { position: absolute; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; max-width: calc(100% - 16px); background: rgba(251, 251, 248, .88); border-radius: 4px; padding: 4px 7px; font: 11px/1.3 var(--font-data); color: var(--dwg-ink); pointer-events: none; }
+.three-key span { display: inline-flex; align-items: center; gap: 5px; }
+@media (max-width: 560px) { .sheet.tech, .three-wrap { height: 340px; } .titleblock { grid-template-columns: 1fr 1fr; } .titleblock div:nth-child(3n + 1) { border-left: 1px solid var(--dwg-ink); } .titleblock div:nth-child(2n + 1) { border-left: 0; } .titleblock div:nth-child(n + 3) { border-top: 1px solid var(--dwg-ink); } }
 .sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
 .sheet svg { display: block; width: 100%; height: auto; }
-.sheet.big svg { max-height: 62vh; }
 .facts { display: grid; gap: 12px; align-content: start; min-width: 0; }
 .meta { font: 400 13px/1.45 var(--font-data); color: var(--muted); }
 .kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px 14px; margin: 0; }
@@ -226,17 +248,27 @@ footer a { color: inherit; }
     </section>
 
     <section class="panel detail" aria-labelledby="d-title">
-      <div class="sheet big" id="d-sheet"></div>
-      <div class="facts">
+      <div class="detail-head">
         <div>
           <div class="eyebrow" id="d-eyebrow"></div>
           <h2 id="d-title"></h2>
           <div class="meta" id="d-meta"></div>
         </div>
         <dl class="kv" id="d-kv"></dl>
-        <details class="json"><summary>Stored record (JSON)</summary><pre id="d-json"></pre></details>
+      </div>
+      <div class="views">
+        <figure class="view">
+          <figcaption><b>Section A–A</b><span>the support detail as drawn: true scale, mm</span></figcaption>
+          <div class="sheet tech" id="d-sheet"></div>
+          <div class="titleblock" id="d-tb"></div>
+        </figure>
+        <figure class="view">
+          <figcaption><b>3D</b><span>2.4 m of the run; the outlined plane is section A–A. Drag to turn, scroll to zoom.</span><button type="button" class="ghost" id="reset3d">Reset view</button></figcaption>
+          <div class="three-wrap" id="d-3d"></div>
+        </figure>
       </div>
       <div class="table-wrap"><table id="d-table"></table></div>
+      <details class="json"><summary>Stored record (JSON)</summary><pre id="d-json"></pre></details>
     </section>
 
     <section aria-labelledby="g-title" style="display: grid; gap: 10px;">
@@ -261,6 +293,8 @@ footer a { color: inherit; }
   </main>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script>
 /* ---------- Data: base64(gzip(JSON)) written by scripts/build_studio.py ---------- */
 const DATA_GZ = "__DATA_GZ__";
@@ -313,6 +347,7 @@ function buildControls() {
   $("surf-wall").onclick = () => { state.surface = "wall"; state.sel = 0; render(); };
   $("seed-dec").onclick = () => { state.seed -= 1; state.sel = 0; render(); };
   $("seed-inc").onclick = () => { state.seed += 1; state.sel = 0; render(); };
+  $("reset3d").onclick = () => { if (V3 && V3.fit) V3.fit(); };
   $("copy").onclick = async () => {
     const text = $("code").textContent;
     try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; }
@@ -456,6 +491,258 @@ function drawContext(ctx, opts = {}) {
   return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" role="img" aria-label="${esc(label)}" preserveAspectRatio="xMidYMid meet">${parts.join("")}</svg>`;
 }
 
+/* ---------- Technical drawing: section A-A as a support detail ---------- */
+const CODE = { domestic_hot: "DHW", domestic_cold: "DCW", heating: "HTG", chilled: "CHW", sprinkler: "SPR", tray: "CT", conduit: "CND", duct: "VENT" };
+function shortLabel(e) {
+  if (e.kind === "pipe") return `${e.label} ${CODE[e.service] || ""}`.trim();
+  if (e.kind === "cable_tray") return `CT ${e.label.replace(" tray", "")}`;
+  if (e.kind === "conduit") return e.label.replace(" conduit", "");
+  return `${e.label.replace(" duct", "").replace("x", "×")}`;
+}
+
+function drawTechnical(ctx) {
+  const sk = ctx.surface.kind, g = screen(ctx), T = ctx.surface.thickness_mm;
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const s of g) {
+    x0 = Math.min(x0, s.X - s.w / 2 - s.ins); x1 = Math.max(x1, s.X + s.w / 2 + s.ins);
+    y0 = Math.min(y0, s.Y - s.h / 2 - s.ins); y1 = Math.max(y1, s.Y + s.h / 2 + s.ins);
+  }
+  const span = Math.max(x1 - x0, y1 - y0, 400);
+  const fs = Math.max(18, span * 0.036), ah = fs * 0.55, m = Math.max(150, span * 0.12);
+  const P = [], ink = "var(--dwg-ink)", thin = "var(--dwg-muted)", ctr = "var(--dwg-center)", acc = "var(--dwg-dim)";
+  let bx0 = x0, bx1 = x1, by0 = y0, by1 = y1;
+  const grow = (xa, ya, xb = xa, yb = ya) => { bx0 = Math.min(bx0, xa, xb); bx1 = Math.max(bx1, xa, xb); by0 = Math.min(by0, ya, yb); by1 = Math.max(by1, ya, yb); };
+  const ln = (xa, ya, xb, yb, w = 0.7, col = thin, dash = "") => `<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="${col}" stroke-width="${w}" vector-effect="non-scaling-stroke"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+  const txt = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-size="${o.size || fs * 0.78}" text-anchor="${o.anchor || "middle"}" fill="${o.col || ink}"${o.rot ? ` transform="rotate(${o.rot} ${x} ${y})"` : ""} font-family="IBM Plex Mono, ui-monospace, monospace"${o.bold ? ' font-weight="600"' : ""}>${esc(t)}</text>`;
+  const arrow = (x, y, dx, dy, col) => {                        // filled arrowhead with its tip at (x, y), pointing along (dx, dy)
+    const n = Math.hypot(dx, dy) || 1, ux = dx / n, uy = dy / n, bx = x - ux * ah, by = y - uy * ah, px = -uy * ah * 0.32, py = ux * ah * 0.32;
+    return `<path d="M${x},${y} L${bx + px},${by + py} L${bx - px},${by - py} Z" fill="${col}"/>`;
+  };
+  // horizontal dimension between xa and xb on the line y; extension lines from the given y-starts
+  const dimH = (xa, xb, y, ya0, yb0, label, col = thin) => {
+    const sgn = y > Math.max(ya0, yb0) ? 1 : -1, gap = fs * 0.25, over = fs * 0.35, out = (xb - xa) < 2.6 * ah;
+    let o = ln(xa, ya0 + sgn * gap, xa, y + sgn * over, 0.6, col) + ln(xb, yb0 + sgn * gap, xb, y + sgn * over, 0.6, col);
+    if (out) o += ln(xa - 2.2 * ah, y, xb + 2.2 * ah, y, 0.7, col) + arrow(xa, y, 1, 0, col) + arrow(xb, y, -1, 0, col);
+    else o += ln(xa, y, xb, y, 0.7, col) + arrow(xa, y, -1, 0, col) + arrow(xb, y, 1, 0, col);
+    const tx = out ? xb + 2.4 * ah + fs * 0.2 : (xa + xb) / 2;
+    o += txt(tx, y - fs * 0.3, label, { col: col === thin ? ink : col, anchor: out ? "start" : "middle", bold: col !== thin });
+    grow(xa, y - fs, xb, y + fs); if (out) grow(xb + 2.4 * ah + fs * label.length * 0.55, y);
+    return o;
+  };
+  const dimV = (ya, yb, x, xa0, xb0, label, col = thin) => {
+    const sgn = x > Math.max(xa0, xb0) ? 1 : -1, gap = fs * 0.25, over = fs * 0.35, out = (yb - ya) < 2.6 * ah;
+    let o = ln(xa0 + sgn * gap, ya, x + sgn * over, ya, 0.6, col) + ln(xb0 + sgn * gap, yb, x + sgn * over, yb, 0.6, col);
+    if (out) o += ln(x, ya - 2.2 * ah, x, yb + 2.2 * ah, 0.7, col) + arrow(x, ya, 0, 1, col) + arrow(x, yb, 0, -1, col);
+    else o += ln(x, ya, x, yb, 0.7, col) + arrow(x, ya, 0, -1, col) + arrow(x, yb, 0, 1, col);
+    const ty = out ? yb + 2.4 * ah + fs * 0.9 : (ya + yb) / 2;
+    o += out ? txt(x + fs * 0.4, ty, label, { col: col === thin ? ink : col, anchor: "start", bold: col !== thin })
+             : txt(x - fs * 0.35, ty, label, { col: col === thin ? ink : col, rot: -90, bold: col !== thin });
+    grow(x - fs, ya, x + fs, yb);
+    return o;
+  };
+
+  // concrete, cut at both ends with break lines
+  const defs = `<defs><pattern id="conc" width="${fs * 0.9}" height="${fs * 0.9}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="${fs * 0.9}" height="${fs * 0.9}" fill="var(--dwg-concrete)"/><line x1="0" y1="0" x2="0" y2="${fs * 0.9}" stroke="${thin}" stroke-width="0.6" vector-effect="non-scaling-stroke"/><circle cx="${fs * 0.45}" cy="${fs * 0.3}" r="${fs * 0.06}" fill="${thin}"/></pattern></defs>`;
+  const zig = (xa, ya, xb, yb) => {                              // break line from a to b with one zigzag in the middle
+    const mx = (xa + xb) / 2, my = (ya + yb) / 2, dx = xb - xa, dy = yb - ya, n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n, k = fs * 0.5;
+    return `<path d="M${xa},${ya} L${mx - ux * k},${my - uy * k} L${mx - ux * k * 0.3 - uy * k},${my - uy * k * 0.3 + ux * k} L${mx + ux * k * 0.3 + uy * k},${my + uy * k * 0.3 - ux * k} L${mx + ux * k},${my + uy * k} L${xb},${yb}" fill="none" stroke="${ink}" stroke-width="0.8" vector-effect="non-scaling-stroke"/>`;
+  };
+  if (sk === "ceiling") {
+    const sx0 = x0 - m, sx1 = x1 + m;
+    P.push(`<rect x="${sx0}" y="${-T}" width="${sx1 - sx0}" height="${T}" fill="url(#conc)"/>`, ln(sx0, 0, sx1, 0, 1.6, ink), ln(sx0, -T, sx1, -T, 1.6, ink), zig(sx0, -T - fs * 0.4, sx0, fs * 0.4), zig(sx1, -T - fs * 0.4, sx1, fs * 0.4));
+    P.push(txt(sx1 - fs * 0.5, -T / 2 + fs * 0.28, `SLAB ${T}, ${ctx.surface.substrate.replace("concrete_", "")}`, { anchor: "end", size: fs * 0.7, col: ink }));
+    grow(sx0 - fs, -T - fs, sx1 + fs, 0);
+  } else {
+    const sy0 = y0 - m, sy1 = y1 + m;
+    P.push(`<rect x="${-T}" y="${sy0}" width="${T}" height="${sy1 - sy0}" fill="url(#conc)"/>`, ln(0, sy0, 0, sy1, 1.6, ink), ln(-T, sy0, -T, sy1, 1.6, ink), zig(-T - fs * 0.4, sy0, fs * 0.4, sy0), zig(-T - fs * 0.4, sy1, fs * 0.4, sy1));
+    P.push(txt(-T / 2 + fs * 0.28, sy1 - fs * 0.5, `WALL ${T}, ${ctx.surface.substrate.replace("concrete_", "")}`, { rot: -90, anchor: "start", size: fs * 0.7, col: ink }));
+    grow(-T - fs, sy0 - fs, 0, sy1 + fs);
+  }
+
+  // elements: insulation, profile, centrelines
+  for (const s of g) {
+    const e = s.e, r = s.w / 2;
+    if (e.shape === "round") {
+      const ext = r + s.ins + fs * 0.4;
+      if (s.ins > 0) P.push(`<circle cx="${s.X}" cy="${s.Y}" r="${r + s.ins}" fill="var(--dwg-insul)" stroke="${thin}" stroke-width="0.8" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`);
+      P.push(`<circle cx="${s.X}" cy="${s.Y}" r="${r}" fill="var(--paper)" stroke="${ink}" stroke-width="${e.kind === "conduit" ? 1.1 : 1.7}" vector-effect="non-scaling-stroke"/>`);
+      if (e.kind === "duct") { const k = r * 0.707; P.push(ln(s.X - k, s.Y - k, s.X + k, s.Y + k, 0.6, ink), ln(s.X - k, s.Y + k, s.X + k, s.Y - k, 0.6, ink)); }
+      P.push(ln(s.X - ext, s.Y, s.X + ext, s.Y, 0.55, ctr, "10 3 2 3"), ln(s.X, s.Y - ext, s.X, s.Y + ext, 0.55, ctr, "10 3 2 3"));
+    } else if (e.kind === "cable_tray") {
+      const l = s.X - s.w / 2, rt = s.X + s.w / 2, tp = s.Y - s.h / 2, bt = s.Y + s.h / 2, t = Math.min(4, s.h * 0.08);
+      P.push(`<path d="M${l},${tp} L${l},${bt} L${rt},${bt} L${rt},${tp} L${rt - t},${tp} L${rt - t},${bt - t} L${l + t},${bt - t} L${l + t},${tp} Z" fill="var(--dwg-ink)" stroke="${ink}" stroke-width="1" vector-effect="non-scaling-stroke"/>`);
+      P.push(ln(s.X, tp - fs * 0.4, s.X, bt + fs * 0.4, 0.55, ctr, "10 3 2 3"));
+    } else {
+      const l = s.X - s.w / 2, tp = s.Y - s.h / 2;
+      P.push(`<rect x="${l}" y="${tp}" width="${s.w}" height="${s.h}" fill="var(--paper)" stroke="${ink}" stroke-width="1.7" vector-effect="non-scaling-stroke"/>`, ln(l, tp, l + s.w, tp + s.h, 0.6, ink), ln(l, tp + s.h, l + s.w, tp, 0.6, ink));
+      P.push(ln(s.X - s.w / 2 - fs * 0.4, s.Y, s.X + s.w / 2 + fs * 0.4, s.Y, 0.55, ctr, "10 3 2 3"), ln(s.X, tp - fs * 0.4, s.X, tp + s.h + fs * 0.4, 0.55, ctr, "10 3 2 3"));
+    }
+  }
+
+  // balloons: item number + short label, placed in the first free direction around the element
+  const boxes = g.map((s) => [s.X - s.w / 2 - s.ins, s.Y - s.h / 2 - s.ins, s.X + s.w / 2 + s.ins, s.Y + s.h / 2 + s.ins]);
+  if (sk === "ceiling") boxes.push([x0 - m, -T, x1 + m, 0]); else boxes.push([-T, y0 - m, 0, y1 + m]);
+  const hit = (b) => boxes.reduce((acc, o) => acc + Math.max(0, Math.min(b[2], o[2]) - Math.max(b[0], o[0])) * Math.max(0, Math.min(b[3], o[3]) - Math.max(b[1], o[1])), 0);
+  const dirs = sk === "ceiling" ? [[1, 1], [-1, 1], [1, 0.3], [-1, 0.3], [0, 1], [1, -0.4], [-1, -0.4]] : [[1, 1], [1, -1], [1, 0.3], [1, -0.3], [0, 1], [0, -1], [-0.4, 1]];
+  const rb = fs * 0.62;
+  g.forEach((s, i) => {
+    const label = shortLabel(s.e), lw = label.length * fs * 0.42, R = Math.max(s.w, s.h) / 2 + s.ins;
+    let best = null;
+    for (const dist of [rb * 1.6, rb * 3.2, rb * 5]) for (const [dx, dy] of dirs) {
+      const n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n;
+      const cx = s.X + ux * (R + dist + rb), cy = s.Y + uy * (R + dist + rb);
+      const lx0 = ux >= 0 ? cx - rb : cx - rb - lw - fs * 0.25, lx1 = ux >= 0 ? cx + rb + lw + fs * 0.25 : cx + rb;
+      const box = [lx0, cy - rb, lx1, cy + rb];
+      const cost = hit(box) + dist * 0.5;
+      if (!best || cost < best.cost) best = { cost, cx, cy, ux, uy, box };
+      if (hit(box) === 0) break;
+    }
+    boxes.push(best.box.map((v, k) => v + (k < 2 ? -fs * 0.15 : fs * 0.15)));
+    const ex = s.X + best.ux * R, ey = s.Y + best.uy * R;                    // leader from the element's outline
+    const lx = best.cx - best.ux * rb, ly = best.cy - best.uy * rb;
+    P.push(ln(ex, ey, lx, ly, 0.6, ink), `<circle cx="${ex}" cy="${ey}" r="${fs * 0.09}" fill="${ink}"/>`);
+    P.push(`<circle cx="${best.cx}" cy="${best.cy}" r="${rb}" fill="var(--paper)" stroke="${ink}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`, txt(best.cx, best.cy + fs * 0.27, String(i + 1), { size: fs * 0.72, bold: true }));
+    const left = best.ux < 0;
+    P.push(txt(left ? best.cx - rb - fs * 0.25 : best.cx + rb + fs * 0.25, best.cy + fs * 0.25, label, { anchor: left ? "end" : "start", size: fs * 0.7 }));
+    grow(best.box[0], best.box[1], best.box[2], best.box[3]);
+  });
+
+  // dimensions: overall width and depth, and the closest clear gap
+  const byX0 = g.reduce((a, b) => (b.X - b.w / 2 - b.ins < a.X - a.w / 2 - a.ins ? b : a)), byX1 = g.reduce((a, b) => (b.X + b.w / 2 + b.ins > a.X + a.w / 2 + a.ins ? b : a));
+  const byY0 = g.reduce((a, b) => (b.Y - b.h / 2 - b.ins < a.Y - a.h / 2 - a.ins ? b : a)), byY1 = g.reduce((a, b) => (b.Y + b.h / 2 + b.ins > a.Y + a.h / 2 + a.ins ? b : a));
+  if (sk === "ceiling") {
+    const yW = by1 + fs * 1.6;
+    P.push(dimH(x0, x1, yW, byX0.Y + byX0.h / 2 + byX0.ins, byX1.Y + byX1.h / 2 + byX1.ins, fmt(x1 - x0)));
+    const xD = bx1 + fs * 1.4;
+    P.push(dimV(0, y1, xD, x1 + m, byY1.X + byY1.w / 2 + byY1.ins, fmt(y1)));
+  } else {
+    const xH = bx1 + fs * 1.6;
+    P.push(dimV(y0, y1, xH, byY0.X + byY0.w / 2 + byY0.ins, byY1.X + byY1.w / 2 + byY1.ins, fmt(y1 - y0)));
+    const yD = by1 + fs * 1.4;
+    P.push(dimH(0, x1, yD, y1 + m, byX1.Y + byX1.h / 2 + byX1.ins, fmt(x1)));
+  }
+  const cp = ctx.elements.length > 1 ? closestPair(ctx) : null;
+  if (cp) {
+    const { A, B } = cp, lbl = `${fmt(cp.gap)} clear`;
+    if (cp.horizontal) {
+      const [L, R] = A.X < B.X ? [A, B] : [B, A];
+      const xa = L.X + L.w / 2 + L.ins, xb = R.X - R.w / 2 - R.ins;
+      const top = Math.max(L.Y - L.h / 2 - L.ins, R.Y - R.h / 2 - R.ins), bot = Math.min(L.Y + L.h / 2 + L.ins, R.Y + R.h / 2 + R.ins);
+      const y = top < bot ? (top + bot) / 2 : (L.Y + R.Y) / 2;
+      P.push(dimH(xa, xb, y, y, y, lbl, acc).replace(/<line[^>]*\/>/, "").replace(/<line[^>]*\/>/, ""));
+    } else {
+      const [U, W] = A.Y < B.Y ? [A, B] : [B, A];
+      const ya = U.Y + U.h / 2 + U.ins, yb = W.Y - W.h / 2 - W.ins;
+      const lft = Math.max(U.X - U.w / 2 - U.ins, W.X - W.w / 2 - W.ins), rgt = Math.min(U.X + U.w / 2 + U.ins, W.X + W.w / 2 + W.ins);
+      const x = lft < rgt ? (lft + rgt) / 2 : (U.X + W.X) / 2;
+      P.push(dimV(ya, yb, x, x, x, lbl, acc).replace(/<line[^>]*\/>/, "").replace(/<line[^>]*\/>/, ""));
+    }
+  }
+
+  // scale bar
+  const sbx = bx0 + fs * 0.4, sby = by1 + fs * 1.6, sb = span > 1500 ? 500 : 200;
+  P.push(`<rect x="${sbx}" y="${sby - fs * 0.18}" width="${sb / 2}" height="${fs * 0.36}" fill="${ink}"/><rect x="${sbx + sb / 2}" y="${sby - fs * 0.18}" width="${sb / 2}" height="${fs * 0.36}" fill="var(--paper)" stroke="${ink}" stroke-width="0.7" vector-effect="non-scaling-stroke"/>`,
+    txt(sbx + sb + fs * 0.4, sby + fs * 0.26, `${sb} mm`, { anchor: "start", size: fs * 0.66 }));
+  grow(sbx, sby - fs, sbx + sb + fs * 4, sby + fs * 0.6);
+
+  const pad = fs * 0.8, vx = bx0 - pad, vy = by0 - pad, vw = bx1 - bx0 + 2 * pad, vh = by1 - by0 + 2 * pad;
+  return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Section A–A: ${ctx.n_elements} elements on a ${sk}, dimensioned in millimetres">${defs}${P.join("")}</svg>`;
+}
+
+/* ---------- 3D: the same section extruded along 2.4 m of the run ---------- */
+const RUN_MM = 2400;
+let V3 = null;
+function trade3(t) { return new THREE.Color(css(`--t-${t}`) || "#888888"); }
+function init3D(host) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  host.innerHTML = "";
+  host.appendChild(renderer.domElement);
+  renderer.domElement.setAttribute("aria-label", "3D view of the section; drag to turn, scroll to zoom");
+  renderer.domElement.setAttribute("role", "img");
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(css("--sheet"));
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa19c, 0.85));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.75); sun.position.set(2, 3, 4); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-3, -1, -2); scene.add(fill);
+  const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.12;
+  const key = document.createElement("div"); key.className = "three-key"; host.appendChild(key);
+  const v = { renderer, scene, camera, controls, group: null, host, key, fit: null, raf: 0 };
+  const draw = () => { v.raf = 0; controls.update(); renderer.render(scene, camera); };
+  v.request = () => { if (!v.raf) v.raf = requestAnimationFrame(draw); };
+  controls.addEventListener("change", v.request);
+  const resize = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); v.request(); };
+  new ResizeObserver(resize).observe(host); resize();
+  return v;
+}
+function dispose(obj) {
+  obj.traverse((o) => { if (o.geometry) o.geometry.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => m.dispose()); });
+}
+function render3D(ctx) {
+  const host = $("d-3d");
+  if (!window.THREE || !THREE.OrbitControls) { host.innerHTML = '<p class="three-msg">The 3D view needs the three.js library, which did not load in this browser. The section drawing on the left shows the same geometry.</p>'; return; }
+  try { if (!V3) V3 = init3D(host); } catch (err) { host.innerHTML = '<p class="three-msg">The 3D view needs WebGL, which this browser did not provide.</p>'; return; }
+  const v = V3, S = 0.001, L = RUN_MM * S, sk = ctx.surface.kind, g = screen(ctx), T = ctx.surface.thickness_mm;
+  if (v.group) { v.scene.remove(v.group); dispose(v.group); }
+  const grp = new THREE.Group(); v.group = grp;
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x1f2a26, transparent: true, opacity: 0.55 });
+  const add = (geom, mat, x, y, edges = true) => {
+    const mesh = new THREE.Mesh(geom, mat); mesh.position.set(x, y, 0); grp.add(mesh);
+    if (edges) { const ed = new THREE.LineSegments(new THREE.EdgesGeometry(geom, 25), edgeMat.clone()); ed.position.copy(mesh.position); ed.rotation.copy(mesh.rotation); grp.add(ed); }
+    return mesh;
+  };
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const s of g) {
+    x0 = Math.min(x0, s.X - s.w / 2 - s.ins); x1 = Math.max(x1, s.X + s.w / 2 + s.ins);
+    y0 = Math.min(y0, s.Y - s.h / 2 - s.ins); y1 = Math.max(y1, s.Y + s.h / 2 + s.ins);
+    const X = s.X * S, Y = -s.Y * S, col = trade3(s.e.trade);
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.5, metalness: s.e.kind === "pipe" || s.e.kind === "conduit" ? 0.35 : 0.15 });
+    if (s.e.shape === "round") {
+      const cyl = new THREE.CylinderGeometry(s.w / 2 * S, s.w / 2 * S, L, 40, 1); cyl.rotateX(Math.PI / 2);
+      add(cyl, mat, X, Y);
+      if (s.ins > 0) {
+        const ins = new THREE.CylinderGeometry((s.w / 2 + s.ins) * S, (s.w / 2 + s.ins) * S, L * 0.96, 40, 1, true); ins.rotateX(Math.PI / 2);
+        add(ins, new THREE.MeshStandardMaterial({ color: col, transparent: true, opacity: 0.22, roughness: 0.9, side: THREE.DoubleSide, depthWrite: false }), X, Y, false);
+      }
+    } else if (s.e.kind === "cable_tray") {
+      const t = Math.min(4, s.h * 0.08) * S, w = s.w * S, h = s.h * S;
+      add(new THREE.BoxGeometry(w, t, L), mat, X, Y - h / 2 + t / 2);
+      add(new THREE.BoxGeometry(t, h, L), mat, X - w / 2 + t / 2, Y);
+      add(new THREE.BoxGeometry(t, h, L), mat, X + w / 2 - t / 2, Y);
+    } else {
+      add(new THREE.BoxGeometry(s.w * S, s.h * S, L), mat, X, Y);
+    }
+  }
+  const concrete = new THREE.MeshStandardMaterial({ color: new THREE.Color(css("--dwg-concrete")), roughness: 0.95 });
+  const mgn = Math.max(300, (x1 - x0) * 0.25);
+  if (sk === "ceiling") add(new THREE.BoxGeometry((x1 - x0 + 2 * mgn) * S, T * S, L + 0.4), concrete, (x0 + x1) / 2 * S, T / 2 * S);
+  else add(new THREE.BoxGeometry(T * S, (y1 - y0 + 2 * mgn) * S, L + 0.4), concrete, -T / 2 * S, -(y0 + y1) / 2 * S);
+  // section plane A-A at the support, z = 0
+  const px0 = (sk === "ceiling" ? x0 - mgn * 0.6 : 0) * S, px1 = (x1 + mgn * 0.6) * S;
+  const py0 = -(y1 + mgn * 0.6) * S, py1 = (sk === "ceiling" ? 0 : -(y0 - mgn * 0.6)) * S;
+  const plane = new THREE.Mesh(new THREE.PlaneGeometry(px1 - px0, py1 - py0), new THREE.MeshBasicMaterial({ color: new THREE.Color(css("--dwg-dim")), transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false }));
+  plane.position.set((px0 + px1) / 2, (py0 + py1) / 2, 0); grp.add(plane);
+  const outline = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px0, py0, 0), new THREE.Vector3(px1, py0, 0), new THREE.Vector3(px1, py1, 0), new THREE.Vector3(px0, py1, 0)]),
+    new THREE.LineDashedMaterial({ color: new THREE.Color(css("--dwg-dim")), dashSize: 0.04, gapSize: 0.025 }));
+  outline.computeLineDistances(); grp.add(outline);
+  v.scene.add(grp);
+  // camera: from below-front for a ceiling (looking up at the run), from the side for a wall
+  const box = new THREE.Box3().setFromObject(grp), centre = box.getCenter(new THREE.Vector3()), radius = box.getSize(new THREE.Vector3()).length() / 2;
+  const target = new THREE.Vector3((x0 + x1) / 2 * S, -(y0 + y1) / 2 * S, 0);
+  const dir = (sk === "ceiling" ? new THREE.Vector3(0.95, -0.55, 1.25) : new THREE.Vector3(1.25, 0.35, 1.1)).normalize();
+  v.fit = () => {
+    const dist = radius / Math.sin((v.camera.fov * Math.PI) / 360) * 0.92;
+    v.camera.position.copy(target).addScaledVector(dir, dist); v.camera.near = dist / 100; v.camera.far = dist * 10; v.camera.updateProjectionMatrix();
+    v.controls.target.copy(target); v.controls.update(); v.request();
+  };
+  v.fit();
+  const trades = [...new Set(ctx.elements.map((e) => e.trade))];
+  v.key.innerHTML = trades.map((t) => `<span><span class="dot" style="background: var(--t-${t})"></span>${TRADE_NAME[t]}</span>`).join("") + "<span>· concrete</span>";
+  centre.set(0, 0, 0);
+}
+
 /* ---------- Rendering ---------- */
 function render() {
   syncControls();
@@ -501,7 +788,13 @@ function renderSummary(run) {
 function renderDetail() {
   const run = batch(), ctx = run[state.sel];
   syncControls();
-  $("d-sheet").innerHTML = drawContext(ctx, { labels: true });
+  $("d-sheet").innerHTML = drawTechnical(ctx);
+  render3D(ctx);
+  const runTxt = state.mode === "tier" ? `tier ${ctx.tier} · seed ${state.seed}` : `custom · seed ${state.seed}`;
+  $("d-tb").innerHTML = [
+    ["Project", "CrossMEP Generator Studio"], ["Drawing", "Section A–A at the support"], ["Units", "mm · true scale"],
+    ["Source", `${runTxt} · section ${state.sel + 1}`], ["Surface", `${ctx.surface.kind === "ceiling" ? "slab" : "wall"} ${ctx.surface.thickness_mm}, ${ctx.surface.substrate.replace("concrete_", "")}`], ["Status", "synthetic · not for construction"],
+  ].map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join("");
   $("d-eyebrow").textContent = state.mode === "tier" ? `Tier ${ctx.tier}` : "Custom composition";
   $("d-title").textContent = `Section ${state.sel + 1} of ${run.length}`;
   const s = ctx.surface;
@@ -514,7 +807,7 @@ function renderDetail() {
   const rows = ctx.elements.map((e, i) => `<tr><td>${i + 1}</td><td><span class="dot" style="background: var(--t-${e.trade})"></span>${KIND_NAME[e.kind]}</td><td>${esc(SERVICE[e.service] || e.service)}</td><td>${esc(e.label)}</td>
     <td class="num">${e.insulation_mm ? fmt(e.insulation_mm) : "—"}</td><td class="num">${fmt(e.load_kN_per_m, 3)} × ${fmt(e.span_m, 1)} = ${fmt(e.load_kN, 2)}</td>
     <td class="num">${e.level + 1}</td><td class="num">${fmt(e.along_mm)}</td><td class="num">${fmt(e.out_mm)}</td></tr>`).join("");
-  $("d-table").innerHTML = `<thead><tr><th>#</th><th>Element</th><th>Service</th><th>Size</th><th class="num">Insulation, mm</th><th class="num">Load, kN/m × m = kN</th><th class="num">Row</th><th class="num">Along, mm</th><th class="num">Out, mm</th></tr></thead><tbody>${rows}</tbody>`;
+  $("d-table").innerHTML = `<thead><tr><th>Item</th><th>Element</th><th>Service</th><th>Size</th><th class="num">Insulation, mm</th><th class="num">Load, kN/m × m = kN</th><th class="num">Row</th><th class="num">Along, mm</th><th class="num">Out, mm</th></tr></thead><tbody>${rows}</tbody>`;
   $("d-json").textContent = JSON.stringify(ctx, null, 1);
 }
 

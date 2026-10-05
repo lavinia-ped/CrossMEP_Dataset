@@ -281,9 +281,11 @@ The verification chain is executable end to end:
 
 `docs/studio/index.html` is an interactive page: choose a tier or an exact
 composition, a mounting surface and a seed, and browse the sections the
-generator produces, each drawn to scale with its element table, its closest pair
-dimensioned, the spacing drawn in the run against the fitted distribution, and
-the Python call that reproduces it. It embeds real outputs of the released
+generator produces. Each section is shown as an engineering support detail
+(section A–A: hatched slab or wall, centrelines, numbered items, overall and
+closest-gap dimensions, a title block) beside a 3D model of 2.4 m of the run
+(three.js), with its element schedule, the spacing drawn in the run against the
+fitted distribution, and the Python call that reproduces it. It embeds real outputs of the released
 generator (tiers C1–C8 × seeds 0–9, 12 sections each; 247 compositions × ceiling /
 wall × seeds 0–2, 4 sections each); `python scripts/build_studio.py` rebuilds it,
 and `tests/test_studio.py` checks the embedded sections against fresh generator
