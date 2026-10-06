@@ -303,7 +303,7 @@ async function main() {
   // ========================================================================= 3 the problem: one cross-section in, verified support designs out (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("One cross-section in, verified support designs out", { placeholder: "title" });
+    s.addText("A designer turns one cross-section into verified support assemblies", { placeholder: "title" });
     const PY = 2.0, PH = 3.0, PW = 5.3, LX = 0.6, RX = 7.43;
     const head = (x, t, name) => s.addText(t, { x, y: 1.45, w: PW, h: 0.3, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "head " + name });
     const frame = (x, y, name, line = { color: GRID, width: 1 }) =>
@@ -404,7 +404,7 @@ async function main() {
   // ========================================================================= 5 what a method would look like (unpublished work: the approach is a black box)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("One section in, verified supports out: learnable, given problems to learn from", { placeholder: "title" });
+    s.addText("Whatever the method, it needs problems to learn from and a fixed set to compare on", { placeholder: "title" });
     const Y = 1.7, H = 2.45, MID = Y + H / 2;
     const text = (box, head, body, headColor, bodyColor, name, headSize = 14, bodySize = 11.5) =>
       s.addText([{ text: head, options: { bold: true, fontSize: headSize, color: headColor, breakLine: true } },

@@ -28,7 +28,7 @@ square feet needs about ten thousand of them. Each takes twenty minutes to two h
 design by hand, roughly a quarter of the whole MEP design effort. These are practitioner
 estimates.
 
-## Slide 3, One cross-section in, verified support designs out (starts at 1:05)
+## Slide 3, A designer turns one cross-section into verified support assemblies (starts at 1:05)
 
 What exactly is designed, and from what? At ISARC we defined the task like this. In: one
 cross-section at a hanger. The structure it hangs from, with its anchor zones, and the
@@ -46,7 +46,7 @@ coordinate and check; choosing the layout and the parts is still manual. Three r
 The topology comes from experience. Code, load and material rules interact across
 thousands of combinations. And catalogs change faster than rule systems can be rewritten.
 
-## Slide 5, One section in, verified supports out: learnable, given problems to learn from (starts at 2:10)
+## Slide 5, Whatever the method, it needs problems to learn from and a fixed set to compare on (starts at 2:10)
 
 What would a method look like? On the left, the context and a catalog of parts with
 prices. The rules say which actions are legal; each action adds parts. In the middle, a
