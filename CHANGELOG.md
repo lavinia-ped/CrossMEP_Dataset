@@ -22,7 +22,7 @@ package version tracks code and documentation.
   uniform over the tiers or any mix on request.
 - The opening now runs hospital → one cross-section in, verified designs out → why it resists
   automation → what a method would look like → the design space → the dataset. 18 main slides,
-  about 9:55; later slide numbers shift by three from 4.0.0.
+  about 8:30; later slide numbers shift by three from 4.0.0.
 
 ### Data revision 4.1
 - `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters
