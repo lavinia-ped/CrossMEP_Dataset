@@ -146,9 +146,9 @@ trade mix, labelled as choices."
 
 ## 10. Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed (4:00)
 
-**Show:** one benchmark context per tier as a strip (C1 to C8), then two bar
-charts of medians per tier, benchmark and population: load at the support rises,
-the closest clear gap narrows; a caption says this is a design check.
+**Show:** two bar charts of medians per tier, benchmark and population: load at
+the support rises, the closest clear gap narrows; a caption says this is a design
+check and that everything else varies within a tier.
 
 **Say:** "Three analyses. The first is a design check. One benchmark context per tier: C1
 is a single element, the most common support in any building; C8 has eight

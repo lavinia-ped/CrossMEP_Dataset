@@ -798,29 +798,23 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
     s.addText("Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed", { placeholder: "title" });
-    // one benchmark context per tier: the two rows of the gallery figure, side by side as one strip
-    const gal = path.join(FIG, "02_tier_gallery.png"), gw = (12.13 - 0.15) / 2;
-    await cropImage(s, gal, { x: 0.6, y: 1.45, w: gw, h: 1.8 }, { x: 0, y: 0, w: 2400, h: 560 }, "tiers C1 to C4", "top");
-    await cropImage(s, gal, { x: 0.6 + gw + 0.15, y: 1.45, w: gw, h: 1.8 }, { x: 0, y: 560, w: 2400, h: 560 }, "tiers C5 to C8", "top");
-    caption(s, "One benchmark context per tier, C1 to C8; dashed rings are insulation. Within a tier, kinds, trades, surfaces and stacking all vary: the element count is the one controlled axis of difficulty.",
-      { x: 0.6, y: 2.88, w: 12.13, h: 0.4 }, "gallery caption", 11);
     // the design check: medians per tier, benchmark (125 per tier) and population (2,000 per tier)
     const tiers = D.tiers, lb = TR.benchmark.load_kN.per_tier, lp = TR.population.load_kN.per_tier;
     const gb = TR.benchmark.clear_gap_mm.per_tier, gp = TR.population.clear_gap_mm.per_tier, gt = tiers.slice(1);
     const two = (extra) => chartStyle({ chartColors: [THEME.colors.accent1, "B9C0BB"], showLegend: true, legendPos: "b", legendFontSize: 9, legendFontFace: "+mn-lt",
-      barGrouping: "clustered", barGapWidthPct: 60, dataLabelFontSize: 8.5, ...extra });
+      barGrouping: "clustered", barGapWidthPct: 60, dataLabelFontSize: 10, catAxisLabelFontSize: 12, valAxisLabelFontSize: 11, titleFontSize: 14, legendFontSize: 10, ...extra });
     s.addChart(pres.ChartType.bar, [
       { name: "benchmark median", labels: tiers, values: tiers.map((t) => lb[t].median) },
       { name: `population median (${fmtInt(TR.settings.per_tier)} per tier)`, labels: tiers, values: tiers.map((t) => lp[t].median) }],
-      two({ x: 0.6, y: 3.35, w: 5.95, h: 2.95, barDir: "col", dataLabelFormatCode: "0.00", valAxisLabelFormatCode: "0.0", valAxisMinVal: 0,
+      two({ x: 0.6, y: 1.45, w: 5.95, h: 4.75, barDir: "col", dataLabelFormatCode: "0.00", valAxisLabelFormatCode: "0.0", valAxisMinVal: 0,
         title: "Heavier with the tier: median load at the support (kN)", objectName: "load chart" }));
     s.addChart(pres.ChartType.bar, [
       { name: "benchmark median", labels: gt, values: gt.map((t) => gb[t].median) },
       { name: `population median (${fmtInt(TR.settings.per_tier)} per tier)`, labels: gt, values: gt.map((t) => gp[t].median) }],
-      two({ x: 6.78, y: 3.35, w: 5.95, h: 2.95, barDir: "col", dataLabelFormatCode: "0", valAxisLabelFormatCode: "0", valAxisMinVal: 0,
+      two({ x: 6.78, y: 1.45, w: 5.95, h: 4.75, barDir: "col", dataLabelFormatCode: "0", valAxisLabelFormatCode: "0", valAxisMinVal: 0,
         title: "Tighter with the tier: median closest clear gap (mm)", objectName: "gap chart" }));
-    caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the count; load and congestion follow from the rules. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}). Bootstrap intervals in RESULTS.md.`,
-      { x: 0.6, y: 6.38, w: 12.13, h: 0.5 }, "experiment 1 caption", 10.5);
+    caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the element count; load and congestion follow from the rules. Within a tier, kinds, trades, surfaces and stacking all vary. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark, 125 contexts per tier; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}). Bootstrap intervals in RESULTS.md.`,
+      { x: 0.6, y: 6.3, w: 12.13, h: 0.55 }, "experiment 1 caption", 11);
     s.addNotes("Three analyses. The first is a design check. One benchmark context per tier: C1 is a single element, the most common support in any building; C8 has eight services on three rows. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:00)");
   }
 
