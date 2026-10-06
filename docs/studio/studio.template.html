@@ -1,11 +1,11 @@
 <title>CrossMEP Generator Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a generator bench. Parameters on the left; on the right, top to bottom:
-   what this run produced, one section in full, every section of the run, and the
-   spacing the run drew. Same family as the MEP Support Design Studio. */
+/* Layout: a demo bench. One bar of parameters; one stage with the drawing sheet
+   and the 3D model side by side; the other sections of the run as a strip;
+   everything else folded into Details. Same family as the MEP Support Design Studio. */
 :root {
   --bg: #f1f3f0;
   --panel: #fbfcfa;
@@ -18,15 +18,15 @@
   --focus: #2a78d6;
   --series: #2a78d6;
   --shadow: 0 10px 30px rgba(20, 30, 25, .18);
-  /* The drawing sheet stays light in both themes, so its inks do too. */
+  /* Drawing paper and model inks stay light in both themes, like a printed sheet. */
   --sheet: #fbfbf8;
   --paper: #ffffff;
-  --dwg-center: #8b948f;
-  --dwg-insul: #edf1ee;
-  --dwg-concrete: #e7e9e4;
-  --dwg-ink: #1f2a26;
-  --dwg-muted: #6b7570;
-  --dwg-surface: #8f9893;
+  --dwg-ink: #16201c;
+  --dwg-muted: #5f6964;
+  --dwg-center: #7d8782;
+  --dwg-insul: #eef2ef;
+  --dwg-concrete: #eceee9;
+  --dwg-surface: #8a938e;
   --dwg-dim: #c4471c;
   --t-domestic: #2a78d6;
   --t-heating: #eb6834;
@@ -49,112 +49,82 @@
   --chip: #25302b; --accent: #d95926; --focus: #3987e5; --series: #3987e5; --shadow: 0 10px 30px rgba(0,0,0,.5); color-scheme: dark;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font-body); margin: 0; }
-button, select { font: inherit; color: inherit; }
-button:focus-visible, .card-open:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; padding-inline: 20px; padding-block: 18px 12px; border-bottom: 1px solid var(--rule); }
-.brand { display: grid; gap: 2px; }
+button { font: inherit; color: inherit; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { max-width: 1480px; margin: 0 auto; padding-inline: 20px; }
+.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; padding-block: 18px 14px; }
 .eyebrow { font: 500 11px/1.2 var(--font-data); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-h1 { font: 700 30px/1.05 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
-h2 { font: 700 19px/1.2 var(--font-display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
-.top p { margin: 0; color: var(--muted); font-size: 14px; max-width: 72ch; }
-.app { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; padding-inline: 20px; padding-block: 18px 48px; max-width: 1480px; margin: 0 auto; }
-@media (max-width: 960px) { .app { grid-template-columns: minmax(0, 1fr); } }
-.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; min-width: 0; }
-aside.controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; align-content: start; position: sticky; top: calc(12px + env(safe-area-inset-top, 0px)); max-height: calc(100vh - 24px); overflow-y: auto; }
-@media (max-width: 960px) { aside.controls { position: static; max-height: none; } }
-aside.controls > * { min-width: 0; }
-.lbl { font: 600 13px/1.3 var(--font-body); color: var(--ink); margin-bottom: 6px; display: block; }
-.help { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+h1 { font: 700 32px/1.05 var(--font-display); letter-spacing: .01em; margin: 0; }
+h2 { font: 700 19px/1.2 var(--font-display); letter-spacing: .01em; margin: 0; }
+.top p { margin: 0; color: var(--muted); font-size: 14.5px; max-width: 70ch; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding-block: 0 40px; }
+.app > * { min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; min-width: 0; }
+.bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 22px; padding: 12px 16px; }
+.ctl { display: grid; gap: 5px; min-width: 0; }
+.lbl { font: 500 11px/1.2 var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
 .seg button { border: 0; background: var(--panel); padding: 7px 12px; cursor: pointer; font-size: 14px; }
 .seg button + button { border-left: 1px solid var(--rule); }
 .seg button[aria-pressed="true"] { background: var(--strong); color: var(--bg); font-weight: 600; }
-.tiers { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
-.tiers button { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; padding: 6px 0; cursor: pointer; font: 500 13px var(--font-data); }
+.tiers { display: flex; gap: 4px; flex-wrap: wrap; }
+.tiers button { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; width: 40px; padding: 6px 0; cursor: pointer; font: 500 13px var(--font-data); }
 .tiers button[aria-pressed="true"] { background: var(--strong); color: var(--bg); border-color: var(--strong); }
-.stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 4px 0; }
-.stepper + .stepper { border-top: 1px solid var(--rule); }
-.stepper .name { font-size: 14px; }
-.stepper .name small { display: block; color: var(--muted); font-size: 12px; }
+.mix { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.mixer { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
 .stepbox { display: inline-flex; align-items: center; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
-.stepbox button { width: 34px; height: 32px; border: 0; background: var(--panel); cursor: pointer; font-size: 17px; line-height: 1; }
+.stepbox button { width: 30px; height: 32px; border: 0; background: var(--panel); cursor: pointer; font-size: 17px; line-height: 1; }
 .stepbox button:disabled { opacity: .35; cursor: default; }
-.stepbox output { min-width: 32px; text-align: center; font: 500 15px var(--font-data); border-inline: 1px solid var(--rule); padding: 5px 0; }
-.code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
-pre { margin: 0; font: 12.5px/1.5 var(--font-data); background: var(--chip); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
-.ghost { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
-details.rules summary, details.json summary { cursor: pointer; font: 600 14px var(--font-body); }
-.rules dl { margin: 8px 0 0; display: grid; gap: 10px; }
-.rules dt { font: 500 11px/1.2 var(--font-data); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
-.rules dd { margin: 3px 0 0; font-size: 13.5px; }
-.rules ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
-main { display: grid; gap: 16px; min-width: 0; align-content: start; }
-.summary { display: grid; gap: 10px; }
-.stats { display: flex; flex-wrap: wrap; gap: 8px 22px; }
-.stat { display: grid; gap: 1px; min-width: 0; }
-.stat b { font: 600 18px/1.2 var(--font-data); font-variant-numeric: tabular-nums; }
-.stat span { font-size: 12.5px; color: var(--muted); }
-.stat em { font-style: normal; font: 400 11.5px var(--font-data); color: var(--muted); }
-.chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.chip { font: 500 10.5px/1 var(--font-data); letter-spacing: .03em; text-transform: uppercase; background: var(--chip); border-radius: 999px; padding: 4px 7px; white-space: nowrap; display: inline-flex; gap: 5px; align-items: center; }
-.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
-.detail { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-.detail > * { min-width: 0; }
-.detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; align-items: start; }
-.detail-head .kv { flex: 1 1 280px; max-width: 680px; min-width: 0; }
-.views { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-@media (max-width: 1000px) { .views { grid-template-columns: minmax(0, 1fr); } }
-.view { margin: 0; display: grid; gap: 6px; align-content: start; min-width: 0; }
-.view figcaption { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; font-size: 13px; color: var(--muted); min-height: 30px; }
+.stepbox output { min-width: 28px; text-align: center; font: 500 15px var(--font-data); border-inline: 1px solid var(--rule); padding: 5px 0; }
+.primary { background: var(--strong); color: var(--bg); border: 0; border-radius: 8px; padding: 9px 16px; font-weight: 600; cursor: pointer; margin-left: auto; }
+.stage { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.stage.wide { grid-template-columns: minmax(0, 1fr); }
+.stage.wide .three-wrap { min-height: 480px; }
+@media (max-width: 1000px) { .stage { grid-template-columns: minmax(0, 1fr); } #enlarge { display: none; } }
+.view { margin: 0; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.view figcaption { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; font-size: 13px; color: var(--muted); min-height: 32px; }
 .view figcaption b { font: 700 17px/1.2 var(--font-display); color: var(--ink); }
 .view figcaption .ghost { margin-left: auto; }
-.sheet.tech { background: var(--paper); height: 460px; display: flex; align-items: center; justify-content: center; }
-.sheet.tech svg { width: 100%; height: 100%; }
-.titleblock { display: grid; grid-template-columns: 1.3fr 1fr 1fr; border: 1px solid var(--dwg-ink); background: var(--paper); color: var(--dwg-ink); font: 11px/1.35 var(--font-data); }
-.titleblock div { padding: 4px 7px; border-left: 1px solid var(--dwg-ink); min-width: 0; overflow-wrap: anywhere; }
-.titleblock div:nth-child(3n + 1) { border-left: 0; }
-.titleblock div:nth-child(n + 4) { border-top: 1px solid var(--dwg-ink); }
-.titleblock small { display: block; font-size: 9px; letter-spacing: .08em; text-transform: uppercase; color: var(--dwg-muted); }
-.three-wrap { position: relative; height: 460px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); overflow: hidden; }
-.three-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; }
+.sheet { background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.sheet.a4 { aspect-ratio: 297 / 210; max-width: 100%; }
+.sheet.a4 svg { display: block; width: 100%; height: 100%; }
+.three-wrap { position: relative; flex: 1; min-height: 340px; border: 1px solid var(--rule); border-radius: 6px; background: var(--sheet); overflow: hidden; }
+.three-wrap canvas { display: block; width: 100%; height: 100%; cursor: grab; position: absolute; inset: 0; }
 .three-wrap canvas:active { cursor: grabbing; }
 .three-msg { margin: 0; padding: 16px; font-size: 13px; color: var(--dwg-muted); }
-.three-key { position: absolute; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; max-width: calc(100% - 16px); background: rgba(251, 251, 248, .88); border-radius: 4px; padding: 4px 7px; font: 11px/1.3 var(--font-data); color: var(--dwg-ink); pointer-events: none; }
+.three-key { position: absolute; left: 8px; bottom: 8px; display: flex; flex-wrap: wrap; gap: 4px 10px; max-width: calc(100% - 16px); background: rgba(251, 251, 248, .9); border-radius: 4px; padding: 4px 7px; font: 11px/1.3 var(--font-data); color: var(--dwg-ink); pointer-events: none; }
 .three-key span { display: inline-flex; align-items: center; gap: 5px; }
-@media (max-width: 560px) { .sheet.tech, .three-wrap { height: 340px; } .titleblock { grid-template-columns: 1fr 1fr; } .titleblock div:nth-child(3n + 1) { border-left: 1px solid var(--dwg-ink); } .titleblock div:nth-child(2n + 1) { border-left: 0; } .titleblock div:nth-child(n + 3) { border-top: 1px solid var(--dwg-ink); } }
-.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
-.sheet svg { display: block; width: 100%; height: auto; }
-.facts { display: grid; gap: 12px; align-content: start; min-width: 0; }
-.meta { font: 400 13px/1.45 var(--font-data); color: var(--muted); }
-.kv { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px 14px; margin: 0; }
-.kv div { min-width: 0; }
-.kv dt { font-size: 12px; color: var(--muted); }
-.kv dd { margin: 0; font: 500 15px var(--font-data); font-variant-numeric: tabular-nums; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.ghost { border: 1px solid var(--rule); background: var(--panel); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; font-size: 14px; color: var(--muted); }
+.facts b { font: 600 15px var(--font-data); color: var(--ink); font-variant-numeric: tabular-nums; }
+.run-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; margin-bottom: 8px; }
+.hint { font-size: 13px; color: var(--muted); margin: 0; }
+.strip { display: grid; grid-auto-flow: column; grid-auto-columns: 150px; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.thumb { all: unset; display: grid; gap: 4px; cursor: pointer; border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); padding: 6px; box-sizing: border-box; }
+.thumb:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.thumb[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.thumb .sheet { aspect-ratio: 4 / 3; border-radius: 4px; background: var(--sheet); }
+.thumb .sheet svg { width: 100%; height: 100%; display: block; }
+.thumb span { font: 400 12px var(--font-data); color: var(--muted); display: flex; justify-content: space-between; }
+.thumb span b { color: var(--ink); font-weight: 600; }
+details.more { padding: 12px 16px; }
+details.more > summary { cursor: pointer; font: 600 15px var(--font-body); }
+.more-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 12px; }
+.more-body > * { min-width: 0; }
+.more-body h3 { font: 700 16px/1.2 var(--font-display); margin: 0 0 6px; }
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th { text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 4px 10px 4px 0; white-space: nowrap; vertical-align: bottom; }
+th { text-align: left; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--rule); padding: 4px 10px 4px 0; white-space: nowrap; }
 td { border-bottom: 1px solid var(--rule); padding: 5px 10px 5px 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.num, th.num { text-align: right; }
-td .dot { margin-right: 6px; vertical-align: 0; }
-.json pre { max-height: 300px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 8px; }
-.grid-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 16px; }
-.hint { font-size: 13px; color: var(--muted); margin: 0; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
-@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; } .card-open { padding: 8px; } .kpi span { font-size: 10.5px; } .card-title span { display: none; } }
-.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 0; min-width: 0; }
-.card.is-selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.card-open { all: unset; display: grid; gap: 8px; padding: 10px; cursor: pointer; border-radius: 10px; width: 100%; box-sizing: border-box; }
-.card .sheet { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; }
-.card .sheet svg { width: 100%; height: 100%; }
-.card-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
-.card-title b { font: 700 16px/1.15 var(--font-display); }
-.card-title span { font: 400 12px var(--font-data); color: var(--muted); }
-.kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-.kpi { display: grid; }
-.kpi b { font: 600 14px/1.2 var(--font-data); font-variant-numeric: tabular-nums; }
-.kpi span { font-size: 11.5px; color: var(--muted); }
-.chart-wrap { position: relative; }
+td .dot { margin-right: 6px; }
+pre { margin: 0; font: 12.5px/1.5 var(--font-data); background: var(--chip); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+.code-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rules { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; max-width: 95ch; }
+.chart-wrap { position: relative; max-width: 820px; }
 #hist { display: block; width: 100%; height: auto; }
 #hist text { fill: var(--muted); font: 11px var(--font-data); }
 #hist .axis { stroke: var(--rule); }
@@ -162,135 +132,99 @@ td .dot { margin-right: 6px; vertical-align: 0; }
 #hist .bar { fill: var(--series); }
 #hist .bar:hover { opacity: .8; }
 #hist .curve { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; }
-#hist .lab { fill: var(--ink); font: 600 12px var(--font-body); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
 .legend i { display: inline-block; width: 18px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
 .legend i.line { height: 0; border-top: 2px dashed var(--ink); border-radius: 0; vertical-align: 3px; }
 .tip { position: absolute; pointer-events: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 9px; font: 12px/1.45 var(--font-data); box-shadow: var(--shadow); white-space: nowrap; }
+.json pre { max-height: 300px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
 .boot { margin: 48px auto; max-width: 64ch; padding-inline: 20px; color: var(--muted); font-size: 15px; text-align: center; }
-footer { font-size: 13px; color: var(--muted); display: grid; gap: 6px; max-width: 100ch; }
+footer { font-size: 13px; color: var(--muted); display: grid; gap: 4px; max-width: 100ch; }
+footer p { margin: 0; }
 footer a { color: inherit; }
-@media (prefers-reduced-motion: no-preference) { .card { transition: border-color .15s; } }
+.sheet-scroll { overflow-x: auto; border-radius: 6px; }
+.phone-only { display: none; }
+@media (max-width: 700px) { .sheet-scroll .sheet.a4 { width: 760px; max-width: none; } .phone-only { display: inline; } }
+@media (max-width: 560px) { .primary { margin-left: 0; } .stage .three-wrap { min-height: 300px; } h1 { font-size: 27px; } .tiers button { width: 36px; } }
 </style>
 
+<div class="wrap">
 <header class="top">
-  <div class="brand">
+  <div>
     <div class="eyebrow">Problem generator for MEP support synthesis</div>
     <h1>CrossMEP Generator Studio</h1>
   </div>
-  <p>Set the generator's parameters and see the cross-sections it produces. Every section on this page is an output of the released CrossMEP generator, stored with the Python call that reproduces it.</p>
+  <p>Choose what crosses the hanger and generate the section a support designer receives: drawn as a support detail and in 3D. Every section is a real output of the CrossMEP generator.</p>
 </header>
 
 <p class="boot" id="boot" role="status">Loading the generator outputs…</p>
 <div class="app" id="app" hidden>
-  <aside class="panel controls" aria-labelledby="p-title">
-    <h2 id="p-title">Parameters</h2>
-    <div>
-      <span class="lbl" id="mode-lbl">Choose the elements</span>
+  <section class="panel bar" aria-label="Generator parameters">
+    <div class="ctl">
+      <span class="lbl" id="mode-lbl">Services at the hanger</span>
       <div class="seg" role="group" aria-labelledby="mode-lbl">
         <button type="button" id="mode-tier" aria-pressed="true">By tier</button>
-        <button type="button" id="mode-custom" aria-pressed="false">By composition</button>
+        <button type="button" id="mode-custom" aria-pressed="false">Exact mix</button>
       </div>
     </div>
-    <div id="tier-ctl">
-      <span class="lbl" id="tier-lbl">Tier: number of elements</span>
+    <div class="ctl" id="tier-ctl">
+      <span class="lbl" id="tier-lbl">Tier = number of services</span>
       <div class="tiers" id="tiers" role="group" aria-labelledby="tier-lbl"></div>
-      <p class="help">The tier fixes the element count. Everything else is drawn by the generator, with the 78 / 22 % ceiling / wall mix of the release.</p>
     </div>
-    <div id="custom-ctl" hidden>
-      <span class="lbl">Composition</span>
-      <div id="steppers"></div>
-      <p class="help" id="total-help"></p>
-      <span class="lbl" id="surf-lbl" style="margin-top: 10px;">Mounting surface</span>
+    <div class="ctl" id="custom-ctl" hidden>
+      <span class="lbl">Mix</span>
+      <div class="mix" id="mix"></div>
+    </div>
+    <div class="ctl" id="surf-ctl" hidden>
+      <span class="lbl" id="surf-lbl">Hung from</span>
       <div class="seg" role="group" aria-labelledby="surf-lbl">
-        <button type="button" id="surf-ceiling" aria-pressed="true">Ceiling</button>
+        <button type="button" id="surf-ceiling" aria-pressed="true">Slab</button>
         <button type="button" id="surf-wall" aria-pressed="false">Wall</button>
       </div>
     </div>
-    <div class="stepper" style="border: 0; padding: 0;">
-      <div class="name"><span class="lbl" style="margin: 0;">Seed</span><small id="seed-help"></small></div>
+    <div class="ctl">
+      <span class="lbl">Seed</span>
       <div class="stepbox">
-        <button type="button" id="seed-dec" aria-label="Previous seed">−</button>
+        <button type="button" id="seed-dec" aria-label="Previous seed">‹</button>
         <output id="seed-val" aria-live="polite">0</output>
-        <button type="button" id="seed-inc" aria-label="Next seed">+</button>
+        <button type="button" id="seed-inc" aria-label="Next seed">›</button>
       </div>
     </div>
-    <div>
-      <div class="code-head"><span class="lbl" style="margin: 0;">Reproduce this run in Python</span><button type="button" class="ghost" id="copy">Copy</button></div>
-      <pre id="code"></pre>
-    </div>
-    <details class="rules" open>
-      <summary>What the generator decides</summary>
-      <dl>
-        <div><dt>You set</dt><dd id="rule-set"></dd></div>
-        <div><dt>It draws</dt><dd><ul>
-          <li>Surface: ceiling or wall (78 / 22 %), concrete C25 or C30, 150 to 300 mm thick</li>
-          <li>Services the way trades run: hot and cold pairs, heating flow and return, sprinkler mains with branches, chilled-water banks, cable trays, ducts, conduit groups of 2 to 6</li>
-          <li>Sizes from standard series: steel pipe DN15 to 100 (EN 10255), trays 150 to 600 (IEC 61537), ducts (EN 1505 / 1506), conduits Ø20 to 50 (IEC 61386)</li>
-          <li>Rows: one for a single element, one or two up to five elements, two or three above (two at most on a wall); bulky services nearest the surface</li>
-          <li id="rule-gap"></li>
-        </ul></dd></div>
-        <div><dt>It computes and checks</dt><dd><ul>
-          <li>Insulation from the service (heated and chilled lines)</li>
-          <li>Load at the support: weight per metre times the support span (published water-service spans for pipes; 2.0 m trays and conduits; 2.4 m ducts)</li>
-          <li>Positions along and out from the surface; every pair of insulation surfaces at least 25 mm apart</li>
-        </ul></dd></div>
-      </dl>
-    </details>
-  </aside>
+    <button type="button" class="primary" id="again">Generate another</button>
+  </section>
 
-  <main>
-    <section class="panel summary" aria-labelledby="sum-title">
-      <div class="eyebrow">This run</div>
-      <h2 id="sum-title"></h2>
-      <div class="stats" id="stats"></div>
-      <div class="chips" id="kind-chips"></div>
-    </section>
+  <section class="stage" id="stage" aria-label="The selected section">
+    <figure class="view">
+      <figcaption><b>Section A–A</b><span>as the support designer receives it</span><span class="phone-only">· swipe the sheet sideways</span><button type="button" class="ghost" id="enlarge" aria-pressed="false">Enlarge</button></figcaption>
+      <div class="sheet-scroll"><div class="sheet a4" id="d-sheet"></div></div>
+    </figure>
+    <figure class="view">
+      <figcaption><b>3D</b><span>2.4 m of the run · drag to turn, scroll to zoom</span><button type="button" class="ghost" id="reset3d">Reset view</button></figcaption>
+      <div class="three-wrap" id="d-3d"></div>
+    </figure>
+  </section>
+  <p class="facts" id="facts"></p>
 
-    <section class="panel detail" aria-labelledby="d-title">
-      <div class="detail-head">
-        <div>
-          <div class="eyebrow" id="d-eyebrow"></div>
-          <h2 id="d-title"></h2>
-          <div class="meta" id="d-meta"></div>
-        </div>
-        <dl class="kv" id="d-kv"></dl>
+  <section aria-labelledby="run-title">
+    <div class="run-head"><h2 id="run-title">Same parameters, other sections</h2><p class="hint" id="run-hint"></p></div>
+    <div class="strip" id="grid"></div>
+  </section>
+
+  <details class="panel more">
+    <summary>Details: schedule, Python call, how the generator decides, spacing, stored record</summary>
+    <div class="more-body">
+      <div><h3>Schedule</h3><div class="table-wrap"><table id="d-table"></table></div></div>
+      <div><div class="code-head"><h3 style="margin: 0;">Reproduce in Python</h3><button type="button" class="ghost" id="copy">Copy</button></div><pre id="code"></pre></div>
+      <div><h3>How the generator decides</h3><ul class="rules" id="rules"></ul></div>
+      <div><h3>Spacing drawn in this run</h3><p class="hint" id="h-hint"></p>
+        <div class="legend"><span><i style="background: var(--series)"></i>neighbour gaps in this run</span><span><i class="line"></i>the fitted distribution they are drawn from</span></div>
+        <div class="chart-wrap" id="hist-wrap"><svg id="hist" viewBox="0 0 760 230" role="img" aria-label="Histogram of the neighbour gaps drawn in this run"></svg><div class="tip" id="tip" hidden></div></div>
       </div>
-      <div class="views">
-        <figure class="view">
-          <figcaption><b>Section A–A</b><span>the support detail as drawn: true scale, mm</span></figcaption>
-          <div class="sheet tech" id="d-sheet"></div>
-          <div class="titleblock" id="d-tb"></div>
-        </figure>
-        <figure class="view">
-          <figcaption><b>3D</b><span>2.4 m of the run; the outlined plane is section A–A. Drag to turn, scroll to zoom.</span><button type="button" class="ghost" id="reset3d">Reset view</button></figcaption>
-          <div class="three-wrap" id="d-3d"></div>
-        </figure>
-      </div>
-      <div class="table-wrap"><table id="d-table"></table></div>
       <details class="json"><summary>Stored record (JSON)</summary><pre id="d-json"></pre></details>
-    </section>
+    </div>
+  </details>
 
-    <section aria-labelledby="g-title" style="display: grid; gap: 10px;">
-      <div class="grid-head">
-        <h2 id="g-title">Every section of this run</h2>
-        <p class="hint">Select one to see it in full. The orange line marks the closest pair.</p>
-      </div>
-      <div class="grid" id="grid"></div>
-    </section>
-
-    <section class="panel" aria-labelledby="h-title" style="display: grid; gap: 8px;">
-      <h2 id="h-title">Spacing drawn in this run</h2>
-      <p class="hint" id="h-hint"></p>
-      <div class="legend"><span><i style="background: var(--series)"></i>neighbour gaps in this run</span><span><i class="line"></i>the fitted distribution the gaps are drawn from</span></div>
-      <div class="chart-wrap" id="hist-wrap">
-        <svg id="hist" viewBox="0 0 760 230" role="img" aria-labelledby="h-title"></svg>
-        <div class="tip" id="tip" hidden></div>
-      </div>
-    </section>
-
-    <footer id="footer"></footer>
-  </main>
+  <footer id="footer"></footer>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -299,12 +233,10 @@ footer a { color: inherit; }
 /* ---------- Data: base64(gzip(JSON)) written by scripts/build_studio.py ---------- */
 const DATA_GZ = "__DATA_GZ__";
 
-const KINDS = [["pipes", "Pipes", "steel, DN15 to 100"], ["trays", "Cable trays", "150 to 600 wide"], ["ducts", "Ducts", "round or rectangular"], ["conduits", "Conduits", "Ø20 to 50, in groups"]];
-const KIND_OF = { pipe: "pipes", cable_tray: "trays", duct: "ducts", conduit: "conduits" };
+const KINDS = [["pipes", "Pipes"], ["trays", "Trays"], ["ducts", "Ducts"], ["conduits", "Conduits"]];
 const KIND_NAME = { pipe: "pipe", cable_tray: "cable tray", duct: "duct", conduit: "conduit" };
 const SERVICE = { domestic_hot: "domestic hot water", domestic_cold: "domestic cold water", heating: "heating", chilled: "chilled water",
   sprinkler: "sprinkler", tray: "electrical", conduit: "electrical", duct: "ventilation" };
-const TRADES = ["domestic", "heating", "chilled", "sprinkler", "electrical", "ventilation"];
 const TRADE_NAME = { domestic: "domestic water", heating: "heating", chilled: "chilled water", sprinkler: "sprinkler", electrical: "electrical", ventilation: "ventilation" };
 const SURFACE_BAND_MM = 60;
 
@@ -314,7 +246,6 @@ const $ = (id) => document.getElementById(id);
 const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const fmt = (x, d = 0) => (x == null || Number.isNaN(x)) ? "—" : x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const median = (xs) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 async function boot() {
   try {
@@ -333,32 +264,47 @@ async function boot() {
 
 /* ---------- Controls ---------- */
 function buildControls() {
-  $("tiers").innerHTML = Array.from({ length: 8 }, (_, i) => `<button type="button" data-tier="C${i + 1}" aria-pressed="false">C${i + 1}</button>`).join("");
+  $("tiers").innerHTML = Array.from({ length: 8 }, (_, i) => `<button type="button" data-tier="C${i + 1}" aria-pressed="false" aria-label="Tier C${i + 1}: ${i + 1} service${i ? "s" : ""}">C${i + 1}</button>`).join("");
   $("tiers").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-tier]"); if (!b) return; state.tier = b.dataset.tier; state.sel = 0; render(); });
-  $("steppers").innerHTML = KINDS.map(([k, name, sub]) => `<div class="stepper"><div class="name">${name}<small>${sub}</small></div>
-    <div class="stepbox"><button type="button" data-k="${k}" data-d="-1" aria-label="Fewer ${name.toLowerCase()}">−</button><output id="v-${k}">0</output><button type="button" data-k="${k}" data-d="1" aria-label="More ${name.toLowerCase()}">+</button></div></div>`).join("");
-  $("steppers").addEventListener("click", (ev) => {
-    const b = ev.target.closest("button[data-k]"); if (!b || b.disabled) return;
-    state.comp[b.dataset.k] += Number(b.dataset.d); state.sel = 0; render();
-  });
+  $("mix").innerHTML = KINDS.map(([k, name]) => `<span class="mixer">${name}<span class="stepbox"><button type="button" data-k="${k}" data-d="-1" aria-label="Fewer ${name.toLowerCase()}">−</button><output id="v-${k}">0</output><button type="button" data-k="${k}" data-d="1" aria-label="More ${name.toLowerCase()}">+</button></span></span>`).join("");
+  $("mix").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-k]"); if (!b || b.disabled) return; state.comp[b.dataset.k] += Number(b.dataset.d); state.sel = 0; render(); });
   $("mode-tier").onclick = () => { state.mode = "tier"; state.seed = Math.min(state.seed, D.meta.tier_seeds - 1); state.sel = 0; render(); };
   $("mode-custom").onclick = () => { state.mode = "custom"; state.seed = Math.min(state.seed, D.meta.custom_seeds - 1); state.sel = 0; render(); };
   $("surf-ceiling").onclick = () => { state.surface = "ceiling"; state.sel = 0; render(); };
   $("surf-wall").onclick = () => { state.surface = "wall"; state.sel = 0; render(); };
   $("seed-dec").onclick = () => { state.seed -= 1; state.sel = 0; render(); };
   $("seed-inc").onclick = () => { state.seed += 1; state.sel = 0; render(); };
+  $("again").onclick = () => {                                   // next section of the run, then the next seed
+    const run = batch();
+    if (state.sel < run.length - 1) state.sel += 1;
+    else { state.sel = 0; state.seed = (state.seed + 1) % seedCount(); }
+    render();
+  };
   $("reset3d").onclick = () => { if (V3 && V3.fit) V3.fit(); };
+  $("enlarge").onclick = () => {                                 // the sheet across the full width, the 3D view below it
+    const on = !$("stage").classList.contains("wide");
+    $("stage").classList.toggle("wide", on);
+    $("enlarge").setAttribute("aria-pressed", on);
+    $("enlarge").textContent = on ? "Side by side" : "Enlarge";
+  };
+  $("grid").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; state.sel = Number(b.dataset.i); renderSelected(); });
   $("copy").onclick = async () => {
     const text = $("code").textContent;
     try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied"; }
     catch (e) { const r = document.createRange(); r.selectNodeContents($("code")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $("copy").textContent = "Selected"; }
     setTimeout(() => { $("copy").textContent = "Copy"; }, 1600);
   };
-  $("grid").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-i]"); if (!b) return; state.sel = Number(b.dataset.i); renderDetail(); markSelected(); });
   const g = D.meta.gap;
-  $("rule-gap").textContent = `Clear gaps between neighbours from a lognormal fitted to gaps measured on an open IFC model (μ ${g.mu}, σ ${g.sigma}), at least ${fmt(g.floor_mm)} mm and at most ${fmt(g.cap_mm)} mm; a small stagger within each row`;
+  $("rules").innerHTML = [
+    "You set the number of services (tier) or the exact mix, the surface for an exact mix, and the seed.",
+    "It draws the surface (slab or wall, 78 / 22 % for tiers; concrete C25 or C30, 150 to 300 mm), the services the way trades run (hot and cold pairs, heating flow and return, sprinkler mains with branches, chilled-water banks, cable trays, ducts, conduit groups of 2 to 6) and their sizes from standard series (steel pipe DN15 to 100 to EN 10255, trays 150 to 600 to IEC 61537, ducts to EN 1505 / 1506, conduits Ø20 to 50 to IEC 61386).",
+    "It stacks them in rows (one for a single service, one or two up to five, two or three above; at most two on a wall), bulky services nearest the surface, electrical above wet services on walls.",
+    `It spaces neighbours with clear gaps drawn from a lognormal fitted to gaps measured on an open IFC model (μ ${g.mu}, σ ${g.sigma}), at least ${fmt(g.floor_mm)} mm and at most ${fmt(g.cap_mm)} mm, with a small stagger within each row.`,
+    "It computes insulation from the service, the load at the support (weight per metre × the support span: published water-service spans for pipes, 2.0 m for trays and conduits, 2.4 m for ducts) and the positions, and checks that every pair of insulation surfaces is at least 25 mm apart.",
+  ].map((t) => `<li>${esc(t)}</li>`).join("");
 }
 
+function seedCount() { return state.mode === "tier" ? D.meta.tier_seeds : D.meta.custom_seeds; }
 function batch() {
   if (state.mode === "tier") return D.tiers[state.tier][String(state.seed)];
   const c = state.comp;
@@ -368,28 +314,20 @@ function batch() {
 function syncControls() {
   const tier = state.mode === "tier";
   $("mode-tier").setAttribute("aria-pressed", tier); $("mode-custom").setAttribute("aria-pressed", !tier);
-  $("tier-ctl").hidden = !tier; $("custom-ctl").hidden = tier;
+  $("tier-ctl").hidden = !tier; $("custom-ctl").hidden = tier; $("surf-ctl").hidden = tier;
   $("tiers").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tier === state.tier));
-  const nSeeds = tier ? D.meta.tier_seeds : D.meta.custom_seeds;
   $("seed-val").textContent = state.seed;
-  $("seed-dec").disabled = state.seed <= 0; $("seed-inc").disabled = state.seed >= nSeeds - 1;
-  $("seed-help").textContent = `0 to ${nSeeds - 1} stored here; any integer works in Python`;
+  $("seed-dec").disabled = state.seed <= 0; $("seed-inc").disabled = state.seed >= seedCount() - 1;
   const c = state.comp, total = c.pipes + c.trays + c.ducts + c.conduits, M = D.meta.max;
   for (const [k] of KINDS) {
     $(`v-${k}`).textContent = c[k];
-    $("steppers").querySelector(`[data-k="${k}"][data-d="1"]`).disabled = c[k] >= M[k] || total >= D.meta.max_total;
-    $("steppers").querySelector(`[data-k="${k}"][data-d="-1"]`).disabled = c[k] <= 0 || total <= 1;
+    $("mix").querySelector(`[data-k="${k}"][data-d="1"]`).disabled = c[k] >= M[k] || total >= D.meta.max_total;
+    $("mix").querySelector(`[data-k="${k}"][data-d="-1"]`).disabled = c[k] <= 0 || total <= 1;
   }
-  $("total-help").textContent = `${total} element${total === 1 ? "" : "s"}. Up to ${D.meta.max_total} are stored here; the generator accepts up to 12.`;
   $("surf-ceiling").setAttribute("aria-pressed", state.surface === "ceiling"); $("surf-wall").setAttribute("aria-pressed", state.surface === "wall");
-  $("rule-set").textContent = tier
-    ? `The tier (${state.tier}: exactly ${state.tier.slice(1)} element${state.tier === "C1" ? "" : "s"}) and the seed.`
-    : "How many pipes, cable trays, ducts and conduits, the surface, and the seed.";
-  if (tier) {
-    $("code").textContent = `from crossmep.generate import generate_dataset\nrun = generate_dataset(${D.meta.tier_batch}, seed=${state.seed}, tier="${state.tier}")\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`;
-  } else {
-    $("code").textContent = `from crossmep.generate import generate_custom\nrun = generate_custom(${D.meta.custom_batch}, pipes=${c.pipes}, trays=${c.trays}, ducts=${c.ducts},\n                     conduits=${c.conduits}, surface="${state.surface}", seed=${state.seed})\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`;
-  }
+  $("code").textContent = tier
+    ? `from crossmep.generate import generate_dataset\nrun = generate_dataset(${D.meta.tier_batch}, seed=${state.seed}, tier="${state.tier}")\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`
+    : `from crossmep.generate import generate_custom\nrun = generate_custom(${D.meta.custom_batch}, pipes=${c.pipes}, trays=${c.trays}, ducts=${c.ducts},\n                     conduits=${c.conduits}, surface="${state.surface}", seed=${state.seed})\nrun[${state.sel}].to_dict()    # section ${state.sel + 1}`;
 }
 
 /* ---------- Geometry (the same definitions as crossmep.tasks) ---------- */
@@ -491,164 +429,369 @@ function drawContext(ctx, opts = {}) {
   return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" role="img" aria-label="${esc(label)}" preserveAspectRatio="xMidYMid meet">${parts.join("")}</svg>`;
 }
 
-/* ---------- Technical drawing: section A-A as a support detail ---------- */
-const CODE = { domestic_hot: "DHW", domestic_cold: "DCW", heating: "HTG", chilled: "CHW", sprinkler: "SPR", tray: "CT", conduit: "CND", duct: "VENT" };
-function shortLabel(e) {
-  if (e.kind === "pipe") return `${e.label} ${CODE[e.service] || ""}`.trim();
-  if (e.kind === "cable_tray") return `CT ${e.label.replace(" tray", "")}`;
-  if (e.kind === "conduit") return e.label.replace(" conduit", "");
-  return `${e.label.replace(" duct", "").replace("x", "×")}`;
+/* ---------- The drawing sheet: section A-A at the support, drawn the way an engineer would ---------- */
+const SH = { W: 297, H: 210 };                                   // A4 landscape, millimetres on paper
+const SCALES = [1, 2, 5, 10, 20, 25, 50, 100];
+const ABBR = { heating: "LTHW", chilled: "CHW", domestic_hot: "DHW", domestic_cold: "DCW", sprinkler: "SPR" };
+const TX = { label: 3.3, sub: 2.55, dim: 2.7, tag: 2.4, title: 5.2, scale: 3.0, note: 2.2, tbv: 2.6, tbk: 1.75 };
+const LWT = { obj: 0.5, thin: 0.18, ctr: 0.15, frame: 0.7, box: 0.3 };
+const FONT = "Barlow Condensed, Arial Narrow, Roboto Condensed, sans-serif";
+const MINUS = "−";
+const textW = (t, size) => String(t).length * size * 0.55;   // generous: also holds if the condensed face does not load
+const r2 = (v) => Math.round(v * 100) / 100;
+
+/* Where a service sits: centreline (pipes, conduits) or underside (trays, ducts) below the
+   slab soffit; centreline from the wall face on a wall. */
+function position(ctx, members) {
+  const ceil = ctx.surface.kind === "ceiling", e = members[0].e;
+  if (!ceil) {
+    const v = members.map((m) => m.X), lo = Math.min(...v), hi = Math.max(...v);
+    return `CL ${fmt(lo)}${hi - lo >= 1 ? `–${fmt(hi)}` : ""} FROM WALL`;
+  }
+  const us = e.kind === "cable_tray" || e.kind === "duct" && e.shape === "rect";
+  const v = members.map((m) => (us ? m.Y + m.h / 2 + m.ins : m.Y)), lo = Math.min(...v), hi = Math.max(...v);
+  return `${us ? "U/S" : "CL"} ${MINUS}${fmt(lo)}${hi - lo >= 1 ? ` TO ${MINUS}${fmt(hi)}` : ""}`;
 }
 
-function drawTechnical(ctx) {
-  const sk = ctx.surface.kind, g = screen(ctx), T = ctx.surface.thickness_mm;
+/* One callout per service; a group of identical conduits side by side is one callout. */
+function serviceItems(ctx) {
+  const g = screen(ctx), items = [], taken = new Set(), byLevel = {};
+  g.forEach((s) => { (byLevel[s.e.level] = byLevel[s.e.level] || []).push(s); });
+  Object.values(byLevel).forEach((row) => row.sort((a, b) => a.e.along_mm - b.e.along_mm));
+  for (const s of g) {
+    if (taken.has(s.i)) continue;
+    const e = s.e;
+    if (e.kind === "conduit") {
+      const row = byLevel[e.level], k = row.indexOf(s), grp = [s];
+      for (let j = k + 1; j < row.length && row[j].e.kind === "conduit" && row[j].e.label === e.label; j++) grp.push(row[j]);
+      for (let j = k - 1; j >= 0 && row[j].e.kind === "conduit" && row[j].e.label === e.label && !taken.has(row[j].i); j--) grp.unshift(row[j]);
+      grp.forEach((m) => taken.add(m.i));
+      const od = e.label.replace(" conduit", "").replace("Ø", ""), load = grp.reduce((a, m) => a + m.e.load_kN, 0);
+      items.push({ members: grp, t1: `${grp.length > 1 ? grp.length + " × " : ""}Ø${od} CONDUIT${grp.length > 1 ? "S" : ""}`,
+        t2: `${position(ctx, grp)} · ${fmt(load, 2)} kN @ ${fmt(e.span_m, 1)} m` });
+      continue;
+    }
+    taken.add(s.i);
+    let t1;
+    if (e.kind === "pipe") t1 = `${e.label} ${ABBR[e.service] || e.service.toUpperCase()}${e.insulation_mm ? `, ${fmt(e.insulation_mm)} INSUL.` : ""}`;
+    else if (e.kind === "cable_tray") t1 = `${fmt(e.width_mm)} × ${fmt(e.height_mm)} CABLE TRAY`;
+    else t1 = e.shape === "round" ? `Ø${fmt(e.width_mm)} VENT. DUCT` : `${fmt(e.width_mm)} × ${fmt(e.height_mm)} VENT. DUCT`;
+    items.push({ members: [s], t1, t2: `${position(ctx, [s])} · ${fmt(e.load_kN, 2)} kN @ ${fmt(e.span_m, 1)} m` });
+  }
+  return items;
+}
+
+/* Does segment a-b cross box o (Liang-Barsky)? */
+function segHits(ax, ay, bx, by, o) {
+  let t0 = 0, t1 = 1;
+  const dx = bx - ax, dy = by - ay;
+  for (const [p, q] of [[-dx, ax - o.l], [dx, o.r - ax], [-dy, ay - o.t], [dy, o.b - ay]]) {
+    if (p === 0) { if (q < 0) return false; continue; }
+    const t = q / p;
+    if (p < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; }
+  }
+  return t1 - t0 > 1e-6;
+}
+
+/* Do segments p1-p2 and p3-p4 cross (proper intersection)? */
+function segsCross(x1, y1, x2, y2, x3, y3, x4, y4) {
+  const d = (ax, ay, bx, by, cx, cy) => (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+  const d1 = d(x3, y3, x4, y4, x1, y1), d2 = d(x3, y3, x4, y4, x2, y2), d3 = d(x1, y1, x2, y2, x3, y3), d4 = d(x1, y1, x2, y2, x4, y4);
+  return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+function drawSheet(ctx, info) {
+  const ceil = ctx.surface.kind === "ceiling", g = screen(ctx), T = ctx.surface.thickness_mm;
+  const ext = (s) => ({ l: s.X - s.w / 2 - s.ins, r: s.X + s.w / 2 + s.ins, t: s.Y - s.h / 2 - s.ins, b: s.Y + s.h / 2 + s.ins });
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-  for (const s of g) {
-    x0 = Math.min(x0, s.X - s.w / 2 - s.ins); x1 = Math.max(x1, s.X + s.w / 2 + s.ins);
-    y0 = Math.min(y0, s.Y - s.h / 2 - s.ins); y1 = Math.max(y1, s.Y + s.h / 2 + s.ins);
+  for (const s of g) { const e = ext(s); x0 = Math.min(x0, e.l); x1 = Math.max(x1, e.r); y0 = Math.min(y0, e.t); y1 = Math.max(y1, e.b); }
+  const items = serviceItems(ctx);
+  const labW = Math.max(...items.map((it) => Math.max(textW(it.t1, TX.label), textW(it.t2, TX.sub)))) + 2;
+  const step = TX.label + TX.sub + 3.4;
+
+  // ---- sheet zones; then the largest standard scale at which the section and its callouts fit
+  const F = { x0: 6, y0: 6, x1: SH.W - 6, y1: SH.H - 6 }, BAND = 30, band = F.y1 - BAND;
+  const DA = { x0: 12, y0: 12, x1: SH.W - 12, y1: band - 4 }, daW = DA.x1 - DA.x0, daH = DA.y1 - DA.y0;
+  const MX = 12, MY = 10, GAPC = 7, TITLE = 15, SLAB = 22;           // paper mm: structure beyond the services, gap to callouts, title room, max drawn structure
+  const nSide = Math.ceil(items.length / 2);
+  let N = SCALES[SCALES.length - 1], k = 1 / N, cW = 0, cH = 0, sP = 0;
+  for (const n of SCALES) {
+    const kk = 1 / n, sp = Math.min(T * kk, SLAB);
+    const w = ceil ? (x1 - x0) * kk + 2 * MX + 2 * (labW + GAPC) : sp + x1 * kk + 4 + GAPC + 4 + labW;
+    const h = ceil ? sp + Math.max(y1 * kk + 10, nSide * step + 4) + TITLE : Math.max((y1 - y0) * kk + 2 * MY + 9, items.length * step + 2) + TITLE;
+    N = n; k = kk; cW = w; cH = h; sP = sp;
+    if (w <= daW && h <= daH) break;
   }
-  const span = Math.max(x1 - x0, y1 - y0, 400);
-  const fs = Math.max(18, span * 0.036), ah = fs * 0.55, m = Math.max(150, span * 0.12);
-  const P = [], ink = "var(--dwg-ink)", thin = "var(--dwg-muted)", ctr = "var(--dwg-center)", acc = "var(--dwg-dim)";
-  let bx0 = x0, bx1 = x1, by0 = y0, by1 = y1;
-  const grow = (xa, ya, xb = xa, yb = ya) => { bx0 = Math.min(bx0, xa, xb); bx1 = Math.max(bx1, xa, xb); by0 = Math.min(by0, ya, yb); by1 = Math.max(by1, ya, yb); };
-  const ln = (xa, ya, xb, yb, w = 0.7, col = thin, dash = "") => `<line x1="${xa}" y1="${ya}" x2="${xb}" y2="${yb}" stroke="${col}" stroke-width="${w}" vector-effect="non-scaling-stroke"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
-  const txt = (x, y, t, o = {}) => `<text x="${x}" y="${y}" font-size="${o.size || fs * 0.78}" text-anchor="${o.anchor || "middle"}" fill="${o.col || ink}"${o.rot ? ` transform="rotate(${o.rot} ${x} ${y})"` : ""} font-family="IBM Plex Mono, ui-monospace, monospace"${o.bold ? ' font-weight="600"' : ""}>${esc(t)}</text>`;
-  const arrow = (x, y, dx, dy, col) => {                        // filled arrowhead with its tip at (x, y), pointing along (dx, dy)
-    const n = Math.hypot(dx, dy) || 1, ux = dx / n, uy = dy / n, bx = x - ux * ah, by = y - uy * ah, px = -uy * ah * 0.32, py = ux * ah * 0.32;
-    return `<path d="M${x},${y} L${bx + px},${by + py} L${bx - px},${by - py} Z" fill="${col}"/>`;
-  };
-  // horizontal dimension between xa and xb on the line y; extension lines from the given y-starts
-  const dimH = (xa, xb, y, ya0, yb0, label, col = thin) => {
-    const sgn = y > Math.max(ya0, yb0) ? 1 : -1, gap = fs * 0.25, over = fs * 0.35, out = (xb - xa) < 2.6 * ah;
-    let o = ln(xa, ya0 + sgn * gap, xa, y + sgn * over, 0.6, col) + ln(xb, yb0 + sgn * gap, xb, y + sgn * over, 0.6, col);
-    if (out) o += ln(xa - 2.2 * ah, y, xb + 2.2 * ah, y, 0.7, col) + arrow(xa, y, 1, 0, col) + arrow(xb, y, -1, 0, col);
-    else o += ln(xa, y, xb, y, 0.7, col) + arrow(xa, y, -1, 0, col) + arrow(xb, y, 1, 0, col);
-    const tx = out ? xb + 2.4 * ah + fs * 0.2 : (xa + xb) / 2;
-    o += txt(tx, y - fs * 0.3, label, { col: col === thin ? ink : col, anchor: out ? "start" : "middle", bold: col !== thin });
-    grow(xa, y - fs, xb, y + fs); if (out) grow(xb + 2.4 * ah + fs * label.length * 0.55, y);
+  const xs = DA.x0 + Math.max(0, (daW - cW) / 2), ys = DA.y0 + Math.max(0, (daH - cH) / 2);
+  const ox = ceil ? xs + labW + GAPC + MX - x0 * k : xs + sP;
+  const oy = ceil ? ys + sP : ys + MY - y0 * k;
+  const px = (X) => ox + X * k, py = (Y) => oy + Y * k;
+
+  const P = [], INK = "var(--dwg-ink)", MUT = "var(--dwg-muted)", CTR = "var(--dwg-center)", ACC = "var(--dwg-dim)";
+  const ln = (xa, ya, xb, yb, w = LWT.thin, col = INK, dash = "") => `<line x1="${r2(xa)}" y1="${r2(ya)}" x2="${r2(xb)}" y2="${r2(yb)}" stroke="${col}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ""} stroke-linecap="round"/>`;
+  const tx = (x, y, t, size, o = {}) => `<text${o.role ? ` data-role="${o.role}"` : ""} x="${r2(x)}" y="${r2(y)}" font-size="${size}" font-family="${FONT}" text-anchor="${o.anchor || "start"}" fill="${o.col || INK}" font-weight="${o.bold ? 600 : 500}"${o.halo ? ' stroke="var(--paper)" stroke-width="0.9" stroke-linejoin="round" paint-order="stroke"' : ""}${o.rot ? ` transform="rotate(${o.rot} ${r2(x)} ${r2(y)})"` : ""}>${esc(t)}</text>`;
+  const circ = (x, y, r, fill, stroke, w, dash = "") => `<circle cx="${r2(x)}" cy="${r2(y)}" r="${r2(r)}" fill="${fill}" stroke="${stroke}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+  const tick = (x, y, col = INK) => ln(x - 0.8, y + 0.8, x + 0.8, y - 0.8, 0.35, col);
+  const obstacles = [];                                             // text and structure the leaders must not cross
+  const soft = [];                                                  // dimension lines: a leader may cross one, at a small cost
+  let clear = null;                                                 // set once the services are placed
+  const dimH = (xa, xb, y, ya, yb, label, col = INK, extl = true) => {
+    let o = "";
+    if (extl) for (const [xe, from] of [[xa, ya], [xb, yb]]) if (Math.abs(y - from) > 0.6) { const sg = Math.sign(y - from); o += ln(xe, from + sg * 0.8, xe, y + sg * 1.4, LWT.thin, col); }
+    o += ln(xa - 1.5, y, xb + 1.5, y, LWT.thin, col) + tick(xa, y, col) + tick(xb, y, col);
+    soft.push([xa - 1.5, y, xb + 1.5, y]);
+    const w = textW(label, TX.dim), fits = xb - xa > w + 3;
+    let lx = fits ? (xa + xb) / 2 : xb + 2.2 + w / 2, ly = fits ? y - 0.9 : y + TX.dim * 0.36;
+    if (!fits && clear) {                                           // a gap too small for its figure: put the figure where it is clear
+      const spots = [[xb + 2.2 + w / 2, y + TX.dim * 0.36], [xa - 2.2 - w / 2, y + TX.dim * 0.36], [(xa + xb) / 2, y - 2.6], [(xa + xb) / 2, y + TX.dim + 2.2],
+        [xb + 2 + w / 2, y - 3.2], [xb + 2 + w / 2, y + TX.dim + 2.8], [xa - 2 - w / 2, y - 3.2], [xa - 2 - w / 2, y + TX.dim + 2.8]];
+      let ok = spots.find(([sx, sy]) => clear({ l: sx - w / 2 - 0.3, r: sx + w / 2 + 0.3, t: sy - TX.dim, b: sy + 0.5 }));
+      if (!ok) {                                                    // farther out, tied to the dimension by a leader
+        const far = [];
+        for (const d of [5, 8, 12, 17, 23]) far.push([(xa + xb) / 2 + d * 0.8, y - d], [(xa + xb) / 2 + d * 0.8, y + d + TX.dim], [(xa + xb) / 2 - d * 0.8, y - d], [(xa + xb) / 2 - d * 0.8, y + d + TX.dim]);
+        ok = far.find(([sx, sy]) => clear({ l: sx - w / 2 - 0.3, r: sx + w / 2 + 0.3, t: sy - TX.dim, b: sy + 0.5 }));
+        if (ok) { const ty = ok[1] > y ? ok[1] - TX.dim - 0.3 : ok[1] + 0.6; o += ln((xa + xb) / 2, y, ok[0], ty, LWT.thin, col) + ln(ok[0] - w / 2, ty, ok[0] + w / 2, ty, LWT.thin, col); }
+      }
+      if (ok) [lx, ly] = ok;
+    }
+    o += tx(lx, ly, label, TX.dim, { anchor: "middle", col, halo: true, bold: col === ACC, role: "dim" });
+    obstacles.push({ l: lx - w / 2 - 0.4, r: lx + w / 2 + 0.4, t: ly - TX.dim, b: ly + 0.6 });
     return o;
   };
-  const dimV = (ya, yb, x, xa0, xb0, label, col = thin) => {
-    const sgn = x > Math.max(xa0, xb0) ? 1 : -1, gap = fs * 0.25, over = fs * 0.35, out = (yb - ya) < 2.6 * ah;
-    let o = ln(xa0 + sgn * gap, ya, x + sgn * over, ya, 0.6, col) + ln(xb0 + sgn * gap, yb, x + sgn * over, yb, 0.6, col);
-    if (out) o += ln(x, ya - 2.2 * ah, x, yb + 2.2 * ah, 0.7, col) + arrow(x, ya, 0, 1, col) + arrow(x, yb, 0, -1, col);
-    else o += ln(x, ya, x, yb, 0.7, col) + arrow(x, ya, 0, -1, col) + arrow(x, yb, 0, 1, col);
-    const ty = out ? yb + 2.4 * ah + fs * 0.9 : (ya + yb) / 2;
-    o += out ? txt(x + fs * 0.4, ty, label, { col: col === thin ? ink : col, anchor: "start", bold: col !== thin })
-             : txt(x - fs * 0.35, ty, label, { col: col === thin ? ink : col, rot: -90, bold: col !== thin });
-    grow(x - fs, ya, x + fs, yb);
+  const dimV = (ya, yb, x, label, col = INK, xa = x, xb = x) => {
+    let o = ln(x, ya - 1.5, x, yb + 1.5, LWT.thin, col) + tick(x, ya, col) + tick(x, yb, col);
+    for (const [ye, from] of [[ya, xa], [yb, xb]]) if (Math.abs(x - from) > 0.6) { const sg = Math.sign(x - from); o += ln(from + sg * 0.8, ye, x + sg * 1.4, ye, LWT.thin, col); }
+    const w = textW(label, TX.dim), fits = yb - ya > w + 3;
+    if (!fits && clear) {
+      const spots = [[x + 1.4, (ya + yb) / 2 + TX.dim * 0.36], [x - 1.4 - w, (ya + yb) / 2 + TX.dim * 0.36], [x + 1.4, yb + TX.dim + 1.2], [x + 1.4, ya - 1.2], [x - 1.4 - w, yb + TX.dim + 1.2], [x - 1.4 - w, ya - 1.2]];
+      let ok = spots.find(([sx, sy]) => clear({ l: sx - 0.3, r: sx + w + 0.3, t: sy - TX.dim, b: sy + 0.5 }));
+      if (!ok) {
+        const far = [], ym = (ya + yb) / 2;
+        for (const d of [5, 8, 12, 17, 23]) far.push([x + d, ym - d * 0.6], [x + d, ym + d * 0.6 + TX.dim], [x - d - w, ym - d * 0.6], [x - d - w, ym + d * 0.6 + TX.dim]);
+        ok = far.find(([sx, sy]) => clear({ l: sx - 0.3, r: sx + w + 0.3, t: sy - TX.dim, b: sy + 0.5 }));
+        if (ok) { const ty = ok[1] > ym ? ok[1] - TX.dim - 0.3 : ok[1] + 0.6, ex = ok[0] > x ? ok[0] : ok[0] + w; o += ln(x, ym, ex, ty, LWT.thin, col) + ln(ok[0], ty, ok[0] + w, ty, LWT.thin, col); }
+      }
+      if (ok) { o += tx(ok[0], ok[1], label, TX.dim, { col, halo: true, bold: col === ACC, role: "dim" }); obstacles.push({ l: ok[0] - 0.3, r: ok[0] + w + 0.3, t: ok[1] - TX.dim, b: ok[1] + 0.5 }); return o; }
+    }
+    if (fits) { o += tx(x - 0.9, (ya + yb) / 2, label, TX.dim, { anchor: "middle", col, rot: -90, halo: true, bold: col === ACC }); obstacles.push({ l: x - 0.9 - TX.dim, r: x, t: (ya + yb) / 2 - w / 2, b: (ya + yb) / 2 + w / 2 }); }
+    else { o += tx(x + 1.4, yb + TX.dim + 1.2, label, TX.dim, { col, halo: true, bold: col === ACC, role: "dim" }); obstacles.push({ l: x + 1, r: x + 1.8 + w, t: yb + 1.2, b: yb + TX.dim + 1.8 }); }
     return o;
+  };
+  const zig = (xa, ya, xb, yb) => {                                 // break line with one zigzag at mid-length
+    const mx_ = (xa + xb) / 2, my_ = (ya + yb) / 2, dx = xb - xa, dy = yb - ya, n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n, a = 1.6, b = 1.4;
+    return `<path d="M${r2(xa)},${r2(ya)} L${r2(mx_ - ux * a)},${r2(my_ - uy * a)} L${r2(mx_ - ux * a * 0.35 - uy * b)},${r2(my_ - uy * a * 0.35 + ux * b)} L${r2(mx_ + ux * a * 0.35 + uy * b)},${r2(my_ + uy * a * 0.35 - ux * b)} L${r2(mx_ + ux * a)},${r2(my_ + uy * a)} L${r2(xb)},${r2(yb)}" fill="none" stroke="${INK}" stroke-width="${LWT.thin}"/>`;
   };
 
-  // concrete, cut at both ends with break lines
-  const defs = `<defs><pattern id="conc" width="${fs * 0.9}" height="${fs * 0.9}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="${fs * 0.9}" height="${fs * 0.9}" fill="var(--dwg-concrete)"/><line x1="0" y1="0" x2="0" y2="${fs * 0.9}" stroke="${thin}" stroke-width="0.6" vector-effect="non-scaling-stroke"/><circle cx="${fs * 0.45}" cy="${fs * 0.3}" r="${fs * 0.06}" fill="${thin}"/></pattern></defs>`;
-  const zig = (xa, ya, xb, yb) => {                              // break line from a to b with one zigzag in the middle
-    const mx = (xa + xb) / 2, my = (ya + yb) / 2, dx = xb - xa, dy = yb - ya, n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n, k = fs * 0.5;
-    return `<path d="M${xa},${ya} L${mx - ux * k},${my - uy * k} L${mx - ux * k * 0.3 - uy * k},${my - uy * k * 0.3 + ux * k} L${mx + ux * k * 0.3 + uy * k},${my + uy * k * 0.3 - ux * k} L${mx + ux * k},${my + uy * k} L${xb},${yb}" fill="none" stroke="${ink}" stroke-width="0.8" vector-effect="non-scaling-stroke"/>`;
-  };
-  if (sk === "ceiling") {
-    const sx0 = x0 - m, sx1 = x1 + m;
-    P.push(`<rect x="${sx0}" y="${-T}" width="${sx1 - sx0}" height="${T}" fill="url(#conc)"/>`, ln(sx0, 0, sx1, 0, 1.6, ink), ln(sx0, -T, sx1, -T, 1.6, ink), zig(sx0, -T - fs * 0.4, sx0, fs * 0.4), zig(sx1, -T - fs * 0.4, sx1, fs * 0.4));
-    P.push(txt(sx1 - fs * 0.5, -T / 2 + fs * 0.28, `SLAB ${T}, ${ctx.surface.substrate.replace("concrete_", "")}`, { anchor: "end", size: fs * 0.7, col: ink }));
-    grow(sx0 - fs, -T - fs, sx1 + fs, 0);
+  // ---- the structure: concrete hatch, broken off where it continues
+  const defs = `<defs><pattern id="conc" width="9" height="9" patternUnits="userSpaceOnUse"><rect width="9" height="9" fill="var(--dwg-concrete)"/>`
+    + [[1.2, 1.6, .2], [5.4, 3.1, .15], [3.0, 6.6, .17], [7.2, 7.4, .13], [8.1, 1.2, .12], [0.6, 8.0, .14]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${MUT}"/>`).join("")
+    + ["M2.6,2.6 l1.1,0.25 l-0.6,0.8 z", "M6.3,0.7 l0.8,0.6 l-0.95,0.35 z", "M0.9,4.9 l0.7,-0.7 l0.45,0.95 z", "M4.7,5.4 l1.05,0.1 l-0.5,0.9 z", "M7.4,4.2 l0.7,0.5 l-0.8,0.3 z"].map((d) => `<path d="${d}" fill="none" stroke="${MUT}" stroke-width="0.13"/>`).join("")
+    + `</pattern></defs>`;
+  const surfName = `RC ${ceil ? "SLAB" : "WALL"} ${fmt(T)} THK, ${ctx.surface.substrate.replace("concrete_", "")}`;
+  const cut = sP < T * k - 0.01;                                    // structure drawn in part: its far face becomes a break line
+  if (ceil) {
+    const sx0 = px(x0) - MX, sx1 = px(x1) + MX, st = py(0) - sP, sb = py(0);
+    P.push(`<rect x="${r2(sx0)}" y="${r2(st)}" width="${r2(sx1 - sx0)}" height="${r2(sb - st)}" fill="url(#conc)"/>`, ln(sx0, sb, sx1, sb, LWT.obj),
+      cut ? zig(sx0 - 1.6, st, sx1 + 1.6, st) : ln(sx0, st, sx1, st, LWT.obj), zig(sx0, st - 1.6, sx0, sb + 1.6), zig(sx1, st - 1.6, sx1, sb + 1.6));
+    obstacles.push({ l: sx0 - 2, r: sx1 + 2, t: st - 2, b: sb });
+    const tw = textW(surfName, TX.tag) + 2;
+    if (tw < sx1 - sx0 - 8 && sP > TX.tag * 2) P.push(`<rect x="${r2(sx1 - tw - 3)}" y="${r2((st + sb) / 2 - TX.tag * 0.8)}" width="${r2(tw)}" height="${r2(TX.tag * 1.6)}" fill="var(--paper)"/>`, tx(sx1 - 4, (st + sb) / 2 + TX.tag * 0.36, surfName, TX.tag, { anchor: "end" }));
+    // level datum on the soffit
+    const dx = sx0 + 2.2, dy = sb;
+    P.push(`<path d="M${r2(dx)},${r2(dy)} l-1,1.7 l2,0 z" fill="${INK}"/>`, tx(dx + 1.8, dy + 3.4, `U/S SLAB ±0`, TX.tag, { halo: true, role: "tag" }));
+    obstacles.push({ l: dx - 1.2, r: dx + 2 + textW("U/S SLAB ±0", TX.tag), t: dy, b: dy + 4 });
   } else {
-    const sy0 = y0 - m, sy1 = y1 + m;
-    P.push(`<rect x="${-T}" y="${sy0}" width="${T}" height="${sy1 - sy0}" fill="url(#conc)"/>`, ln(0, sy0, 0, sy1, 1.6, ink), ln(-T, sy0, -T, sy1, 1.6, ink), zig(-T - fs * 0.4, sy0, fs * 0.4, sy0), zig(-T - fs * 0.4, sy1, fs * 0.4, sy1));
-    P.push(txt(-T / 2 + fs * 0.28, sy1 - fs * 0.5, `WALL ${T}, ${ctx.surface.substrate.replace("concrete_", "")}`, { rot: -90, anchor: "start", size: fs * 0.7, col: ink }));
-    grow(-T - fs, sy0 - fs, 0, sy1 + fs);
+    const sx0 = px(0) - sP, sx1 = px(0), st = py(y0) - MY, sb = py(y1) + MY;
+    P.push(`<rect x="${r2(sx0)}" y="${r2(st)}" width="${r2(sx1 - sx0)}" height="${r2(sb - st)}" fill="url(#conc)"/>`, ln(sx1, st, sx1, sb, LWT.obj),
+      cut ? zig(sx0, st - 1.6, sx0, sb + 1.6) : ln(sx0, st, sx0, sb, LWT.obj), zig(sx0 - 1.6, st, sx1 + 1.6, st), zig(sx0 - 1.6, sb, sx1 + 1.6, sb));
+    obstacles.push({ l: sx0 - 2, r: sx1, t: st - 2, b: sb + 2 });
+    const tw = textW(surfName, TX.tag) + 2, cx = (sx0 + sx1) / 2;
+    if (tw < sb - st - 8 && sP > TX.tag * 2) P.push(`<rect x="${r2(cx - TX.tag * 0.8)}" y="${r2(sb - 3 - tw)}" width="${r2(TX.tag * 1.6)}" height="${r2(tw)}" fill="var(--paper)"/>`, tx(cx + TX.tag * 0.36, sb - 4, surfName, TX.tag, { rot: -90 }));
   }
 
-  // elements: insulation, profile, centrelines
+  // ---- the services at true size: outline, insulation, centrelines
   for (const s of g) {
-    const e = s.e, r = s.w / 2;
+    const e = s.e, X = px(s.X), Y = py(s.Y), w = s.w * k, h = s.h * k, ins = s.ins * k;
     if (e.shape === "round") {
-      const ext = r + s.ins + fs * 0.4;
-      if (s.ins > 0) P.push(`<circle cx="${s.X}" cy="${s.Y}" r="${r + s.ins}" fill="var(--dwg-insul)" stroke="${thin}" stroke-width="0.8" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`);
-      P.push(`<circle cx="${s.X}" cy="${s.Y}" r="${r}" fill="var(--paper)" stroke="${ink}" stroke-width="${e.kind === "conduit" ? 1.1 : 1.7}" vector-effect="non-scaling-stroke"/>`);
-      if (e.kind === "duct") { const k = r * 0.707; P.push(ln(s.X - k, s.Y - k, s.X + k, s.Y + k, 0.6, ink), ln(s.X - k, s.Y + k, s.X + k, s.Y - k, 0.6, ink)); }
-      P.push(ln(s.X - ext, s.Y, s.X + ext, s.Y, 0.55, ctr, "10 3 2 3"), ln(s.X, s.Y - ext, s.X, s.Y + ext, 0.55, ctr, "10 3 2 3"));
+      const R = w / 2, ce = R + ins + 1.4;
+      if (ins > 0) P.push(circ(X, Y, R + ins, "var(--dwg-insul)", INK, LWT.thin, "0.7 0.45"));
+      P.push(circ(X, Y, R, "var(--paper)", INK, e.kind === "conduit" ? 0.32 : LWT.obj));
+      if (e.kind === "duct") { const q = R * 0.707; P.push(ln(X - q, Y - q, X + q, Y + q, LWT.thin), ln(X - q, Y + q, X + q, Y - q, LWT.thin)); }
+      if (ce > 2.2) P.push(ln(X - ce, Y, X + ce, Y, LWT.ctr, CTR, "2.6 0.6 0.5 0.6"), ln(X, Y - ce, X, Y + ce, LWT.ctr, CTR, "2.6 0.6 0.5 0.6"));
     } else if (e.kind === "cable_tray") {
-      const l = s.X - s.w / 2, rt = s.X + s.w / 2, tp = s.Y - s.h / 2, bt = s.Y + s.h / 2, t = Math.min(4, s.h * 0.08);
-      P.push(`<path d="M${l},${tp} L${l},${bt} L${rt},${bt} L${rt},${tp} L${rt - t},${tp} L${rt - t},${bt - t} L${l + t},${bt - t} L${l + t},${tp} Z" fill="var(--dwg-ink)" stroke="${ink}" stroke-width="1" vector-effect="non-scaling-stroke"/>`);
-      P.push(ln(s.X, tp - fs * 0.4, s.X, bt + fs * 0.4, 0.55, ctr, "10 3 2 3"));
+      const l = X - w / 2, rt = X + w / 2, t = Y - h / 2, b = Y + h / 2, lip = Math.max(0.5, w * 0.06);
+      P.push(`<path d="M${r2(l + lip)},${r2(t)} L${r2(l)},${r2(t)} L${r2(l)},${r2(b)} L${r2(rt)},${r2(b)} L${r2(rt)},${r2(t)} L${r2(rt - lip)},${r2(t)}" fill="none" stroke="${INK}" stroke-width="${LWT.obj}" stroke-linejoin="miter"/>`);
+      P.push(ln(X, t - 1.4, X, b + 1.4, LWT.ctr, CTR, "2.6 0.6 0.5 0.6"));
     } else {
-      const l = s.X - s.w / 2, tp = s.Y - s.h / 2;
-      P.push(`<rect x="${l}" y="${tp}" width="${s.w}" height="${s.h}" fill="var(--paper)" stroke="${ink}" stroke-width="1.7" vector-effect="non-scaling-stroke"/>`, ln(l, tp, l + s.w, tp + s.h, 0.6, ink), ln(l, tp + s.h, l + s.w, tp, 0.6, ink));
-      P.push(ln(s.X - s.w / 2 - fs * 0.4, s.Y, s.X + s.w / 2 + fs * 0.4, s.Y, 0.55, ctr, "10 3 2 3"), ln(s.X, tp - fs * 0.4, s.X, tp + s.h + fs * 0.4, 0.55, ctr, "10 3 2 3"));
+      const l = X - w / 2, t = Y - h / 2;
+      P.push(`<rect x="${r2(l)}" y="${r2(t)}" width="${r2(w)}" height="${r2(h)}" fill="var(--paper)" stroke="${INK}" stroke-width="${LWT.obj}"/>`, ln(l, t, l + w, t + h, LWT.thin), ln(l, t + h, l + w, t, LWT.thin));
+      P.push(ln(l - 1.4, Y, l + w + 1.4, Y, LWT.ctr, CTR, "2.6 0.6 0.5 0.6"), ln(X, t - 1.4, X, t + h + 1.4, LWT.ctr, CTR, "2.6 0.6 0.5 0.6"));
     }
   }
 
-  // balloons: item number + short label, placed in the first free direction around the element
-  const boxes = g.map((s) => [s.X - s.w / 2 - s.ins, s.Y - s.h / 2 - s.ins, s.X + s.w / 2 + s.ins, s.Y + s.h / 2 + s.ins]);
-  if (sk === "ceiling") boxes.push([x0 - m, -T, x1 + m, 0]); else boxes.push([-T, y0 - m, 0, y1 + m]);
-  const hit = (b) => boxes.reduce((acc, o) => acc + Math.max(0, Math.min(b[2], o[2]) - Math.max(b[0], o[0])) * Math.max(0, Math.min(b[3], o[3]) - Math.max(b[1], o[1])), 0);
-  const dirs = sk === "ceiling" ? [[1, 1], [-1, 1], [1, 0.3], [-1, 0.3], [0, 1], [1, -0.4], [-1, -0.4]] : [[1, 1], [1, -1], [1, 0.3], [1, -0.3], [0, 1], [0, -1], [-0.4, 1]];
-  const rb = fs * 0.62;
-  g.forEach((s, i) => {
-    const label = shortLabel(s.e), lw = label.length * fs * 0.42, R = Math.max(s.w, s.h) / 2 + s.ins;
-    let best = null;
-    for (const dist of [rb * 1.6, rb * 3.2, rb * 5]) for (const [dx, dy] of dirs) {
-      const n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n;
-      const cx = s.X + ux * (R + dist + rb), cy = s.Y + uy * (R + dist + rb);
-      const lx0 = ux >= 0 ? cx - rb : cx - rb - lw - fs * 0.25, lx1 = ux >= 0 ? cx + rb + lw + fs * 0.25 : cx + rb;
-      const box = [lx0, cy - rb, lx1, cy + rb];
-      const cost = hit(box) + dist * 0.5;
-      if (!best || cost < best.cost) best = { cost, cx, cy, ux, uy, box };
-      if (hit(box) === 0) break;
-    }
-    boxes.push(best.box.map((v, k) => v + (k < 2 ? -fs * 0.15 : fs * 0.15)));
-    const ex = s.X + best.ux * R, ey = s.Y + best.uy * R;                    // leader from the element's outline
-    const lx = best.cx - best.ux * rb, ly = best.cy - best.uy * rb;
-    P.push(ln(ex, ey, lx, ly, 0.6, ink), `<circle cx="${ex}" cy="${ey}" r="${fs * 0.09}" fill="${ink}"/>`);
-    P.push(`<circle cx="${best.cx}" cy="${best.cy}" r="${rb}" fill="var(--paper)" stroke="${ink}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`, txt(best.cx, best.cy + fs * 0.27, String(i + 1), { size: fs * 0.72, bold: true }));
-    const left = best.ux < 0;
-    P.push(txt(left ? best.cx - rb - fs * 0.25 : best.cx + rb + fs * 0.25, best.cy + fs * 0.25, label, { anchor: left ? "end" : "start", size: fs * 0.7 }));
-    grow(best.box[0], best.box[1], best.box[2], best.box[3]);
-  });
-
-  // dimensions: overall width and depth, and the closest clear gap
-  const byX0 = g.reduce((a, b) => (b.X - b.w / 2 - b.ins < a.X - a.w / 2 - a.ins ? b : a)), byX1 = g.reduce((a, b) => (b.X + b.w / 2 + b.ins > a.X + a.w / 2 + a.ins ? b : a));
-  const byY0 = g.reduce((a, b) => (b.Y - b.h / 2 - b.ins < a.Y - a.h / 2 - a.ins ? b : a)), byY1 = g.reduce((a, b) => (b.Y + b.h / 2 + b.ins > a.Y + a.h / 2 + a.ins ? b : a));
-  if (sk === "ceiling") {
-    const yW = by1 + fs * 1.6;
-    P.push(dimH(x0, x1, yW, byX0.Y + byX0.h / 2 + byX0.ins, byX1.Y + byX1.h / 2 + byX1.ins, fmt(x1 - x0)));
-    const xD = bx1 + fs * 1.4;
-    P.push(dimV(0, y1, xD, x1 + m, byY1.X + byY1.w / 2 + byY1.ins, fmt(y1)));
-  } else {
-    const xH = bx1 + fs * 1.6;
-    P.push(dimV(y0, y1, xH, byY0.X + byY0.w / 2 + byY0.ins, byY1.X + byY1.w / 2 + byY1.ins, fmt(y1 - y0)));
-    const yD = by1 + fs * 1.4;
-    P.push(dimH(0, x1, yD, y1 + m, byX1.Y + byX1.h / 2 + byX1.ins, fmt(x1)));
-  }
+  // service outlines for the layout tests: circles for round services (insulation included), boxes otherwise
+  const svc = g.map((s) => { const e = ext(s); return { i: s.i, round: s.e.shape === "round", cx: px(s.X), cy: py(s.Y), rad: (s.w / 2 + s.ins) * k, l: px(e.l), r: px(e.r), t: py(e.t), b: py(e.b) }; });
+  svc.forEach((o) => P.push(`<rect data-role="svc" data-i="${o.i}" data-round="${o.round ? 1 : 0}" x="${r2(o.l)}" y="${r2(o.t)}" width="${r2(o.r - o.l)}" height="${r2(o.b - o.t)}" fill="none" stroke="none"/>`));
+  const boxHit = (b, o, pad = 0) => {
+    if (!o.round) return b.l < o.r + pad && b.r > o.l - pad && b.t < o.b + pad && b.b > o.t - pad;
+    const qx = Math.min(Math.max(o.cx, b.l), b.r), qy = Math.min(Math.max(o.cy, b.t), b.b);
+    return Math.hypot(qx - o.cx, qy - o.cy) < o.rad + pad;
+  };
+  const segHitSvc = (ax, ay, bx, by, o, pad = 0.4) => {
+    if (!o.round) return segHits(ax, ay, bx, by, { l: o.l - pad, r: o.r + pad, t: o.t - pad, b: o.b + pad });
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy, t = L2 ? Math.min(1, Math.max(0, ((o.cx - ax) * dx + (o.cy - ay) * dy) / L2)) : 0;
+    return Math.hypot(ax + t * dx - o.cx, ay + t * dy - o.cy) < o.rad + pad;
+  };
+  const colX = { R: ceil ? px(x1) + MX + GAPC : px(x1) + 4 + GAPC, L: px(x0) - MX - GAPC };
+  clear = (b) => b.r < colX.R - 1 && (!ceil || b.l > colX.L + 1) && !svc.some((o) => boxHit(b, o, 0.3)) && !obstacles.some((o) => b.l < o.r && b.r > o.l && b.t < o.b && b.b > o.t) && b.l > DA.x0 && b.r < DA.x1;
+  // ---- dimensions: overall width (slab) or projection (wall), and the closest clear gap
+  const lm = g.reduce((a, b) => (ext(b).l < ext(a).l ? b : a)), rm = g.reduce((a, b) => (ext(b).r > ext(a).r ? b : a));
+  const dimY = py(y1) + 6.5;
+  if (ceil) { if (g.length > 1) P.push(dimH(px(x0), px(x1), dimY, py(ext(lm).b), py(ext(rm).b), fmt(x1 - x0))); }
+  else P.push(dimH(px(0), px(x1), dimY, dimY, py(ext(rm).b), fmt(x1), INK, true));
   const cp = ctx.elements.length > 1 ? closestPair(ctx) : null;
   if (cp) {
-    const { A, B } = cp, lbl = `${fmt(cp.gap)} clear`;
+    const { A, B } = cp, lbl = `${fmt(cp.gap)} CLR`;
     if (cp.horizontal) {
       const [L, R] = A.X < B.X ? [A, B] : [B, A];
-      const xa = L.X + L.w / 2 + L.ins, xb = R.X - R.w / 2 - R.ins;
-      const top = Math.max(L.Y - L.h / 2 - L.ins, R.Y - R.h / 2 - R.ins), bot = Math.min(L.Y + L.h / 2 + L.ins, R.Y + R.h / 2 + R.ins);
-      const y = top < bot ? (top + bot) / 2 : (L.Y + R.Y) / 2;
-      P.push(dimH(xa, xb, y, y, y, lbl, acc).replace(/<line[^>]*\/>/, "").replace(/<line[^>]*\/>/, ""));
+      const top = Math.max(ext(L).t, ext(R).t), bot = Math.min(ext(L).b, ext(R).b), y = py(top < bot ? (top + bot) / 2 : (L.Y + R.Y) / 2);
+      const from = (m) => (m.e.shape === "round" ? py(m.Y) : Math.min(Math.max(y, py(ext(m).t)), py(ext(m).b)));   // where the extension line leaves the service
+      P.push(dimH(px(ext(L).r), px(ext(R).l), y, from(L), from(R), lbl, ACC, true));
     } else {
       const [U, W] = A.Y < B.Y ? [A, B] : [B, A];
-      const ya = U.Y + U.h / 2 + U.ins, yb = W.Y - W.h / 2 - W.ins;
-      const lft = Math.max(U.X - U.w / 2 - U.ins, W.X - W.w / 2 - W.ins), rgt = Math.min(U.X + U.w / 2 + U.ins, W.X + W.w / 2 + W.ins);
-      const x = lft < rgt ? (lft + rgt) / 2 : (U.X + W.X) / 2;
-      P.push(dimV(ya, yb, x, x, x, lbl, acc).replace(/<line[^>]*\/>/, "").replace(/<line[^>]*\/>/, ""));
+      const lf = Math.max(ext(U).l, ext(W).l), rg = Math.min(ext(U).r, ext(W).r), x = px(lf < rg ? (lf + rg) / 2 : (U.X + W.X) / 2);
+      const from = (m) => (m.e.shape === "round" ? px(m.X) : Math.min(Math.max(x, px(ext(m).l)), px(ext(m).r)));
+      P.push(dimV(py(ext(U).b), py(ext(W).t), x, lbl, ACC, from(U), from(W)));
     }
   }
 
-  // scale bar
-  const sbx = bx0 + fs * 0.4, sby = by1 + fs * 1.6, sb = span > 1500 ? 500 : 200;
-  P.push(`<rect x="${sbx}" y="${sby - fs * 0.18}" width="${sb / 2}" height="${fs * 0.36}" fill="${ink}"/><rect x="${sbx + sb / 2}" y="${sby - fs * 0.18}" width="${sb / 2}" height="${fs * 0.36}" fill="var(--paper)" stroke="${ink}" stroke-width="0.7" vector-effect="non-scaling-stroke"/>`,
-    txt(sbx + sb + fs * 0.4, sby + fs * 0.26, `${sb} mm`, { anchor: "start", size: fs * 0.66 }));
-  grow(sbx, sby - fs, sbx + sb + fs * 4, sby + fs * 0.6);
+  // ---- callouts: leaders placed so that they cross no other service, text in two columns
+  const sides = ceil ? ["L", "R"] : ["R"];
+  const limTop = (ceil ? py(0) + 4 : py(y0) - MY) + TX.label, limBot = DA.y1 - TITLE + 2;
+  const clampY = (v) => Math.min(Math.max(v, limTop - TX.label * 0.35), limBot - TX.sub - 1);
+  const anchors = (it) => it.members.flatMap((m) => {
+    const X = px(m.X), Y = py(m.Y), hw = m.w * k / 2, hh = m.h * k / 2;
+    if (m.e.shape === "round") return [0, 45, 90, 135, 180, 225, 270, 315].map((a) => { const c = Math.cos(a * Math.PI / 180), s = Math.sin(a * Math.PI / 180); return { x: X + hw * c, y: Y + hw * s, nx: c, ny: s }; });
+    return [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]].map(([a, b]) => ({ x: X + a * hw, y: Y + b * hh, nx: a, ny: b }));
+  });
+  const cost = (it, a, side, yl) => {
+    const kx = side === "R" ? colX.R - 3.5 : colX.L + 3.5, mine = new Set(it.members.map((m) => m.i)), len = Math.hypot(kx - a.x, yl - a.y) || 1;
+    let c = len * 0.05;
+    if (((kx - a.x) * a.nx + (yl - a.y) * a.ny) / len < -0.05) c += 60;   // the leader would run back through its own service
+    for (const o of svc) if (!mine.has(o.i) && segHitSvc(a.x, a.y, kx, yl, o)) c += 100;
+    for (const o of obstacles) if (segHits(a.x, a.y, kx, yl, o)) c += 40;
+    for (const d of soft) if (segsCross(a.x, a.y, kx, yl, ...d)) c += 6;
+    for (const q of items) if (q !== it && q.y != null) {
+      if (q.box && segHits(a.x, a.y, kx, yl, q.box)) c += 40;
+      if (q.a && segsCross(a.x, a.y, kx, yl, q.a.x, q.a.y, q.side === "R" ? colX.R - 3.5 : colX.L + 3.5, q.y - TX.label * 0.35)) c += 30;
+    }
+    return c;
+  };
+  const YOFF = [0, -4, 4, -8, 8, -13, 13, -19, 19, -27, 27, -36, 36];
+  const best = (it, side, ylFixed) => {
+    let res = { a: null, c: Infinity, yl: 0 };
+    for (const a of anchors(it)) for (const yl of ylFixed != null ? [ylFixed] : YOFF.map((d) => clampY(a.y + d))) {
+      const c = cost(it, a, side, yl) + (ylFixed != null ? 0 : Math.abs(yl - a.y) * 0.04);
+      if (c < res.c) res = { a, c, yl };
+    }
+    return res;
+  };
+  const stack = (side) => {
+    const its = items.filter((it) => it.side === side).sort((p, q) => p.ty - q.ty);
+    let prev = -Infinity;
+    its.forEach((it) => { it.y = Math.max(it.ty + TX.label * 0.35, prev + step, limTop); prev = it.y; });
+    const over = its.length ? its[its.length - 1].y + TX.sub + 1 - limBot : 0;
+    if (over > 0) { its.forEach((it) => { it.y -= over; }); for (let i = its.length - 2; i >= 0; i--) its[i].y = Math.min(its[i].y, its[i + 1].y - step); }
+    its.forEach((it) => {
+      const x = colX[side], w = Math.max(textW(it.t1, TX.label), textW(it.t2, TX.sub));
+      it.box = { l: side === "R" ? x : x - w, r: side === "R" ? x + w : x, t: it.y - TX.label, b: it.y + TX.sub + 1.4 };
+    });
+  };
+  items.forEach((it) => {
+    const cx = it.members.reduce((a, m) => a + px(m.X), 0) / it.members.length, pref = !ceil ? "R" : cx < (px(x0) + px(x1)) / 2 ? "L" : "R";
+    const pick = sides.map((sd) => ({ sd, ...best(it, sd) })).map((o) => ({ ...o, c: o.c + (o.sd === pref ? 0 : 0.5) })).reduce((a, b) => (b.c < a.c ? b : a));
+    it.side = pick.sd; it.a = pick.a; it.ty = pick.yl;
+  });
+  sides.forEach(stack);
+  for (let pass = 0; pass < 3; pass++) {                            // fix the anchors for the stacked heights; move a crossing callout to the other column
+    let moved = false;
+    for (const it of items) {
+      const here = best(it, it.side, it.y - TX.label * 0.35);
+      it.a = here.a;
+      if (here.c >= 40 && sides.length > 1) {
+        const other = it.side === "R" ? "L" : "R", there = best(it, other);
+        if (there.c < here.c - 1) { it.side = other; it.a = there.a; it.ty = there.yl; moved = true; }
+      }
+    }
+    if (!moved) break;
+    sides.forEach(stack);
+  }
+  const settle = () => items.reduce((sum, it) => { const b = best(it, it.side, it.y - TX.label * 0.35); it.a = b.a; it.c = b.c; return sum + b.c; }, 0);
+  let total = settle();
+  for (let iter = 0; iter < 4 && items.some((it) => it.c >= 30); iter++) {   // a callout still crossing something: try other heights (and columns)
+    for (const it of items.filter((q) => q.c >= 30)) {
+      const keep = { side: it.side, ty: it.ty }, tries = [];
+      for (const sd of sides) for (const a of anchors(it)) for (const d of YOFF) tries.push([sd, clampY(a.y + d)]);
+      let bestTry = null;
+      for (const [sd, ty] of [...new Map(tries.map((t) => [`${t[0]}${Math.round(t[1] * 2)}`, t])).values()]) {
+        it.side = sd; it.ty = ty; sides.forEach(stack);
+        const tot = settle();
+        if (tot < total - 0.5 && (!bestTry || tot < bestTry.tot)) bestTry = { sd, ty, tot };
+      }
+      if (bestTry) { it.side = bestTry.sd; it.ty = bestTry.ty; total = bestTry.tot; } else { it.side = keep.side; it.ty = keep.ty; }
+      sides.forEach(stack); total = settle();
+    }
+  }
+  for (let sweep = 0; sweep < 3; sweep++) {                       // swap neighbours in a column when that untangles their leaders
+    let better = false;
+    for (const side of sides) {
+      const its = items.filter((it) => it.side === side).sort((p, q) => p.y - q.y);
+      for (let i = 0; i + 1 < its.length; i++) {
+        const A = its[i], B = its[i + 1], ta = A.ty, tb = B.ty;
+        A.ty = B.y - TX.label * 0.35 + 0.01; B.ty = A.y - TX.label * 0.35;
+        sides.forEach(stack);
+        const tot = settle();
+        if (tot < total - 0.5) { total = tot; better = true; its[i] = B; its[i + 1] = A; }
+        else { A.ty = ta; B.ty = tb; sides.forEach(stack); total = settle(); }
+      }
+    }
+    if (!better) break;
+  }
+  if (info.debug) info.debug.items = items.map((it) => ({ t: it.t1, side: it.side, y: r2(it.y), ty: r2(it.ty), c: r2(it.c), a: [r2(it.a.x), r2(it.a.y)] }));
+  for (const it of items) {
+    const side = it.side, x = colX[side], yl = it.y - TX.label * 0.35, kx = side === "R" ? x - 3.5 : x + 3.5, ex = side === "R" ? x - 0.8 : x + 0.8;
+    P.push(`<path data-role="leader" data-own="${it.members.map((m) => m.i).join(",")}" d="M${r2(it.a.x)},${r2(it.a.y)} L${r2(kx)},${r2(yl)} L${r2(ex)},${r2(yl)}" fill="none" stroke="${INK}" stroke-width="${LWT.thin}"/>`, circ(it.a.x, it.a.y, 0.42, INK, "none", 0));
+    const anchor = side === "R" ? "start" : "end";
+    P.push(tx(x, it.y, it.t1, TX.label, { anchor, bold: true, role: "callout" }), tx(x, it.y + TX.sub + 1.1, it.t2, TX.sub, { anchor, col: MUT, role: "callout" }));
+  }
 
-  const pad = fs * 0.8, vx = bx0 - pad, vy = by0 - pad, vw = bx1 - bx0 + 2 * pad, vh = by1 - by0 + 2 * pad;
-  return `<svg viewBox="${vx} ${vy} ${vw} ${vh}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Section A–A: ${ctx.n_elements} elements on a ${sk}, dimensioned in millimetres">${defs}${P.join("")}</svg>`;
+  // ---- section title and scale, under the drawing
+  const low = Math.max(dimY + 4, ...items.map((it) => it.y + TX.sub + 2), ceil ? 0 : py(y1) + MY);
+  const cxT = ceil ? (px(x0) + px(x1)) / 2 : (px(0) - sP + Math.max(px(x1), colX.R + labW)) / 2, yT = Math.min(low + TX.title + 2, DA.y1 - 4);
+  const tW = textW("SECTION A–A", TX.title) * 0.98;
+  P.push(tx(cxT, yT, "SECTION A–A", TX.title, { anchor: "middle", bold: true, role: "title" }), ln(cxT - tW / 2, yT + 1.2, cxT + tW / 2, yT + 1.2, 0.5), ln(cxT - tW / 2, yT + 2, cxT + tW / 2, yT + 2, 0.15), tx(cxT, yT + 5.6, `SCALE 1:${N}`, TX.scale, { anchor: "middle", role: "title" }));
+
+  // ---- frame, notes, title block
+  P.push(`<rect x="${F.x0}" y="${F.y0}" width="${F.x1 - F.x0}" height="${F.y1 - F.y0}" fill="none" stroke="${INK}" stroke-width="${LWT.frame}"/>`, ln(F.x0, band, F.x1, band, LWT.box));
+  const notes = ["NOTES",
+    ceil ? "1. DIMENSIONS IN MILLIMETRES. LEVELS BELOW THE SLAB SOFFIT (U/S SLAB ±0)." : "1. DIMENSIONS IN MILLIMETRES. OFFSETS FROM THE WALL FACE.",
+    "2. CL CENTRELINE · U/S UNDERSIDE · CLR CLEAR GAP BETWEEN INSULATION SURFACES.",
+    "3. LOAD AT THE SUPPORT = WEIGHT PER METRE (FULL) × SUPPORT SPACING GIVEN AFTER @.",
+    "4. SUPPORT ASSEMBLY TO BE DESIGNED: NOT SHOWN.",
+    "LTHW HEATING · CHW CHILLED WATER · DHW / DCW DOMESTIC HOT / COLD WATER · SPR SPRINKLER"];
+  notes.forEach((t, i) => P.push(tx(F.x0 + 3, band + 4.6 + i * 4.1, t, TX.note, { bold: i === 0, col: i === notes.length - 1 ? MUT : INK })));
+  const TB = { x0: 150, x1: F.x1 }, rowsTB = [0, 7.5, 15, 22.5, 30].map((v) => band + v);
+  P.push(ln(TB.x0, band, TB.x0, F.y1, LWT.box));
+  [1, 2, 3].forEach((i) => P.push(ln(TB.x0, rowsTB[i], TB.x1, rowsTB[i], LWT.box)));
+  const cell = (x, y, key, val, bold) => tx(x + 1.5, y + 2.5, key, TX.tbk, { col: MUT }) + tx(x + 1.5, y + 6.2, val, TX.tbv, { bold, role: `tb${Math.round(x)}` });
+  const c2 = TB.x0 + 44, c3 = TB.x0 + 80;
+  P.push(cell(TB.x0, rowsTB[0], "PROJECT", "CROSSMEP · SYNTHETIC SERVICES AT A SUPPORT", true));
+  P.push(ln(c3, rowsTB[1], c3, rowsTB[2], LWT.box), cell(TB.x0, rowsTB[1], "TITLE", "SECTION A–A AT THE SUPPORT", true), cell(c3, rowsTB[1], "DRAWING NO.", info.dwgNo, true));
+  P.push(ln(c2, rowsTB[2], c2, rowsTB[3], LWT.box), ln(c3, rowsTB[2], c3, rowsTB[3], LWT.box), cell(TB.x0, rowsTB[2], "SCALE", `1:${N} @ A4`), cell(c2, rowsTB[2], "LOAD AT SUPPORT", `${fmt(ctx.total_load_kN, 2)} kN`, true), cell(c3, rowsTB[2], "SERVICES", `${ctx.n_elements} IN ${ctx.n_levels} ROW${ctx.n_levels > 1 ? "S" : ""}`));
+  P.push(ln(c3, rowsTB[3], c3, rowsTB[4], LWT.box), cell(TB.x0, rowsTB[3], ceil ? "HUNG FROM" : "FIXED TO", surfName), cell(c3, rowsTB[3], "STATUS", "SYNTHETIC · NOT FOR CONSTRUCTION"));
+
+  return `<svg viewBox="0 0 ${SH.W} ${SH.H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Drawing sheet, section A–A at the support: ${ctx.n_elements} services ${ceil ? "hung from a slab" : "fixed to a wall"}, scale 1:${N}">${defs}<rect width="${SH.W}" height="${SH.H}" fill="var(--paper)"/>${P.join("")}</svg>`;
 }
-
 /* ---------- 3D: the same section extruded along 2.4 m of the run ---------- */
 const RUN_MM = 2400;
 let V3 = null;
@@ -743,88 +886,6 @@ function render3D(ctx) {
   centre.set(0, 0, 0);
 }
 
-/* ---------- Rendering ---------- */
-function render() {
-  syncControls();
-  const run = batch();
-  if (state.sel >= run.length) state.sel = 0;
-  renderSummary(run);
-  renderDetail();
-  renderGrid(run);
-  renderHist(run);
-  renderFooter();
-}
-
-function kindCounts(run) {
-  const k = { pipe: 0, cable_tray: 0, duct: 0, conduit: 0 }, trades = {};
-  for (const c of run) for (const e of c.elements) { k[e.kind] += 1; trades[e.trade] = (trades[e.trade] || 0) + 1; }
-  return { k, trades };
-}
-
-function renderSummary(run) {
-  const n = run.length, els = run.reduce((s, c) => s + c.n_elements, 0);
-  const ceil = run.filter((c) => c.surface.kind === "ceiling").length;
-  const loads = run.map((c) => c.total_load_kN), gaps = run.map((c) => (c.elements.length > 1 ? closestPair(c).gap : null)).filter((x) => x != null);
-  const widths = run.map((c) => c.bundle_width_mm);
-  const comp = state.comp;
-  $("sum-title").textContent = state.mode === "tier"
-    ? `${n} sections of tier ${state.tier}, seed ${state.seed}`
-    : `${n} sections: ${[["pipes", "pipe"], ["trays", "tray"], ["ducts", "duct"], ["conduits", "conduit"]].filter(([k]) => comp[k]).map(([k, s]) => `${comp[k]} ${s}${comp[k] > 1 ? "s" : ""}`).join(" + ")} on a ${state.surface}, seed ${state.seed}`;
-  const ref = state.mode === "tier" ? D.benchmark_medians[state.tier] : null;
-  const refTxt = (v, d, unit) => (ref && v != null ? `<em>benchmark ${fmt(v, d)} ${unit}</em>` : "");
-  $("stats").innerHTML = [
-    `<div class="stat"><b>${fmt(els)}</b><span>elements</span></div>`,
-    `<div class="stat"><b>${ceil} / ${n - ceil}</b><span>ceiling / wall</span></div>`,
-    `<div class="stat"><b>${fmt(median(loads), 2)} kN</b><span>median load at the support</span>${refTxt(ref && ref.load_kN, 2, "kN")}</div>`,
-    `<div class="stat"><b>${gaps.length ? fmt(median(gaps)) + " mm" : "—"}</b><span>median closest gap</span>${refTxt(ref && ref.clear_gap_mm, 0, "mm")}</div>`,
-    `<div class="stat"><b>${fmt(median(widths))} mm</b><span>median bundle width</span>${refTxt(ref && ref.bundle_width_mm, 0, "mm")}</div>`,
-  ].join("");
-  const { k, trades } = kindCounts(run);
-  const kindChips = Object.entries(k).filter(([, v]) => v).map(([kk, v]) => `<span class="chip">${v} ${KIND_NAME[kk]}${v > 1 ? "s" : ""}</span>`);
-  const tradeChips = TRADES.filter((t) => trades[t]).map((t) => `<span class="chip"><span class="dot" style="background: var(--t-${t})"></span>${trades[t]} ${TRADE_NAME[t]}</span>`);
-  $("kind-chips").innerHTML = kindChips.concat(tradeChips).join("");
-}
-
-function renderDetail() {
-  const run = batch(), ctx = run[state.sel];
-  syncControls();
-  $("d-sheet").innerHTML = drawTechnical(ctx);
-  render3D(ctx);
-  const runTxt = state.mode === "tier" ? `tier ${ctx.tier} · seed ${state.seed}` : `custom · seed ${state.seed}`;
-  $("d-tb").innerHTML = [
-    ["Project", "CrossMEP Generator Studio"], ["Drawing", "Section A–A at the support"], ["Units", "mm · true scale"],
-    ["Source", `${runTxt} · section ${state.sel + 1}`], ["Surface", `${ctx.surface.kind === "ceiling" ? "slab" : "wall"} ${ctx.surface.thickness_mm}, ${ctx.surface.substrate.replace("concrete_", "")}`], ["Status", "synthetic · not for construction"],
-  ].map(([k, v]) => `<div><small>${k}</small>${esc(v)}</div>`).join("");
-  $("d-eyebrow").textContent = state.mode === "tier" ? `Tier ${ctx.tier}` : "Custom composition";
-  $("d-title").textContent = `Section ${state.sel + 1} of ${run.length}`;
-  const s = ctx.surface;
-  $("d-meta").textContent = `${s.kind === "ceiling" ? "Hung from a slab" : "Fixed to a wall"} · ${s.substrate.replace("concrete_", "concrete ")} · ${s.thickness_mm} mm thick`;
-  const cp = ctx.elements.length > 1 ? closestPair(ctx) : null;
-  $("d-kv").innerHTML = [
-    ["Elements", fmt(ctx.n_elements)], ["Rows", fmt(ctx.n_levels)], ["Total load at the support", `${fmt(ctx.total_load_kN, 2)} kN`],
-    ["Bundle width", `${fmt(ctx.bundle_width_mm)} mm`], ["Closest clear gap", cp ? `${fmt(cp.gap)} mm` : "— (one element)"],
-  ].map(([a, b]) => `<div><dt>${a}</dt><dd>${b}</dd></div>`).join("");
-  const rows = ctx.elements.map((e, i) => `<tr><td>${i + 1}</td><td><span class="dot" style="background: var(--t-${e.trade})"></span>${KIND_NAME[e.kind]}</td><td>${esc(SERVICE[e.service] || e.service)}</td><td>${esc(e.label)}</td>
-    <td class="num">${e.insulation_mm ? fmt(e.insulation_mm) : "—"}</td><td class="num">${fmt(e.load_kN_per_m, 3)} × ${fmt(e.span_m, 1)} = ${fmt(e.load_kN, 2)}</td>
-    <td class="num">${e.level + 1}</td><td class="num">${fmt(e.along_mm)}</td><td class="num">${fmt(e.out_mm)}</td></tr>`).join("");
-  $("d-table").innerHTML = `<thead><tr><th>Item</th><th>Element</th><th>Service</th><th>Size</th><th class="num">Insulation, mm</th><th class="num">Load, kN/m × m = kN</th><th class="num">Row</th><th class="num">Along, mm</th><th class="num">Out, mm</th></tr></thead><tbody>${rows}</tbody>`;
-  $("d-json").textContent = JSON.stringify(ctx, null, 1);
-}
-
-function renderGrid(run) {
-  $("grid").innerHTML = run.map((c, i) => {
-    const cp = c.elements.length > 1 ? closestPair(c) : null;
-    return `<article class="card${i === state.sel ? " is-selected" : ""}" data-card="${i}"><button type="button" class="card-open" data-i="${i}" aria-label="Show section ${i + 1}">
-      <div class="sheet">${drawContext(c, { aspect: 4 / 3 })}</div>
-      <div class="card-title"><b>Section ${i + 1}</b><span>${c.tier === "custom" ? "custom" : c.tier} · ${c.surface.kind}</span></div>
-      <div class="kpis"><div class="kpi"><b>${c.n_elements}</b><span>elements</span></div><div class="kpi"><b>${fmt(c.total_load_kN, 2)}</b><span>kN load</span></div><div class="kpi"><b>${cp ? fmt(cp.gap) : "—"}</b><span>mm closest</span></div></div>
-    </button></article>`;
-  }).join("");
-}
-function markSelected() {
-  $("grid").querySelectorAll(".card").forEach((el) => el.classList.toggle("is-selected", Number(el.dataset.card) === state.sel));
-}
-
 function renderHist(run) {
   const gaps = run.flatMap(neighbourGaps), g = D.meta.gap;
   const W = 760, H = 230, m = { l: 44, r: 14, t: 14, b: 34 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
@@ -869,8 +930,52 @@ function renderHist(run) {
   $("hist").onmouseleave = () => { tip.hidden = true; };
 }
 
+
+/* ---------- Rendering ---------- */
+function render() {
+  syncControls();
+  const run = batch();
+  if (state.sel >= run.length) state.sel = 0;
+  renderStrip(run);
+  renderSelected();
+  renderHist(run);
+  renderFooter();
+}
+
+function dwgNo() {
+  const c = state.comp, n = String(state.sel + 1).padStart(2, "0");
+  return state.mode === "tier" ? `CMEP-${state.tier}-S${state.seed}-${n}` : `CMEP-P${c.pipes}T${c.trays}D${c.ducts}C${c.conduits}-S${state.seed}-${n}`;
+}
+
+function renderSelected() {
+  const run = batch(), ctx = run[state.sel];
+  syncControls();
+  $("d-sheet").innerHTML = drawSheet(ctx, { dwgNo: dwgNo() });
+  render3D(ctx);
+  const cp = ctx.elements.length > 1 ? closestPair(ctx) : null, s = ctx.surface;
+  $("facts").innerHTML = [
+    `<span><b>${ctx.n_elements}</b> service${ctx.n_elements > 1 ? "s" : ""} in <b>${ctx.n_levels}</b> row${ctx.n_levels > 1 ? "s" : ""}</span>`,
+    `<span><b>${fmt(ctx.total_load_kN, 2)} kN</b> at the support</span>`,
+    `<span>closest clear gap <b>${cp ? fmt(cp.gap) + " mm" : "—"}</b></span>`,
+    `<span>${s.kind === "ceiling" ? "hung from a" : "fixed to a"} <b>${fmt(s.thickness_mm)} mm ${s.kind === "ceiling" ? "slab" : "wall"}</b></span>`,
+  ].join("");
+  $("grid").querySelectorAll(".thumb").forEach((b) => b.setAttribute("aria-pressed", Number(b.dataset.i) === state.sel));
+  const rows = ctx.elements.map((e, i) => `<tr><td>${i + 1}</td><td><span class="dot" style="background: var(--t-${e.trade})"></span>${KIND_NAME[e.kind]}</td><td>${esc(SERVICE[e.service] || e.service)}</td><td>${esc(e.label)}</td>
+    <td class="num">${e.insulation_mm ? fmt(e.insulation_mm) : "—"}</td><td class="num">${fmt(e.load_kN_per_m, 3)} × ${fmt(e.span_m, 1)} = ${fmt(e.load_kN, 2)}</td>
+    <td class="num">${e.level + 1}</td><td class="num">${fmt(e.along_mm)}</td><td class="num">${fmt(e.out_mm)}</td></tr>`).join("");
+  $("d-table").innerHTML = `<thead><tr><th>Item</th><th>Element</th><th>Service</th><th>Size</th><th class="num">Insulation, mm</th><th class="num">Load, kN/m × m = kN</th><th class="num">Row</th><th class="num">Along, mm</th><th class="num">Out, mm</th></tr></thead><tbody>${rows}</tbody>`;
+  $("d-json").textContent = JSON.stringify(ctx, null, 1);
+}
+
+function renderStrip(run) {
+  $("run-hint").textContent = `${run.length} sections from the same call. Pick one to draw it.`;
+  $("grid").innerHTML = run.map((c, i) => `<button type="button" class="thumb" data-i="${i}" aria-pressed="${i === state.sel}" aria-label="Section ${i + 1}: ${c.n_elements} services, ${fmt(c.total_load_kN, 2)} kN">
+    <div class="sheet">${drawContext(c, { aspect: 4 / 3 })}</div>
+    <span><b>${String(i + 1).padStart(2, "0")}</b>${c.n_elements} · ${fmt(c.total_load_kN, 2)} kN</span></button>`).join("");
+}
+
 function renderFooter() {
-  $("footer").innerHTML = `<p>Every section is an output of the CrossMEP generator (package ${esc(D.meta.package)}, data revision ${esc(D.meta.data_revision)}), stored by <code>scripts/build_studio.py</code> with the Python call above; the call returns the same section on any machine. Benchmark medians come from the released benchmark split (125 contexts per tier).</p>
+  $("footer").innerHTML = `<p>Every section is an output of the CrossMEP generator (package ${esc(D.meta.package)}, data revision ${esc(D.meta.data_revision)}), stored by <code>scripts/build_studio.py</code>; the Python call under Details returns the same section on any machine.</p>
   <p>Data CC BY 4.0, code MIT · <a href="https://github.com/lavinia-ped/CrossMEP_Dataset" target="_blank" rel="noopener">github.com/lavinia-ped/CrossMEP_Dataset</a> · Synthetic sections for research: not for the structural design of real installations.</p>`;
 }
 
