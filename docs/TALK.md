@@ -90,7 +90,7 @@ every finished design and feeds pass or fail back. Whatever sits in the black
 box, it needs problems to learn from, a fixed set to compare on, and problems
 that look like practice."
 
-## 6. Real designs cover one corner of the design space; CrossMEP covers all of it (2:20)
+## 6. Real designs cover one corner of the design space and CrossMEP covers all of it (2:20)
 
 **Show:** left, the design space (element count across, kinds / trades /
 surface up) drawn with thumbnail sections: the real designs available are a
@@ -105,7 +105,7 @@ project. So we generate. CrossMEP fills the space by construction, without
 limit: a new seed is a new set, uniform over the tiers or any mix you ask for.
 Seven thousand contexts are the release, not the ceiling."
 
-## 7. We generate what a designer receives: the section at one hanger (2:45)
+## 7. We generate what a designer receives, the section at one hanger (2:45)
 
 **Show:** one C5 context from the Generator Studio: its drawing sheet and 3D view
 (grey run, the section face in the trade colour) on the left with the fields every
@@ -133,7 +133,7 @@ nearest the slab. Gaps are drawn from gaps measured on a built project, never
 below twenty-five millimetres. On walls, electrical stays above water. Same
 seed, same file."
 
-## 9. Sizes, spans and loads come from standards; the choices are declared (3:45)
+## 9. Sizes, spans and loads come from standards, and the choices are declared (3:45)
 
 **Show:** the five element kinds, each with a glyph, its size standard and its load
 basis, with the citation numbers; beside them the three kinds of ground, colour
@@ -144,7 +144,7 @@ pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
 Spacing from measured open buildings. And a few choices of our own, like the
 trade mix, labelled as choices."
 
-## 10. Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed (4:00)
+## 10. Tier Cn holds exactly n elements, and higher tiers are heavier and tighter as designed (4:00)
 
 **Show:** two bar charts of medians per tier, benchmark and population: load at
 the support rises, the closest clear gap narrows; a caption says this is a design
@@ -187,7 +187,7 @@ of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27�
 across settings; 4.1 widens the DN bands, so more insulation and slightly wider
 bare gaps. The gap draw itself is unchanged.)
 
-## 12. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (5:10)
+## 12. A two-size catalog attaches one pipe in seven, and the dataset shows what to cover (5:10)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
@@ -231,7 +231,7 @@ constraint programming and benchmarking, and we ship the scoring. Train on the
 generator. Evaluate on the benchmark, the same contexts for every method. Report
 per tier, with intervals and paired tests."
 
-## 15. CrossMEP covers one section at one support today; a checker and real data come next (7:20)
+## 15. CrossMEP covers one section at one support today, and a checker and real data come next (7:20)
 
 **Show:** scope as four icon rows, next steps as three numbered rows; the
 request to practitioners with the QR code.

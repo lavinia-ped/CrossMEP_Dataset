@@ -50,7 +50,7 @@ rule table, a search, or a learned policy. A verifier checks every finished desi
 feeds pass or fail back. Whatever sits in the black box, it needs problems to learn from,
 a fixed set to compare on, and problems that look like practice.
 
-## Slide 6, Real designs cover one corner of the design space; CrossMEP covers all of it (starts at 2:20)
+## Slide 6, Real designs cover one corner of the design space and CrossMEP covers all of it (starts at 2:20)
 
 The real designs we had were few, from one kind of project with one trade mix: one corner
 of the design space. A method tuned on them measures fit to that project. So we generate.
@@ -58,7 +58,7 @@ CrossMEP fills the space by construction, without limit: a new seed is a new set
 over the tiers or any mix you ask for. Seven thousand contexts are the release, not the
 ceiling.
 
-## Slide 7, We generate what a designer receives: the section at one hanger (starts at 2:45)
+## Slide 7, We generate what a designer receives, the section at one hanger (starts at 2:45)
 
 Here is one context: a two-dimensional section at one support. Each element has its kind,
 service and trade, its size, insulation and position, and its load: weight per metre times
@@ -74,14 +74,14 @@ flow and return together, conduits in groups, bulky services nearest the slab. G
 drawn from gaps measured on a built project, never below twenty-five millimetres. On
 walls, electrical stays above water. Same seed, same file.
 
-## Slide 9, Sizes, spans and loads come from standards; the choices are declared (starts at 3:45)
+## Slide 9, Sizes, spans and loads come from standards, and the choices are declared (starts at 3:45)
 
 Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and
 ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from
 measured open buildings. And a few choices of our own, like the trade mix, labelled as
 choices.
 
-## Slide 10, Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed (starts at 4:00)
+## Slide 10, Tier Cn holds exactly n elements, and higher tiers are heavier and tighter as designed (starts at 4:00)
 
 Three analyses. The first is a design check. Each tier adds one element: C1 is a single
 service, the most common support in any building; C8 has eight. Within a tier everything
@@ -98,7 +98,7 @@ pipes side by side. Generator to clinic: 32 millimetres. Above the 8 a perfect g
 would show, but about as close as the duplex's own two models are to each other. A fixed
 25-millimetre gap would be about 190 off.
 
-## Slide 12, A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (starts at 5:10)
+## Slide 12, A two-size catalog attaches one pipe in seven, and the dataset shows what to cover (starts at 5:10)
 
 The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-
 size catalog attaches 14.5 percent of the pipes, interval 13 to 16, all one size, DN40.
@@ -123,7 +123,7 @@ files serve reinforcement learning, constraint programming and benchmarking, and
 the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for
 every method. Report per tier, with intervals and paired tests.
 
-## Slide 15, CrossMEP covers one section at one support today; a checker and real data come next (starts at 7:20)
+## Slide 15, CrossMEP covers one section at one support today, and a checker and real data come next (starts at 7:20)
 
 Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open
 buildings; the rest rests on practice and standards, and the trade mix is a design choice.
