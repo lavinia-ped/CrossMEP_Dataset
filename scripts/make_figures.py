@@ -31,6 +31,7 @@ here the per-element text labels and the legend.
 """
 from __future__ import annotations
 
+import glob
 import importlib.util
 import json
 import os
@@ -38,6 +39,7 @@ import sys
 from collections import Counter
 
 import matplotlib
+import matplotlib.font_manager
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
@@ -62,8 +64,12 @@ TRADE_NAME = {"domestic": "domestic water", "heating": "heating", "chilled": "ch
               "sprinkler": "sprinkler", "electrical": "electrical", "ventilation": "ventilation"}
 SLAB_MM = 60.0                                  # drawn thickness of the surface band
 
+# Calibri where installed, else its metric twin Carlito (fonts-crosextra-carlito), to match the deck.
+for _f in glob.glob("/usr/share/fonts/truetype/crosextra/Carlito-*.ttf") + glob.glob(os.path.expanduser("~/.fonts/[Cc]alibri*.ttf")):
+    matplotlib.font_manager.fontManager.addfont(_f)
+
 plt.rcParams.update({
-    "font.family": "sans-serif", "font.size": 9, "axes.edgecolor": AXIS, "axes.linewidth": 0.8,
+    "font.family": "sans-serif", "font.sans-serif": ["Calibri", "Carlito", "DejaVu Sans"], "font.size": 9, "axes.edgecolor": AXIS, "axes.linewidth": 0.8,
     "axes.labelcolor": INK2, "xtick.color": INK2, "ytick.color": INK2, "xtick.labelsize": 8,
     "ytick.labelsize": 8, "axes.titlesize": 10, "axes.titleweight": "bold", "axes.titlecolor": INK,
     "axes.spines.top": False, "axes.spines.right": False, "grid.color": GRID, "grid.linewidth": 0.8,

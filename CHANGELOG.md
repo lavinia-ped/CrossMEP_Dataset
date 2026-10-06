@@ -9,19 +9,20 @@ package version tracks code and documentation.
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
 ### Talk
-- `docs/CrossMEP_CIBW78_talk.pptx` and its PDF (15 slides + 5 appendix, speaker notes on
+- `docs/CrossMEP_CIBW78_talk.pptx` and its PDF (16 slides + 5 appendix, speaker notes on
   every slide) and `docs/TALK.md` (the same talk as a script, with a pre-talk checklist and
   questions and answers). Figures and every printed number regenerate from the released
   data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`,
   `scripts/screenshot_studio.js`, `docs/deck/build_deck.js`).
 - Every slide title is a sentence that carries its message (for example "Spacing holds up on a clinic the generator never saw") instead of a topic label; numbers in titles are computed from the data.
-- Experiments framed by what they show: Experiment 1 (slide 9) is a design check, since the
+- Experiments framed by what they show: Experiment 1 (slide 10) is a design check, since the
   tier fixes the count and load and congestion follow from the rules; Experiment 2 (slide
-  10) is the independent test (gap distribution fitted on the duplex, clinic held out),
-  stated with its noise floor; Experiment 3 (slide 11) is a use of the dataset.
-- New slide 12, a live demo of the Generator Studio (parameters, section and 3D, QR code);
-  slides 13 (train / evaluate / report) and 14 (scope, next) rebuilt; appendix slides 16
-  (two more studio sections) and 18 (the realism check in detail).
+  11) is the independent test (gap distribution fitted on the duplex, clinic held out),
+  stated with its noise floor; Experiment 3 (slide 12) is a use of the dataset.
+- Slides 2 and 3 adapted from the ISARC 2026 talk (the support assemblies of a hospital; the synthesis problem and why it resists automation), without product names, logos or tool screenshots; all text in Calibri.
+- New slide 13, a live demo of the Generator Studio (parameters, section and 3D, QR code);
+  slides 14 (train / evaluate / report) and 15 (scope, next) rebuilt; appendix slides 17
+  (two more studio sections) and 19 (the realism check in detail).
 - "Every number traced" replaced by "every constant sourced or declared a design choice",
   and "checked against two open buildings" narrowed to the pipe gaps that were checked.
 - Docs: the IFC measurement is described as recording gaps between flow-segment (bare pipe)
