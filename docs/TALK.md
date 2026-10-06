@@ -69,14 +69,17 @@ step by step (rule table, search or a learned policy) → check every finished
 design → verified designs ranked by cost; below it the three things any such
 method needs. Deliberately generic: the approaches themselves are unpublished.
 
-**Say:** "What would a method look like? One section in, verified supports out. Build the
-assembly step by step from a catalog, each step allowed by the rules and chosen
-by a rule table, by search, or by a learned policy; then check every finished
-design: statics, anchors, buildability. That is learnable. But anything that
-learns needs problems to learn from, a fixed set to compare on, and problems
-that look like practice."
+**Say:** "What would a method look like? Think of it as a pipeline. On the left, the
+brief: the context, and a catalog of parts with prices. The rules say which
+actions are legal in a given state; each action adds parts. In the middle, a
+black box chooses the next action. It could be a rule table, a search, or a
+learned policy; the pipeline doesn't care. A verifier judges every finished
+design, statics, anchors, buildability, and feeds pass or fail back. Out come
+verified designs, ranked by cost. Whatever sits in that black box, it needs
+problems to learn from, a fixed set to compare on, and problems that look like
+practice."
 
-## 5. Learning to design supports needs many problems, and none were public (2:10)
+## 5. Learning to design supports needs many problems, and none were public (2:30)
 
 **Show:** scarcity, coverage, control; CrossMEP at a glance (7,000 contexts ·
 31,484 elements · C1–C8 · 0 labels · traced · open).
@@ -88,7 +91,7 @@ elements, in eight difficulty tiers. They are deliberately unlabeled: you get
 the problem, never the answer. Every constant is sourced or declared a design
 choice, and everything is open."
 
-## 6. We generate what a designer receives: the section at one hanger (2:40)
+## 6. We generate what a designer receives: the section at one hanger (2:55)
 
 **Show:** one C5 context with its table of fields.
 
@@ -100,7 +103,7 @@ support: no channel, no rods, no anchors, and no correct answer, because a
 feasible support depends on the catalog you build from. The context is the
 brief. The assembly is the answer."
 
-## 7. Sections follow trade practice and measured spacing, not random shapes (3:15)
+## 7. Sections follow trade practice and measured spacing, not random shapes (3:35)
 
 **Show:** six steps (tier, surface, services, rows, spacing, check) beside a
 generated C7 context with its three rows and one sampled gap marked.
@@ -113,7 +116,7 @@ between neighbors are drawn from gaps measured on a built project, never below
 twenty-five millimeters. On walls, electrical stays above water. Every context
 is checked, and it's seeded: the same seed gives the same file, byte for byte."
 
-## 8. Sizes, spans and loads come from standards; the choices are declared (3:55)
+## 8. Sizes, spans and loads come from standards; the choices are declared (4:10)
 
 **Show:** sources table (pipes, insulation, trays, ducts, conduits) and layout
 conventions.
@@ -125,7 +128,7 @@ comes from measured open buildings. And a few things are simply our choices,
 like the trade mix, and we label them that way. Loads are computed in code from
 all of this."
 
-## 9. 7,000 contexts in four splits; the test seeds are never trained on (4:25)
+## 9. 7,000 contexts in four splits; the test seeds are never trained on (4:40)
 
 **Show:** splits table; elements by kind; pipes by nominal size.
 
@@ -134,7 +137,7 @@ what it trained on: five thousand contexts for training, five hundred each for
 validation and test, and a benchmark of one thousand, a hundred and twenty-five
 per tier. Everything is plain JSON with a schema and a datasheet."
 
-## 10. Difficulty is one number: tier Cn holds exactly n elements (4:45)
+## 10. Difficulty is one number: tier Cn holds exactly n elements (5:00)
 
 **Show:** one benchmark context per tier, C1 to C8, ceilings and walls.
 
@@ -144,7 +147,7 @@ tier everything else varies: kinds, trades, surfaces, stacking. So the element
 count is the one controlled axis of difficulty. And notice the walls: the
 section rotates, and electrical sits above water."
 
-## 11. Higher tiers are heavier and tighter, as designed (5:10)
+## 11. Higher tiers are heavier and tighter, as designed (5:25)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
 median of 2,000 freshly generated contexts per tier as diamonds.
@@ -163,7 +166,7 @@ with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 k
 the gap widened again at C6, where the generator always stacked two or three
 rows; 4.1 draws rows by count, so that step is gone.
 
-## 12. Spacing holds up on a clinic the generator never saw (5:40)
+## 12. Spacing holds up on a clinic the generator never saw (6:00)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
@@ -188,7 +191,7 @@ of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27�
 across settings; 4.1 widens the DN bands, so more insulation and slightly wider
 bare gaps. The gap draw itself is unchanged.)
 
-## 13. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (6:35)
+## 13. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (6:50)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
@@ -203,7 +206,7 @@ the dataset asks of any catalog: two well-placed sizes could attach 38 percent,
 six sizes 76, fifteen sizes every pipe. So 'what should the catalog contain'
 becomes a measurement."
 
-## 14. Set the parameters and the generator returns the designer's brief (7:10)
+## 14. Set the parameters and the generator returns the designer's brief (7:25)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
@@ -220,7 +223,7 @@ call that reproduces it. Scan the code to try it yourself."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
 appendix slide 18 shows two more sections. (See "Before the talk" above.)
 
-## 15. Train on the generator, evaluate on the benchmark, report per tier (8:20)
+## 15. Train on the generator, evaluate on the benchmark, report per tier (8:35)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
@@ -232,7 +235,7 @@ too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the
 same 125 contexts per tier for every method. Report per tier, with 95 percent
 intervals and paired tests."
 
-## 16. One section at one support today; a checker and real data come next (8:50)
+## 16. One section at one support today; a checker and real data come next (9:05)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -245,7 +248,7 @@ methods on the answer; the catalog as an input; and a real test set from
 commercial projects, with supports designed by engineers. That's where I'd value
 your eye."
 
-## 17. Support design now has open problems to learn from (9:30)
+## 17. Support design now has open problems to learn from (9:45)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
 problems, every constant sourced or declared a design choice, pipe spacing
