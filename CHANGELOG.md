@@ -14,6 +14,7 @@ package version tracks code and documentation.
   questions and answers). Figures and every printed number regenerate from the released
   data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`,
   `scripts/screenshot_studio.js`, `docs/deck/build_deck.js`).
+- Speech rewritten in a natural spoken style for recording (about 1,300 words, marks at 145 words a minute); `docs/TALK_to_record.md` is the read-aloud text only, with recording tips.
 - Every slide title is a sentence that carries its message (for example "Spacing holds up on a clinic the generator never saw") instead of a topic label; numbers in titles are computed from the data.
 - Experiments framed by what they show: Experiment 1 (slide 10) is a design check, since the
   tier fixes the count and load and congestion follow from the rules; Experiment 2 (slide
