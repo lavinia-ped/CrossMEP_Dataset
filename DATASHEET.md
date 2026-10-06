@@ -58,7 +58,7 @@ contains no personal, proprietary, or project-identifying information.
 **How was the data produced?** Procedurally, by the `crossmep` package
 (NumPy-only generator). The generator encodes documented conventions rather than
 free randomness: DN-series pipe outer diameters (EN 10220:2002, EN 10255:2004);
-standard tray widths (150–600 mm; IEC 61537 systems) and rectangular duct sizes
+standard tray widths (150–600 mm; the NEMA VE 1 series for IEC 61537 systems) and rectangular duct sizes
 (EN 1505 preferred dimensions, 250×200 to 1000×500 mm) plus round spiral ducts
 (EN 1506 series) and IEC 61386-1 conduit sizes; service banking (domestic
 hot+cold pairs, heating supply+return, chilled banks, uninsulated sprinkler

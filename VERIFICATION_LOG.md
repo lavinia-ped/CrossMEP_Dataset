@@ -27,7 +27,7 @@ not source-traceable to a single document).
 | `EN10255_MEDIUM_WALL_MM` | DN15/20: 2.6; DN25–40: 3.2; DN50/65: 3.6; DN80: 4.0; DN100: 4.5 mm | EN 10255:2004 medium series | VERIFIED |
 | `STEEL_DENSITY_KG_M3`, `WATER_DENSITY_KG_M3`, `G_M_S2` | 7,850 kg/m³; 1,000 kg/m³; 9.81 m/s² | standard values; loads are insensitive to 9.81 vs 9.80665 at the released precision | VERIFIED |
 | `pipe_mass_kg_m` | 1.40 (DN15) … 20.89 (DN100) kg/m water-filled; DN50 = 7.25 | steel annulus π(OD−t)·t·ρ + water at the bore; DN50 7.25 vs 7.6 kg/m from ANSI sch40 charts (different wall series, consistent) | VERIFIED (derived) |
-| `ASME_B311_WATER_SPAN_M` | NPS 1 / 2 / 3 / 4 = 2.1 / 3.0 / 3.7 / 4.3 m | ASME B31.1 Table 121.5 water-service points as widely republished; the table is paywalled (library check outstanding). B31.1-2022 superseded by B31.1-2024, MSS SP-58-2018 by SP-58-2025; values stable across editions | PRACTICE-CITED |
+| `ASME_B311_WATER_SPAN_M` | NPS 1 / 2 / 3 / 4 = 2.1 / 3.0 / 3.7 / 4.3 m (7 / 10 / 12 / 14 ft) | ASME B31.1 Table 121.5 water-service points; the same four values appear in the ASHRAE Handbook, *HVAC Systems and Equipment*, "Pipes, Tubes, and Fittings", table of suggested hanger spacing for standard steel pipe (water), and in MSS SP-69/SP-58. Two independent normative republications agree; the ASME table itself is paywalled (verbatim check outstanding). B31.1-2022 superseded by B31.1-2024, MSS SP-58-2018 by SP-58-2025; values stable across editions | VERIFIED (two concordant sources) |
 | `support_span_m` floor rule | DN15–40 → 2.1; DN50/65 → 3.0; DN80 → 3.7; DN100 → 4.3 m | each DN takes the span of the largest published size not exceeding it; sizes below NPS 1 take 2.1 m. **No interpolated values** (an earlier log entry mentioning interpolated DN32/40/65 spans described a v1 rule and was wrong for the released data). Recorded per element as `span_m` in revision 4.0 | VERIFIED (rule stated) |
 | `pipe_load_kN_per_m` | 0.0137 (DN15) … 0.2049 (DN100) kN/m | mass × g; recorded per element as `load_kN_per_m` (4 decimals) in revision 4.0; `round(load_kN_per_m × span_m, 2) == load_kN` for every library element (tested) | VERIFIED (derived) |
 | `DN_LOAD_KN` | 0.03, 0.04, 0.06, 0.08, 0.10, 0.21, 0.30, 0.49, 0.88 kN | derived; e.g. DN50: 7.25 kg/m × 3.0 m × 9.81 = 0.213 kN | VERIFIED (derived, test-pinned) |
@@ -45,12 +45,13 @@ not source-traceable to a single document).
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| `TRAY_WIDTHS_MM` | 150, 225, 300, 450, 600 mm | manufacturer series for IEC 61537 systems (Ed 3.0:2023 current; the standard does not fix the width list) | PRACTICE-CITED |
-| `TRAY_HEIGHT_MM` | **60 mm** | common commercial side height (published depth series 50/60/75/100/150 mm). *Correction:* the v3.0 log said 100 mm; the released data and code use 60 mm | PRACTICE-CITED |
-| `TRAY_FULL_CABLE_KG_M_AT_300`, `TRAY_SELF_KG_M_AT_300`, `TRAY_SPAN_M` | 50 kg/m; 5 kg/m; 2.0 m | 300 mm tray full of power cable ≈ 50 kg/m on the NEC 392 40 %-fill basis (published datum); steel tray self-weight ≈ 5 kg/m at 300 mm (published weight charts); typical tray support spacing | VERIFIED (datum) / PRACTICE-CITED (span) |
+| `TRAY_WIDTHS_MM` | 150, 225, 300, 450, 600 mm | **NEMA VE 1** standard tray widths 6 / 9 / 12 / 18 / 24 in (152 / 229 / 305 / 457 / 610 mm), as sold in the metric market at these roundings; IEC 61537 (Ed 3.0:2023) itself does not fix a width list | VERIFIED (NEMA VE 1 series, metric rounding) |
+| `TRAY_HEIGHT_MM` | **60 mm** | common commercial side height (published depth series 50/60/75/100/150 mm); NEMA VE 1 depths start at 3 in, so the European 60 mm is kept as the metric-market value. *Correction:* the v3.0 log said 100 mm; the released data and code use 60 mm | PRACTICE-CITED |
+| `TRAY_FULL_CABLE_KG_M_AT_300`, `TRAY_SELF_KG_M_AT_300`, `TRAY_SPAN_M` | 50 kg/m; 5 kg/m; 2.0 m | 300 mm tray full of power cable ≈ 50 kg/m on the NEC 392 40 %-fill basis (published datum); steel tray self-weight ≈ 5 kg/m at 300 mm (published weight charts); 2.0 m is below the shortest **NEMA VE 1** load-class span (8 ft = 2.44 m; classes 8/10/12/16/20 ft at 50/75/100 lb/ft), i.e. conservative for any class-rated tray, and is the common European support spacing | VERIFIED (datum) / PRACTICE-CITED (span, bracketed by NEMA VE 1) |
 | `TRAY_LOAD_KN` | 0.54, 0.81, 1.08, 1.62, 2.16 kN (0.2698–1.0791 kN/m × 2.0 m) | design-for-full basis, both masses scaled linearly with width: supports are sized for the tray's rated fill, not its day-one contents | VERIFIED (derived, test-pinned) |
 | `CONDUIT_OD_MM` | 20, 25, 32, 40, 50 mm | **IEC 61386-1 metric sizes 16, 20, 25, 32, 40, 50, 63 mm**; strict subset. Conduits < 80 mm are specified by outer diameter (confirms OD-as-width) | VERIFIED |
-| `CONDUIT_WALL_MM`, `CABLE_FILL_FRACTION`, `CABLE_BULK_DENSITY_KG_M3`, `CONDUIT_SPAN_M` | 1.5 mm; 0.40; 4,167 kg/m³; 2.0 m | wall per BS 4568 / IEC 61386-21 class range 1.2–1.6 mm; IEC/NEC 40 %-of-bore fill; bulk density back-derived from the tray datum: 50 kg/m ÷ (0.40 × 0.300 m × 0.100 m) | VERIFIED (derived) |
+| `CONDUIT_WALL_MM`, `CABLE_FILL_FRACTION`, `CABLE_BULK_DENSITY_KG_M3` | 1.5 mm; 0.40; 4,167 kg/m³ | wall per BS 4568 / IEC 61386-21 class range 1.2–1.6 mm; IEC/NEC 40 %-of-bore fill; bulk density back-derived from the tray datum: 50 kg/m ÷ (0.40 × 0.300 m × 0.100 m) | VERIFIED (derived) |
+| `CONDUIT_SPAN_M` | 2.0 m | **IET On-Site Guide** (BS 7671) table of maximum support spacing for conduits: rigid metal 16–25 mm, 1.75 m horizontal / 2.0 m vertical (larger bands longer). 2.0 m is the table's vertical value for the smallest band used and within 0.25 m of its horizontal value; one span is used for all five sizes (20–50 mm) for simplicity. NEC 344.30 allows 10 ft for the same sizes and is not used (US-specific, longer) | VERIFIED (IET table; single value, see section 10) |
 | `CONDUIT_LOAD_KN` | 0.021, 0.029, 0.044, 0.063, 0.092 kN | derived | VERIFIED (derived, test-pinned) |
 | `CONDUIT_GROUP_SIZES` | parallel groups of 2–6 | banking practice; the Duplex MEP model itself contains parallel Ø27 conduit runs | PRACTICE-CITED |
 
@@ -60,7 +61,7 @@ not source-traceable to a single document).
 |---|---|---|---|
 | `RECT_DUCT_SIZES_MM` | 250×200, 400×250, 500×400, 800×400, 1000×500 | EN 1505:1997 preferred-dimension grid (CEN-approved 1997-10-25; current) | VERIFIED |
 | `WALRAVEN_RECT_DUCT_KG_M` | 6.9, 11.7, 16.2, 24.5, 30.6 kg/m | verbatim cells of the Walraven "Air Duct Dimensions and Weights" datasheet, non-insulated, incl. flange/bracing allowance; no extrapolated cells | VERIFIED (manufacturer table) |
-| `DUCT_SPAN_M` | 2.4 m | 8-ft hanger-spacing practice | PRACTICE-CITED |
+| `DUCT_SPAN_M` | 2.4 m (8 ft) | **SMACNA HVAC Duct Construction Standards, Metal and Flexible**, Table 5-1 / 5-1M: maximum rectangular-duct hanger spacing 10 ft (3.0 m); 8 ft is the value most project specifications adopt under that table and the spacing of the manufacturer weight table used here. EN 12236:2002 (duct hangers and supports) sets strength tests, not a spacing. A general rule of 2.0 m for ducts over 0.4 m² would shorten the span of the 1000 × 500 duct only | PRACTICE-CITED (within the SMACNA maximum) |
 | `RECT_DUCT_LOAD_KN` | 0.16, 0.28, 0.38, 0.58, 0.72 kN | derived | VERIFIED (derived, test-pinned) |
 | `ROUND_DUCT_D_MM` | 160, 200, 250, 315, 400, 500 mm | **EN 1506:2007 nominal-size series** (manufacturer sheet reproducing the table); strict subset | VERIFIED |
 | `SPIRAL_DUCT_SHEET_MM` | 0.6 mm | manufacturer gauge tables for D ≤ 500 | VERIFIED |
@@ -76,8 +77,8 @@ not source-traceable to a single document).
 | **Gap semantics** | **4.0:** the sampled gap is the physical clear gap between insulation surfaces (min 25 mm). **3.0:** every element also carried a 25 mm routing envelope per side, so the physical gap was the draw + 50 mm (min 75 mm) and `bundle_width_mm` included 50 mm of empty envelope | double-counting found in the 3.5.0 audit and removed in revision 4.0 without touching the random stream; the 3.0 files remain as released | RESOLVED (4.0) / DISCLOSED (3.0) |
 | `ROW_VGAP_MM`, `TOP_OFFSET_MM` | 120 mm clear between rows; 90 mm first-row standoff | design parameters | DEFAULT |
 | Stagger (`generate.stagger_for`) | half-normal, scale **0 / 75 / 120 mm** for 1 / ≤ 5 / > 5 elements, cap 2.5 σ, drawn per element | calibrated to measured in-bundle elevation spread (Duplex MEP median 79 mm, p75 282); generated in-row spread on the benchmark: median 93 mm, p75 149. *Correction:* the v3.0 log listed 55/75/120. Per-element draw is a simplification (a bank on one trapeze is co-planar) | VERIFIED (calibrated) / DEFAULT (per-element) |
-| `VPRIORITY` tiering order | duct → tray/conduit → pipe (bulky nearest the surface) | coordination practice (MaRS BIM 2025; trade-forum documentation 2024); prefabricated rack practice | PRACTICE-CITED |
-| Wall drip rule | electrical containment above wet services within a row | practice rule (drip risk); enforced on walls; **0 violations in 2,096 ceiling and 817 wall wet/electrical pairs** on the benchmark, and over 600 unseen contexts in tests | PRACTICE-CITED + VERIFIED (compliance) |
+| `VPRIORITY` tiering order | duct → tray/conduit → pipe (bulky nearest the surface) | coordination practice (MaRS BIM 2025; trade-forum documentation 2024); prefabricated rack practice. The criteria behind it (spatial clearance, functional constraints such as gravity flow, installation access) are the MEP-coordination design criteria of Korman, Fischer & Tatum (2003), *J. Constr. Eng. Manage.* 129(6), 627–634, which does not prescribe this order | PRACTICE-CITED (criteria peer-reviewed) |
+| Wall drip rule | electrical containment above wet services within a row | **BS 7671 Reg. 528.3.2**: a wiring system routed below services liable to cause condensation (water, steam, gas) shall be protected from their effects; placing containment above the wet services is the layout that satisfies the regulation without added protection. Enforced on walls; **0 violations in 2,096 ceiling and 817 wall wet/electrical pairs** on the benchmark, and over 600 unseen contexts in tests | VERIFIED (BS 7671 rule) + VERIFIED (compliance) |
 | Surface mix, trade mix, option weights, DN bands, thickness choices | `generate.py` design parameters | not surveyed; disclosed in DATASHEET | DEFAULT |
 
 ## 7. Verification data (`verify/`)
@@ -102,6 +103,61 @@ not source-traceable to a single document).
 | Random stream | NumPy `Generator` (PCG64) from the split seed; draw order frozen and identical across revisions (two quirks marked `# stream:`) | VERIFIED |
 
 ## 9. Outstanding
-- Verbatim reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 (paywalled; library check).
+- Verbatim reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 (paywalled; library check). The four values are already confirmed by the ASHRAE Handbook table (section 2).
 - Refitting the gap distribution to the section-cut measurements (a data revision; the released files keep the June 2026 fit).
 - Per-group (co-planar bank) stagger with re-calibration against the measured elevation spread.
+- Candidates for a data revision 4.1 (each changes released numbers, so none is applied here): per-DN pipe spans from the BS EN 806-4:2010 support-spacing table instead of the four ASME points (finer, but not yet checked against the primary text); tray span 2.44 m (the NEMA VE 1 8-ft class); first-row standoff and gap floor from the DIN 4140 minimum clearances between insulated pipes and to building parts (the table values are not yet verified).
+- Trade mix, surface mix and number of rows measured on the open models' mechanical and electrical disciplines (today only pipe gaps and stagger are measured; composition is declared).
+
+## 10. Why these standards
+
+Many documents give a value for each constant. The choice follows four rules,
+applied in order; each row above records the highest rung its source reaches.
+
+1. **Metric, DN-keyed geometry follows the European normative series.** The
+   dataset is in millimetres and DN, so sizes come from the standards an
+   EU contractor orders against: EN 10220 / EN 10255 (pipe), EN 1505 / EN 1506
+   (duct), IEC 61386-1 (conduit), IEC 61537 (tray systems). ANSI / ASTM sizes
+   are used only as cross-checks (DN50 vs sch 40).
+2. **Where the European standard fixes no value, take the de-facto
+   international reference whose values are openly republished.** IEC 61537
+   leaves tray widths to the manufacturer and EN 12236 tests hanger strength
+   without a spacing, so tray widths and class spans follow NEMA VE 1, pipe
+   spans ASME B31.1 (confirmed by the ASHRAE Handbook), duct hanger spacing
+   SMACNA, and conduit support spacing the IET On-Site Guide table under
+   BS 7671. US-only values that are longer than European practice (NEC 344.30
+   conduit spacing, 10 ft) are not used.
+3. **Prefer the source whose text can be checked in full.** Insulation follows
+   the German GEG because it is a statute with public full text (Anlage 8 was
+   checked verbatim) and its thickness-equals-diameter rule is the strictest
+   common European schedule; the chilled-water schedule comes from a published
+   facilities standard because the GEG cold-line values address condensation,
+   not thermal loss. A paywalled standard is accepted only when two independent
+   republications agree (ASME B31.1 via ASHRAE and MSS).
+4. **Prefer values stable across editions**, so that an edition change cannot
+   move the data (B31.1-2022 → 2024, MSS SP-58-2018 → 2025, EN 10255:2004,
+   EN 1505:1997).
+
+Preference order of sources: statute or normative standard with public text →
+normative standard with concordant republications → manufacturer engineering
+table → practice guidance (SMACNA / IET / trade documentation) → author default,
+disclosed. Where the chosen value is not the standard's exact figure, the row
+says how the standard brackets it (tray span below the shortest NEMA class;
+duct span under the SMACNA maximum; one conduit span for all sizes).
+
+Alternatives considered and not used: BS EN 806-4 and IPC / UPC hanger tables
+(potable-water specific; EN 806-4 not yet verified from the primary text, listed
+in section 9); NEC 344 / 358 (US spacing, longer than European); DIN 4140
+clearances (candidate for the standoff, section 9); DW/144 (BESA, UK duct
+specification, consistent with SMACNA but less widely republished).
+
+## 11. Sources (public texts and republications used for the checks)
+
+- GEG Anlage 8: https://www.gesetze-im-internet.de/geg/anlage_8.html
+- ASHRAE hanger-spacing table (standard steel pipe, water), as republished: https://www.engineersedge.com/fluid_flow/pipe_support_hanger_spacing_15713.htm
+- NEMA VE 1 standard widths and load classes, as republished: https://www.goagilix.com/blog/understanding-nema-standards-for-cable-tray-systems/
+- IET On-Site Guide conduit support spacing, as republished: https://www.voltimum.co.uk/news/scolmore-group/what-distances-are-required-between
+- BS 7671 Reg. 528.3.2, as quoted: https://engx.theiet.org/f/wiring-and-regulations/29646/water-pipes-passing-over-electrical-sub-distribution-panels
+- SMACNA HVAC-DCS Table 5-1 maximum spacing, as cited in public specifications: https://suppliers.usask.ca/documents/master-specifications/23-31-13.01-metal-ducts-low-pressure-to-500pa.pdf
+- Korman, Fischer & Tatum (2003): https://doi.org/10.1061/(ASCE)0733-9364(2003)129:6(627)
+- DIN 4140 clearances (overview): https://www.baunetzwissen.de/daemmstoffe/fachwissen/wand/rohrleitungen-daemmen-152260

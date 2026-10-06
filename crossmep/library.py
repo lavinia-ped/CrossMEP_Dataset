@@ -50,9 +50,11 @@ EN10255_MEDIUM_WALL_MM: Dict[int, float] = {15: 2.6, 20: 2.6, 25: 3.2, 32: 3.2, 
 
 ASME_B311_WATER_SPAN_M: Dict[int, float] = {25: 2.1, 50: 3.0, 80: 3.7, 100: 4.3}
 """ASME B31.1 Table 121.5 suggested support spacing, water service, for NPS 1, 2,
-3, 4 (= DN 25, 50, 80, 100), as widely republished (PRACTICE-CITED: the table
-itself is paywalled).  Only these published points are used -- see
-:func:`support_span_m` -- never interpolated values."""
+3, 4 (= DN 25, 50, 80, 100): 7 / 10 / 12 / 14 ft.  The same values appear in the
+ASHRAE Handbook (HVAC Systems and Equipment, "Pipes, Tubes, and Fittings") and
+MSS SP-69 (VERIFIED, two concordant sources; the ASME table itself is paywalled).
+Only these published points are used -- see :func:`support_span_m` -- never
+interpolated values."""
 
 
 def support_span_m(dn: int) -> float:
@@ -107,14 +109,14 @@ def insulation_mm(service: str, dn: int) -> float:
 
 
 # --------------------------------------------------------------------------- #
-# Cable trays -- IEC 61537 systems, manufacturer width series                  #
+# Cable trays -- IEC 61537 systems, NEMA VE 1 width series                     #
 # --------------------------------------------------------------------------- #
 
-TRAY_WIDTHS_MM: Tuple[int, ...] = (150, 225, 300, 450, 600)   # PRACTICE-CITED series
-TRAY_HEIGHT_MM = 60.0            # modelled side height (PRACTICE-CITED common depth)
+TRAY_WIDTHS_MM: Tuple[int, ...] = (150, 225, 300, 450, 600)   # NEMA VE 1 6/9/12/18/24 in, metric rounding (VERIFIED)
+TRAY_HEIGHT_MM = 60.0            # modelled side height (PRACTICE-CITED common European depth)
 TRAY_FULL_CABLE_KG_M_AT_300 = 50.0   # 300 mm tray full of power cable, NEC 392 40 %-fill basis (published datum)
 TRAY_SELF_KG_M_AT_300 = 5.0          # steel tray self-weight at 300 mm (published weight charts)
-TRAY_SPAN_M = 2.0                    # typical tray support spacing (PRACTICE-CITED)
+TRAY_SPAN_M = 2.0                    # below the shortest NEMA VE 1 class span, 8 ft (PRACTICE-CITED)
 
 
 def tray_load_kN_per_m(width_mm: int) -> float:
@@ -139,7 +141,7 @@ WALRAVEN_RECT_DUCT_KG_M: Dict[Tuple[int, int], float] = {
     (250, 200): 6.9, (400, 250): 11.7, (500, 400): 16.2, (800, 400): 24.5, (1000, 500): 30.6}
 """Verbatim cells of the Walraven 'Air Duct Dimensions and Weights' table,
 non-insulated, including flange/bracing allowance (VERIFIED manufacturer table)."""
-DUCT_SPAN_M = 2.4                # 8-ft hanger-spacing practice (PRACTICE-CITED)
+DUCT_SPAN_M = 2.4                # 8 ft; SMACNA HVAC-DCS Table 5-1 allows up to 10 ft (PRACTICE-CITED)
 
 ROUND_DUCT_D_MM: Tuple[int, ...] = (160, 200, 250, 315, 400, 500)   # EN 1506:2007 subset (VERIFIED)
 SPIRAL_DUCT_SHEET_MM = 0.6       # manufacturer gauge tables for D <= 500 (VERIFIED)
@@ -175,7 +177,7 @@ CABLE_FILL_FRACTION = 0.40       # IEC/NEC 40 %-of-bore fill
 CABLE_BULK_DENSITY_KG_M3 = 4167.0
 """Effective bulk density of installed cable, back-derived from the published
 tray datum: 50 kg/m / (0.40 fill x 0.300 m x 0.100 m) = 4,167 kg/m3."""
-CONDUIT_SPAN_M = 2.0             # conduit support spacing (PRACTICE-CITED)
+CONDUIT_SPAN_M = 2.0             # IET On-Site Guide conduit support table, 16-25 mm rigid metal: 1.75 m horiz / 2.0 m vert (VERIFIED)
 
 
 def conduit_load_kN_per_m(od_mm: int) -> float:

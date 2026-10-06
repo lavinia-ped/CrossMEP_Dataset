@@ -31,8 +31,9 @@ already cleared ALONG the surface.
 Wall rule
 ---------
 On walls, electrical containment is sorted ABOVE wet services within a row
-(smaller ``along`` = higher elevation): coordination practice avoids routing
-water-bearing pipes directly above trays and conduits (drip risk).
+(smaller ``along`` = higher elevation): BS 7671 Reg. 528.3.2 requires a wiring
+system routed below condensation-prone services to be protected; keeping the
+containment above the wet services satisfies it without added protection.
 """
 from __future__ import annotations
 
@@ -55,7 +56,8 @@ TOP_OFFSET_MM = 90.0             # standoff of the first row from the surface (D
 STAGGER_CAP_SIGMAS = 2.5
 
 VPRIORITY = {"duct": 0, "cable_tray": 1, "conduit": 1, "pipe": 2}
-"""Lower value sits nearer the surface (PRACTICE-CITED tiering order)."""
+"""Lower value sits nearer the surface (PRACTICE-CITED tiering order; the
+coordination criteria behind it follow Korman, Fischer & Tatum 2003)."""
 
 
 def sample_gap(rng: Optional[np.random.Generator], floor: float = GAP_FLOOR_MM) -> float:

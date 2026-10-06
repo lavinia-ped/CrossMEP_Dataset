@@ -190,16 +190,18 @@ and forward to the package.
 
 ## What is encoded, and where it comes from
 
-Every number has a source and a status (`VERIFICATION_LOG.md`), and every
+Every number has a source and a status (`VERIFICATION_LOG.md`; its section 10
+says why each standard was chosen over the alternatives), and every
 per-support load is *computed* in `crossmep/library.py` from those sources:
 
 * **Pipes** — EN 10220 / EN 10255 medium-series carbon steel, DN15–100, water
-  filled; support spans from ASME B31.1 Table 121.5 water-service points under a
-  floor rule (no interpolation); insulation per GEG Anlage 8 (heated lines) and
+  filled; support spans from ASME B31.1 Table 121.5 water-service points (the
+  same values as the ASHRAE Handbook hanger table) under a floor rule (no
+  interpolation); insulation per GEG Anlage 8 (heated lines) and
   a 30/50 mm condensation-control schedule (chilled); grouped as trades run
   (domestic hot + cold pairs, heating flow + return, chilled banks, a sprinkler
   main with an optional branch).
-* **Cable trays** — IEC 61537 systems, 150–600 mm wide, loaded on a
+* **Cable trays** — IEC 61537 systems in the NEMA VE 1 width series, 150–600 mm, loaded on a
   design-for-full basis from the published 50 kg/m full-300-mm-tray datum.
 * **Ducts** — EN 1505 preferred rectangular sizes with verbatim manufacturer
   duct-weight cells (flange and bracing included); EN 1506 round spiral sizes.
