@@ -93,9 +93,10 @@ that look like practice."
 ## 6. Real designs cover one corner of the design space; CrossMEP covers all of it (2:20)
 
 **Show:** left, the design space (element count across, kinds / trades /
-surface up): the real designs available sit in one corner (few, one project
-type, one trade mix), CrossMEP fills it by construction and without limit (a
-new seed is a new set), uniform over the tiers or on request (`generate_custom`); right, CrossMEP at a glance (7,000
+surface up) drawn with thumbnail sections: the real designs available are a
+few near-identical sections in one corner (one project, one trade mix);
+CrossMEP is a section for every tier, with kinds and surfaces varied, and
+without limit (a new seed is a new set); right, CrossMEP at a glance (7,000
 contexts · 31,484 elements · C1–C8 · 0 labels · traced · open).
 
 **Say:** "The real designs we had were few, from one kind of project with one trade mix:
