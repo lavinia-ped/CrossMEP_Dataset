@@ -325,7 +325,7 @@ it needs no server.
 ## Presenting the dataset
 
 `docs/CrossMEP_CIBW78_talk.pptx` (and its PDF) is a ten-minute talk on the
-dataset: 16 slides, two of them adapted from the ISARC 2026 talk and one a live demo of the Generator Studio with its
+dataset: 17 slides, two of them adapted from the ISARC 2026 talk, one on what a method would look like, and one a live demo of the Generator Studio with its
 screenshot as the fallback, plus five appendix slides, with speaker notes on
 every slide; `docs/TALK.md` is the same talk as a script with the questions
 practitioners ask; `docs/figures/` holds the figures. Everything regenerates from
