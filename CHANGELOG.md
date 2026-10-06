@@ -9,11 +9,20 @@ package version tracks code and documentation.
 ## 4.1.0 — 2026-10-06 (not yet tagged)
 
 ### Talk
-- New slide 4 after the ISARC problem slide: one section in, verified supports out (build step by
-  step, check every design, verified designs ranked by cost) and the three things any such method
-  needs; kept generic because the approaches are unpublished. The opening now runs hospital →
-  the synthesis problem → what a method would look like → no public problems → CrossMEP. 17 main
-  slides, about 9:50; later slide numbers shift by one.
+- New slide 3, from the ISARC 2026 talk, drawn as a diagram: one cross-section in (structure and
+  services), verified support designs out (a rod trapeze, checked; up to ten, ranked by cost), with
+  the two words the talk relies on, *context* (the brief, what CrossMEP contains) and *assembly*
+  (the answer, what a method produces). Slide 4 keeps the route-to-section figure, where practice
+  stands and the three reasons synthesis resists automation.
+- New slide 5: one section in, verified supports out as a flow with the approach as a black box
+  (rule table, search or learned policy), a verifier and the three things any such method needs;
+  kept generic because the approaches are unpublished.
+- New slide 6: the idea behind the dataset. The real designs available sit in one corner of the
+  design space; CrossMEP fills it by construction and without limit (a new seed is a new set),
+  uniform over the tiers or any mix on request.
+- The opening now runs hospital → one cross-section in, verified designs out → why it resists
+  automation → what a method would look like → the design space → the dataset. 18 main slides,
+  about 9:55; later slide numbers shift by three from 4.0.0.
 
 ### Data revision 4.1
 - `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters
