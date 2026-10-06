@@ -63,5 +63,5 @@ def test_custom_batches_equal_fresh_runs(bs, data):
 
 def test_benchmark_medians(data):
     ref = data["benchmark_medians"]
-    assert round(ref["C2"]["clear_gap_mm"]) == 120 and ref["C1"]["clear_gap_mm"] is None
-    assert round(ref["C8"]["load_kN"], 2) == 1.71
+    assert round(ref["C2"]["clear_gap_mm"]) == 130 and ref["C1"]["clear_gap_mm"] is None
+    assert round(ref["C8"]["load_kN"], 2) == 2.04

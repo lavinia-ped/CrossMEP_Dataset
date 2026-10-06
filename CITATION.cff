@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use CrossMEP, please cite the dataset paper and the companion formulation paper."
 type: dataset
 title: "CrossMEP: a tiered synthetic dataset of multi-trade MEP cross-sections"
-version: 4.0.0
+version: 4.1.0
 date-released: 2026-10-03
 license: CC-BY-4.0
 repository-code: "https://github.com/lavinia-ped/CrossMEP_Dataset"

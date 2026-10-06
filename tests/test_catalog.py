@@ -88,23 +88,27 @@ def test_tasks_delegates_to_catalog(benchmark):
 
 # --------------------------------------------------------------------------- pinned results (released benchmark)
 
-def test_paper_catalog_on_benchmark_pinned(benchmark):
-    s = cat.summary(benchmark, cat.PAPER_CATALOG)
+def test_paper_catalog_on_benchmark_pinned(benchmark_v40):
+    s = cat.summary(benchmark_v40, cat.PAPER_CATALOG)
     assert {k: s[k] for k in ("elements", "pipes", "covered", "size", "load", "not_pipe")} == \
         {"elements": 4500, "pipes": 2529, "covered": 293, "size": 2236, "load": 0, "not_pipe": 1971}
     assert round(s["pct_pipes"], 1) == 11.6
 
 
-def test_load_never_binds(benchmark):
+def test_load_never_binds(benchmark_v40, benchmark):
     """The heaviest pipe is far below the weakest bin, so the 'load' reason never occurs and
     the result is the same for any capacity at or above that pipe."""
-    heaviest = max(e["load_kN"] for c in benchmark for e in c["elements"] if e["kind"] == "pipe")
+    heaviest = max(e["load_kN"] for c in benchmark_v40 for e in c["elements"] if e["kind"] == "pipe")
     assert heaviest == pytest.approx(0.88) and heaviest < min(b.capacity_kN for b in cat.PAPER_CATALOG)
     strong = [(lo, hi, 100.0) for lo, hi, _ in BINS]
-    assert cat.summary(benchmark, strong)["covered"] == cat.summary(benchmark, BINS)["covered"] == 293
+    assert cat.summary(benchmark_v40, strong)["covered"] == cat.summary(benchmark_v40, BINS)["covered"] == 293
+    heaviest41 = max(e["load_kN"] for c in benchmark for e in c["elements"] if e["kind"] == "pipe")
+    assert heaviest41 == pytest.approx(1.97) and heaviest41 < 2.5          # DN150 at 5.2 m, still below the weakest bin
 
 
-def test_only_one_nominal_size_is_attached(benchmark):
+@pytest.mark.parametrize("fixture, n", [("benchmark_v40", 293), ("benchmark", 360)])
+def test_only_one_nominal_size_is_attached(fixture, n, request):
+    benchmark = request.getfixturevalue(fixture)
     """Every covered pipe is DN40 (bare, or insulated cold) and no other size is covered."""
     cov, tot = Counter(), Counter()
     for c in benchmark:
@@ -112,13 +116,14 @@ def test_only_one_nominal_size_is_attached(benchmark):
             if e["kind"] == "pipe":
                 tot[e["label"]] += 1
                 cov[e["label"]] += cat.classify(e, cat.PAPER_CATALOG) == "covered"
-    assert {k: v for k, v in cov.items() if v} == {"DN40": 293}
-    assert tot["DN40"] == 293                                                 # every DN40 pipe is covered
+    assert {k: v for k, v in cov.items() if v} == {"DN40": n}
+    assert tot["DN40"] == n                                                 # every DN40 pipe is covered
     assert {round(cat.attach_diameter(e), 1) for c in benchmark for e in c["elements"]
             if e["kind"] == "pipe" and cat.classify(e, cat.PAPER_CATALOG) == "covered"} == {48.3, 108.3}
 
 
-def test_edge_effect_on_dn100(benchmark):
+def test_edge_effect_on_dn100(benchmark_v40):
+    benchmark = benchmark_v40
     """DN100 (114.3 mm) sits 0.3 mm outside the 108-114 bin; the headline moves with the tolerance."""
     pct = lambda rule, tol: round(cat.summary(benchmark, BINS, rule, tol)["pct_pipes"], 1)
     assert pct("service", 0.0) == 11.6 and pct("service", 0.5) == 12.9 and pct("service", 1.0) == 12.9
@@ -126,9 +131,11 @@ def test_edge_effect_on_dn100(benchmark):
     assert pct("insulated", 0.0) == 6.2 and pct("insulated", 0.5) == 7.5
 
 
-def test_released_splits_agree_within_noise(all_splits):
-    pcts = {s: cat.summary(c, BINS)["pct_pipes"] for s, c in all_splits.items()}
+def test_released_splits_agree_within_noise(all_splits, all_splits_v40):
+    pcts = {s: cat.summary(c, BINS)["pct_pipes"] for s, c in all_splits_v40.items()}
     assert all(8.5 < v < 13.0 for v in pcts.values()), pcts
+    pcts = {s: cat.summary(c, BINS)["pct_pipes"] for s, c in all_splits.items()}
+    assert max(pcts.values()) - min(pcts.values()) < 4.0, pcts
 
 
 # --------------------------------------------------------------------------- the exact demand optimum
@@ -164,7 +171,8 @@ def test_best_windows_edge_cases():
         cat.best_windows({50.0: 1}, -1, 6.0)
 
 
-def test_demand_curve_on_benchmark(benchmark):
+def test_demand_curve_on_benchmark(benchmark_v40):
+    benchmark = benchmark_v40
     pts = cat.demand_points(benchmark)
     assert sum(pts.values()) == 2529 and len(pts) == 16
     curve = cat.demand_curve(pts, 6.0)
@@ -177,7 +185,8 @@ def test_demand_curve_on_benchmark(benchmark):
     assert curve[1]["pct"] > 3 * cat.summary(benchmark, BINS)["pct_pipes"]    # two well-placed sizes vs the paper's two
 
 
-def test_demand_points_respects_capacity_and_rule(benchmark):
+def test_demand_points_respects_capacity_and_rule(benchmark_v40):
+    benchmark = benchmark_v40
     assert sum(cat.demand_points(benchmark, max_capacity_kN=0.0).values()) == 0
     assert sum(cat.demand_points(benchmark, max_capacity_kN=100.0).values()) == 2529
     assert len(cat.demand_points(benchmark, "bare")) < len(cat.demand_points(benchmark, "insulated")) + 1
@@ -185,7 +194,8 @@ def test_demand_points_respects_capacity_and_rule(benchmark):
 
 # --------------------------------------------------------------------------- verify/catalog_stress.py
 
-def test_cluster_interval_is_reproducible_and_brackets_estimate(cs, benchmark):
+def test_cluster_interval_is_reproducible_and_brackets_estimate(cs, benchmark_v40):
+    benchmark = benchmark_v40
     n_pipes, n_cov, _ = cs.context_counts(benchmark, BINS, "service", 0.0)
     assert n_pipes.sum() == 2529 and n_cov.sum() == 293
     a = cs.cluster_interval(n_pipes, n_cov, 300, np.random.default_rng(5))
@@ -220,8 +230,8 @@ def test_cluster_bootstrap_has_nominal_coverage(cs):
     assert 0.78 <= hits / trials <= 0.97
 
 
-def test_stress_test_small_run(cs, all_splits):
-    r = cs.stress_test(BINS, n_boot=150, seed=1, mc_per_tier=25, mc_seed=3, splits=all_splits)
+def test_stress_test_small_run(cs, all_splits_v40):
+    r = cs.stress_test(BINS, n_boot=150, seed=1, mc_per_tier=25, mc_seed=3, splits=all_splits_v40)
     assert set(r) == {"settings", "benchmark", "splits", "population", "by_size", "by_size_all_splits",
                       "sensitivity", "demand"}
     b = r["benchmark"]
@@ -274,16 +284,14 @@ def test_results_md_carries_the_stress_test(root):
     """RESULTS.md prints verify/catalog_stress.py; its deterministic lines must match the code."""
     text = _squash(open(os.path.join(root, "RESULTS.md"), encoding="utf-8").read())
     for line in ("## Catalog stress test (paper section 5.3)",
-                 "Benchmark: 2,529 pipes, 4,500 elements",
-                 "attachable pipes 293 = 11.6 % of pipes",
-                 "missed: no size fits 2,236 pipes; too heavy 0 pipes; not a pipe 1,971 elements",
-                 "heaviest pipe 0.88 kN vs weakest bin 2.5 kN -> load never binds",
-                 "DN40 293/293",
-                 "service 11.6 (10.7) 12.9 (12.2) 12.9 (12.2)",
-                 "bare 11.6 (10.7) 16.4 (15.6) 16.4 (15.6)",
-                 "insulated 6.2 ( 5.3) 7.5 ( 6.8) 7.5 ( 6.8)",
-                 "k = 2: 43.0 % 21.3-26.9 42.4-48.3",
-                 "k = 12: 100.0 %"):
+                 "Benchmark: 2,488 pipes, 4,500 elements",
+                 "attachable pipes 360 = 14.5 % of pipes",
+                 "missed: no size fits 2,128 pipes; too heavy 0 pipes; not a pipe 2,012 elements",
+                 "heaviest pipe 1.97 kN vs weakest bin 2.5 kN -> load never binds",
+                 "DN40 360/360",
+                 "service 14.5 (14.3) 19.8 (19.6) 19.8 (19.6)",
+                 "bare 14.5 (14.3) 22.0 (22.0) 22.0 (22.0)",
+                 "k = 2: 38.1 % 21.3-26.9 42.4-48.3"):
         assert _squash(line) in text, line
 
 
@@ -296,7 +304,7 @@ def test_deck_data_matches_the_released_data(root, benchmark):
     assert {k: b[k] for k in ("elements", "pipes", "covered", "size", "load", "not_pipe")} == \
         {k: s[k] for k in ("elements", "pipes", "covered", "size", "load", "not_pipe")}
     assert b["pct_pipes"] == pytest.approx(s["pct_pipes"]) and b["ci"][0] < b["pct_pipes"] < b["ci"][1]
-    assert cd["by_size"]["DN40"] == {"pipes": 293, "covered": 293}
+    assert cd["by_size"]["DN40"] == {"pipes": 360, "covered": 360}
     curve = cat.demand_curve(cat.demand_points(benchmark), cd["demand"]["width_mm"])
     assert [r["k"] for r in cd["demand"]["curve"]] == [r["k"] for r in curve]
     assert [r["pct"] for r in cd["demand"]["curve"]] == pytest.approx([r["pct"] for r in curve])

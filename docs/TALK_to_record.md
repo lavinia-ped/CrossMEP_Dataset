@@ -1,11 +1,11 @@
 # CrossMEP talk: script to record
 
-Read-aloud text only, one block per slide, in the order of the slides. About 1,330 words: roughly 9 minutes at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
+Read-aloud text only, one block per slide, in the order of the slides. About 1,300 words: roughly 9 minutes at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
 
 **Recording tips**
 
 - One take per slide, then join them: a pause of about a second between slides, and a short breath at every full stop.
-- Smile on the first sentence of slide 1 and on the last of slide 16; slow down on the three numbers worth remembering: *10,000 assemblies* (slide 2), *28 millimeters* (slide 11), *11.6 percent* (slide 12).
+- Smile on the first sentence of slide 1 and on the last of slide 16; slow down on the three numbers worth remembering: *10,000 assemblies* (slide 2), *32 millimeters* (slide 11), *14.5 percent* (slide 12).
 - Slide 13: say the first two sentences, then screen-record the studio (click C3, *Generate another* twice, then *Exact mix* and add a duct) while you narrate what you click; say the last two sentences back on the slide.
 - Where a sentence feels long, split it at the comma. The numbers are written the way you would say them.
 - Check the total length after joining; if it is over 10 minutes, cut slide 7 (sources) to its first two sentences and slide 8 (splits) to its first one.
@@ -15,7 +15,7 @@ Read-aloud text only, one block per slide, in the order of the slides. About 1,3
 Hello everyone, I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable tray in a
 building hangs from a support that an engineer designs by hand, from the section at that
 spot. We want to teach machines to do some of that work, and the first thing we found
-missing was data: there was no public set of support- design problems. So, with David
+missing was data: there was no public set of support-design problems. So, with David
 Gvadzabia, Torben Graeber and Martin Fischer, we built one. It's called CrossMEP.
 
 ## Slide 2, A hospital needs about 10,000 support assemblies, each designed by hand (starts at 0:30)
@@ -87,37 +87,36 @@ any building. By C8 you have eight services on three rows. Within a tier everyth
 varies: kinds, trades, surfaces, stacking. So the element count is the one controlled axis
 of difficulty. And notice the walls: the section rotates, and electrical sits above water.
 
-## Slide 10, Higher tiers are heavier and, overall, tighter, as designed (starts at 4:50)
+## Slide 10, Higher tiers are heavier and tighter, as designed (starts at 4:50)
 
 Now three analyses. The first is a design check, not a discovery: does difficulty grow
 with the tier? The count is fixed by construction, and load and congestion follow from the
-rules, so this shows the dataset behaves as designed. The load at the support rises at
-every step, from 0.1 to 1.7 kilonewtons. The closest gap shrinks from 120 to about 62
-millimeters, but widens again at C6, where elements start stacking in two or three rows.
-So: report methods tier by tier.
+rules, so this shows the dataset behaves as designed. The load at the support rises with
+the tier, from about 0.3 to 2.0 kilonewtons. The closest gap narrows at every step, from
+130 to about 51 millimeters. So: report methods tier by tier.
 
-## Slide 11, Spacing holds up on a clinic the generator never saw (starts at 5:25)
+## Slide 11, Spacing holds up on a clinic the generator never saw (starts at 5:20)
 
 The second analysis is the one the generator could fail. Is the spacing realistic in a
 building it has never seen? The gap distribution was fitted on a residential duplex. We
 kept a second open building aside, a medical-dental clinic, cut it into sections every 250
 millimeters, the way a context is defined, and measured the gaps between pipes running
 side by side. On the left, the clinic: generated gaps are close to measured ones, though
-not identical. On the right, the distances. Generator to clinic: 28 millimeters. That is
+not identical. On the right, the distances. Generator to clinic: 32 millimeters. That is
 above the 8 a perfect generator would show, so not a perfect match, but about as close as
 the duplex's own two models are to each other. A fixed 25-millimeter gap would be about
 190 off.
 
-## Slide 12, A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (starts at 6:15)
+## Slide 12, A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (starts at 6:10)
 
 The third analysis is a use of the dataset, not a test of it: what must a catalog of
-clamps cover? Our paper's two-size catalog attaches 11.6 percent of the pipes, with an
-interval of 10 to 13, all one size, DN40. Load is never the limit, and trays, ducts and
+clamps cover? Our paper's two-size catalog attaches 14.5 percent of the pipes, with an
+interval of 13 to 16, all one size, DN40. Load is never the limit, and trays, ducts and
 conduits aren't covered at all. On the right is what the dataset asks of any catalog: two
-well-placed sizes could attach 43 percent, six sizes 80, twelve sizes every pipe. So 'what
-should the catalog contain' becomes a measurement.
+well-placed sizes could attach 38 percent, six sizes 76, fifteen sizes every pipe. So
+'what should the catalog contain' becomes a measurement.
 
-## Slide 13, Set the parameters and the generator returns the designer's brief (starts at 6:55)
+## Slide 13, Set the parameters and the generator returns the designer's brief (starts at 6:50)
 
 Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or
 an exact mix, and a seed. Out comes the section a support designer receives, drawn the way
@@ -126,7 +125,7 @@ load, the closest clear gap, and the same run in 3D. Every section is a stored o
 the released generator, with the Python call that reproduces it. Scan the code to try it
 yourself.
 
-## Slide 14, Train on the generator, evaluate on the benchmark, report per tier (starts at 8:05)
+## Slide 14, Train on the generator, evaluate on the benchmark, report per tier (starts at 8:00)
 
 Using it takes a few lines: load a split, filter by composition, or generate your own mix.
 Because there are no labels, the same files serve reinforcement learning, constraint
@@ -134,7 +133,7 @@ programming, and benchmarking people. We ship the scoring too. Train on the gene
 from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every
 method. Report per tier, with 95 percent intervals and paired tests.
 
-## Slide 15, One section at one support today; a checker and real data come next (starts at 8:35)
+## Slide 15, One section at one support today; a checker and real data come next (starts at 8:30)
 
 A word on scope. CrossMEP is one section at one support. Routing and branches are outside
 it, but the span is recorded, so a method can vary it. Pipe spacing was checked on two
@@ -144,7 +143,7 @@ best-known costs, so we can compare methods on the answer; the catalog as an inp
 real test set from commercial projects, with supports designed by engineers. That's where
 I'd value your eye.
 
-## Slide 16, Support design now has open problems to learn from (starts at 9:15)
+## Slide 16, Support design now has open problems to learn from (starts at 9:10)
 
 To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems,
 every constant sourced or declared a design choice, pipe spacing checked on two open

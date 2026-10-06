@@ -3,8 +3,8 @@ import pytest
 
 from crossmep import library as lib
 
-# Frozen tables of the data release (identical in revisions 3.0 and 4.0): the
-# oracle for the derivations.
+# Frozen tables of the data release (identical in revisions 3.0 and 4.0; 4.1 adds
+# DN125 and DN150): the oracle for the derivations.
 V30_DN_LOAD_KN = {15: 0.03, 20: 0.04, 25: 0.06, 32: 0.08, 40: 0.10, 50: 0.21,
                   65: 0.30, 80: 0.49, 100: 0.88}
 V30_TRAY_LOAD_KN = {150: 0.54, 225: 0.81, 300: 1.08, 450: 1.62, 600: 2.16}
@@ -25,8 +25,12 @@ def _all_elements():
     return els
 
 
+V41_DN_LOAD_KN = {**V30_DN_LOAD_KN, 125: 1.26, 150: 1.97}
+
+
 def test_pipe_loads_derive_from_primitives():
-    assert lib.DN_LOAD_KN == V30_DN_LOAD_KN
+    assert lib.DN_LOAD_KN == V41_DN_LOAD_KN
+    assert {dn: lib.DN_LOAD_KN[dn] for dn in V30_DN_LOAD_KN} == V30_DN_LOAD_KN
 
 
 def test_tray_loads_derive_from_datum():
@@ -48,6 +52,9 @@ def test_pipe_mass_matches_log_values():
     assert lib.pipe_mass_kg_m(15) == pytest.approx(1.40, abs=0.01)
     assert lib.pipe_mass_kg_m(50) == pytest.approx(7.25, abs=0.01)
     assert lib.pipe_mass_kg_m(100) == pytest.approx(20.89, abs=0.01)
+    # EN 10255 medium DN125 / DN150 published 16.6 / 19.8 kg/m empty; water-filled here
+    assert lib.pipe_mass_kg_m(125) == pytest.approx(29.82, abs=0.01)
+    assert lib.pipe_mass_kg_m(150) == pytest.approx(38.64, abs=0.01)
 
 
 def test_span_floor_rule_uses_published_points_only():
@@ -56,7 +63,7 @@ def test_span_floor_rule_uses_published_points_only():
         assert lib.support_span_m(dn) in published
     assert lib.support_span_m(15) == 2.1 and lib.support_span_m(32) == 2.1
     assert lib.support_span_m(65) == 3.0 and lib.support_span_m(80) == 3.7
-    assert lib.support_span_m(100) == 4.3
+    assert lib.support_span_m(100) == 4.3 and lib.support_span_m(125) == 4.3 and lib.support_span_m(150) == 5.2
 
 
 def test_recorded_span_and_load_per_metre_reproduce_load():

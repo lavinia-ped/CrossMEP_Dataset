@@ -2,9 +2,34 @@
 
 Version lineage. The data files carry a **data revision** (directory, file name
 and the embedded `version`): 3.0 = the files the CIB W78 2026 paper was released
-with (June 2026); 4.0 = this release. The paper refers to a **v3.4** internal
+with (June 2026); 4.0 = the October 2026 geometry fix; 4.1 = this release. The paper refers to a **v3.4** internal
 build whose element library was never published (README, "Versions and relation to the paper"). The
 package version tracks code and documentation.
+
+## 4.1.0 — 2026-10-06 (not yet tagged)
+
+### Data revision 4.1
+- `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters
+  changed after `verify/compare_composition.py` set the 4.0 choices against what hanger
+  locations carry in the open clinic and duplex: the number of rows is drawn by element count
+  (`P_SECOND_ROW_4_1`, `P_THIRD_ROW_4_1`) instead of two or three rows always above five
+  elements; the next group repeats the previous kind with probability 0.5
+  (`P_SAME_KIND_4_1`); a supply-and-return pair of equal ducts is an option
+  (`OPTIONS_MULTI_4_1`); the DN bands widen at the top (`TRADE_DN_BAND_4_1`). Library and
+  layout rules are those of 4.0; `Revision.composition` selects the parameter set, so 3.0
+  and 4.0 regenerate byte-for-byte as before (tests).
+- Element library: DN125 and DN150 (EN 10255 medium, 139.7 / 165.1 mm, 5.0 mm wall; ASME
+  NPS 6 span 5.2 m; GEG insulation cap 100 mm) — drawn only by 4.1 bands.
+- Consequences on the benchmark: 2,488 pipes / 968 conduits / 559 trays / 485 ducts; 19 % of
+  contexts stacked (4.0: 56 %); clear-gap medians narrow at every tier (130 → 51 mm; the 4.0
+  step at C6 is gone); clinic distance 32 mm (4.0: 28 mm; same gap draw, more insulation);
+  catalog coverage 14.5 % (4.0: 11.6 %). The composition comparison is in sample for 4.1 and
+  reported as a design check; the clinic stays held out for spacing.
+- `scripts/make_results.py` assembles `RESULTS.md` from the release tooling; `RESULTS.md`
+  regenerated (4.1 benchmark and train, 4.0 and 3.0 benchmark, all verification scripts).
+  Checksums, croissant, galleries (`data/v4.0/` keeps the 4.0 gallery), figures, studio,
+  deck and talk rebuilt on 4.1; the paper-era numbers stay pinned on the 4.0 files in the
+  tests (`benchmark_v40` fixture) next to the 4.1 pins. 227 tests.
 
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 

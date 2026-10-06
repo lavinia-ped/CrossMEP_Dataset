@@ -28,8 +28,13 @@ def measured(cg):
 
 
 @pytest.fixture(scope="module")
-def result_v4(cg, benchmark, measured):
-    return cg.compare(benchmark, *measured, version="4.0")
+def result_v4(cg, benchmark_v40, measured):
+    return cg.compare(benchmark_v40, *measured, version="4.0")
+
+
+@pytest.fixture(scope="module")
+def result_v41(cg, benchmark, measured):
+    return cg.compare(benchmark, *measured, version="4.1")
 
 
 @pytest.fixture(scope="module")
@@ -101,3 +106,14 @@ def test_revision_3_definitions(result_v3):
     assert result_v3["w1"]["insulation"]["mep"] == pytest.approx(88.5, abs=0.2)
     assert result_v3["w1"]["bare"]["mep"] == pytest.approx(110.0, abs=0.2)
     assert result_v3["baselines"]["share_measured_mep_below_75mm"] == pytest.approx(0.424, abs=0.005)
+
+
+def test_revision_4_1_against_the_june_samples(result_v41):
+    """Revision 4.1 draws the same gaps; wider DN bands add insulation, so the
+    distances to the June 2026 duplex samples grow by about 2-4 mm."""
+    w = result_v41["w1"]["insulation"]
+    assert result_v41["generated"]["insulation"]["min"] == pytest.approx(24.9, abs=0.2)
+    assert w["mep"] == pytest.approx(42.3, abs=0.15) and w["plumbing"] == pytest.approx(90.9, abs=0.15)
+    assert w["pooled"] == pytest.approx(60.4, abs=0.15)
+    b = result_v41["w1"]["bare"]
+    assert b["mep"] == pytest.approx(71.8, abs=0.15) and result_v41["generated"]["bare"]["median"] == pytest.approx(193, abs=1)

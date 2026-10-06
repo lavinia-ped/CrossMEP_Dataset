@@ -8,48 +8,142 @@
   "@type": "sc:Dataset",
   "conformsTo": "http://mlcommons.org/croissant/1.0",
   "name": "CrossMEP",
-  "description": "Tiered synthetic dataset of multi-trade MEP cross-sections for learning-based structural support assembly synthesis. 7,000 contexts per data revision across train/val/test/benchmark splits on disjoint seeds; tiers C1-C8 by exact element count; deliberately unlabeled (supervision from downstream environment rules). Data revision 4.0 (current) and 3.0 (the CIB W78 2026 paper release); release 4.0.0.",
-  "version": "4.0.0",
+  "description": "Tiered synthetic dataset of multi-trade MEP cross-sections for learning-based structural support assembly synthesis. 7,000 contexts per data revision across train/val/test/benchmark splits on disjoint seeds; tiers C1-C8 by exact element count; deliberately unlabeled (supervision from downstream environment rules). Data revision 4.1 (current; composition adjusted after the comparison with two open buildings, DN bands to DN150), 4.0 and 3.0 (the CIB W78 2026 paper release); release 4.1.0.",
+  "version": "4.1.0",
   "datePublished": "2026-10-03",
   "license": "https://creativecommons.org/licenses/by/4.0/",
   "url": "https://github.com/lavinia-ped/CrossMEP_Dataset",
   "citeAs": "Pedrollo, L., Gvadzabia, D., Graeber, T. & Fischer, M. (2026). CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections. 43rd International CIB W78 Conference, New Delhi.",
   "creator": [
-    { "@type": "sc:Person", "name": "Lavinia Pedrollo", "affiliation": "Stanford University" },
-    { "@type": "sc:Person", "name": "David Gvadzabia", "affiliation": "Lafayette College" },
-    { "@type": "sc:Person", "name": "Torben Graeber", "affiliation": "Hilti AG" },
-    { "@type": "sc:Person", "name": "Martin Fischer", "affiliation": "Stanford University" }
+    {
+      "@type": "sc:Person",
+      "name": "Lavinia Pedrollo",
+      "affiliation": "Stanford University"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "David Gvadzabia",
+      "affiliation": "Lafayette College"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Torben Graeber",
+      "affiliation": "Hilti AG"
+    },
+    {
+      "@type": "sc:Person",
+      "name": "Martin Fischer",
+      "affiliation": "Stanford University"
+    }
   ],
-  "keywords": ["MEP", "structural support assembly", "synthetic dataset", "BIM", "reinforcement learning"],
+  "keywords": [
+    "MEP",
+    "structural support assembly",
+    "synthetic dataset",
+    "BIM",
+    "reinforcement learning"
+  ],
   "distribution": [
-    { "@type": "cr:FileObject", "@id": "v4.0/train", "name": "mep_contexts_v4.0_train.json",
-      "contentUrl": "data/v4.0/mep_contexts_v4.0_train.json", "encodingFormat": "application/json",
-      "sha256": "05cc48f10abc669fdeb1659fa6d9d1a9c655c8f175bbd88df4546e8b23753ebe" },
-    { "@type": "cr:FileObject", "@id": "v4.0/val", "name": "mep_contexts_v4.0_val.json",
-      "contentUrl": "data/v4.0/mep_contexts_v4.0_val.json", "encodingFormat": "application/json",
-      "sha256": "63dda688bf9360a4381d3ee8815800a1665c1c109a2034d91bf56cb42589b97a" },
-    { "@type": "cr:FileObject", "@id": "v4.0/test", "name": "mep_contexts_v4.0_test.json",
-      "contentUrl": "data/v4.0/mep_contexts_v4.0_test.json", "encodingFormat": "application/json",
-      "sha256": "68269bf867e8af923dcb5c2f32fbdfd720c730c0ba171708929cdd180a52082b" },
-    { "@type": "cr:FileObject", "@id": "v4.0/benchmark", "name": "mep_contexts_v4.0_benchmark.json",
-      "contentUrl": "data/v4.0/mep_contexts_v4.0_benchmark.json", "encodingFormat": "application/json",
-      "sha256": "67624c23bdb4edd760e83fb13eb8c03bf793c1894f7f6202da47ba810465139a" },
-    { "@type": "cr:FileObject", "@id": "v3.0/train", "name": "mep_contexts_v3.0_train.json",
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.1/train",
+      "name": "mep_contexts_v4.1_train.json",
+      "contentUrl": "data/v4.1/mep_contexts_v4.1_train.json",
+      "encodingFormat": "application/json",
+      "sha256": "ccd66526d65dbd624a1e49f1741f59851c134a3ee3fd5d28d0f9f6134f92a8fd"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.1/val",
+      "name": "mep_contexts_v4.1_val.json",
+      "contentUrl": "data/v4.1/mep_contexts_v4.1_val.json",
+      "encodingFormat": "application/json",
+      "sha256": "613b1af72fac79e997bfa1458ded2e11d8992dafa41b34e8792928f6578101b1"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.1/test",
+      "name": "mep_contexts_v4.1_test.json",
+      "contentUrl": "data/v4.1/mep_contexts_v4.1_test.json",
+      "encodingFormat": "application/json",
+      "sha256": "0a0e7883c497e49dbb61b840d061125f47194de9f6e9566b636fd916ef549ccf"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.1/benchmark",
+      "name": "mep_contexts_v4.1_benchmark.json",
+      "contentUrl": "data/v4.1/mep_contexts_v4.1_benchmark.json",
+      "encodingFormat": "application/json",
+      "sha256": "aa286f0ed3c8ff1a7cd2336c10b6677835f24082f359cea3f7b1a5973252ac16"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.0/train",
+      "name": "mep_contexts_v4.0_train.json",
+      "contentUrl": "data/v4.0/mep_contexts_v4.0_train.json",
+      "encodingFormat": "application/json",
+      "sha256": "05cc48f10abc669fdeb1659fa6d9d1a9c655c8f175bbd88df4546e8b23753ebe"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.0/val",
+      "name": "mep_contexts_v4.0_val.json",
+      "contentUrl": "data/v4.0/mep_contexts_v4.0_val.json",
+      "encodingFormat": "application/json",
+      "sha256": "63dda688bf9360a4381d3ee8815800a1665c1c109a2034d91bf56cb42589b97a"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.0/test",
+      "name": "mep_contexts_v4.0_test.json",
+      "contentUrl": "data/v4.0/mep_contexts_v4.0_test.json",
+      "encodingFormat": "application/json",
+      "sha256": "68269bf867e8af923dcb5c2f32fbdfd720c730c0ba171708929cdd180a52082b"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v4.0/benchmark",
+      "name": "mep_contexts_v4.0_benchmark.json",
+      "contentUrl": "data/v4.0/mep_contexts_v4.0_benchmark.json",
+      "encodingFormat": "application/json",
+      "sha256": "67624c23bdb4edd760e83fb13eb8c03bf793c1894f7f6202da47ba810465139a"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v3.0/train",
+      "name": "mep_contexts_v3.0_train.json",
       "description": "data revision 3.0 (the paper release)",
-      "contentUrl": "data/v3.0/mep_contexts_v3.0_train.json", "encodingFormat": "application/json",
-      "sha256": "ea6f5ccd40843fb674b145e2cd22310705c455b990ae0ebbcc4a285998f12cfb" },
-    { "@type": "cr:FileObject", "@id": "v3.0/val", "name": "mep_contexts_v3.0_val.json",
+      "contentUrl": "data/v3.0/mep_contexts_v3.0_train.json",
+      "encodingFormat": "application/json",
+      "sha256": "ea6f5ccd40843fb674b145e2cd22310705c455b990ae0ebbcc4a285998f12cfb"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v3.0/val",
+      "name": "mep_contexts_v3.0_val.json",
       "description": "data revision 3.0 (the paper release)",
-      "contentUrl": "data/v3.0/mep_contexts_v3.0_val.json", "encodingFormat": "application/json",
-      "sha256": "9920877a489b57fe194cb4babdf0e5db2c831eb65629ddd2b3db24e1816bb9e9" },
-    { "@type": "cr:FileObject", "@id": "v3.0/test", "name": "mep_contexts_v3.0_test.json",
+      "contentUrl": "data/v3.0/mep_contexts_v3.0_val.json",
+      "encodingFormat": "application/json",
+      "sha256": "9920877a489b57fe194cb4babdf0e5db2c831eb65629ddd2b3db24e1816bb9e9"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v3.0/test",
+      "name": "mep_contexts_v3.0_test.json",
       "description": "data revision 3.0 (the paper release)",
-      "contentUrl": "data/v3.0/mep_contexts_v3.0_test.json", "encodingFormat": "application/json",
-      "sha256": "681a5b22578e66112641c8c2c62bd03837d77f5aa467411cca3af39b61f72315" },
-    { "@type": "cr:FileObject", "@id": "v3.0/benchmark", "name": "mep_contexts_v3.0_benchmark.json",
+      "contentUrl": "data/v3.0/mep_contexts_v3.0_test.json",
+      "encodingFormat": "application/json",
+      "sha256": "681a5b22578e66112641c8c2c62bd03837d77f5aa467411cca3af39b61f72315"
+    },
+    {
+      "@type": "cr:FileObject",
+      "@id": "v3.0/benchmark",
+      "name": "mep_contexts_v3.0_benchmark.json",
       "description": "data revision 3.0 (the paper release)",
-      "contentUrl": "data/v3.0/mep_contexts_v3.0_benchmark.json", "encodingFormat": "application/json",
-      "sha256": "ecf4cbd2bb46e49e3a297aa2f3dff688b2de708cbd9ee2fe85fd5626a29e8ac1" }
+      "contentUrl": "data/v3.0/mep_contexts_v3.0_benchmark.json",
+      "encodingFormat": "application/json",
+      "sha256": "ecf4cbd2bb46e49e3a297aa2f3dff688b2de708cbd9ee2fe85fd5626a29e8ac1"
+    }
   ],
   "recordSet": [
     {
@@ -58,21 +152,71 @@
       "name": "contexts",
       "description": "One record per MEP cross-section context (schema/context-v4.schema.json). Units: mm, kN, m.",
       "field": [
-        { "@type": "cr:Field", "@id": "contexts/context_id", "name": "context_id", "dataType": "sc:Text" },
-        { "@type": "cr:Field", "@id": "contexts/tier", "name": "tier", "dataType": "sc:Text",
-          "description": "C1..C8 = exact element count" },
-        { "@type": "cr:Field", "@id": "contexts/surface_kind", "name": "surface.kind", "dataType": "sc:Text",
-          "description": "ceiling | wall" },
-        { "@type": "cr:Field", "@id": "contexts/surface_substrate", "name": "surface.substrate", "dataType": "sc:Text" },
-        { "@type": "cr:Field", "@id": "contexts/surface_thickness_mm", "name": "surface.thickness_mm", "dataType": "sc:Float" },
-        { "@type": "cr:Field", "@id": "contexts/n_elements", "name": "n_elements", "dataType": "sc:Integer" },
-        { "@type": "cr:Field", "@id": "contexts/n_levels", "name": "n_levels", "dataType": "sc:Integer" },
-        { "@type": "cr:Field", "@id": "contexts/total_load_kN", "name": "total_load_kN", "dataType": "sc:Float" },
-        { "@type": "cr:Field", "@id": "contexts/bundle_width_mm", "name": "bundle_width_mm", "dataType": "sc:Float",
-          "description": "physical overall extent along the surface, insulation included" },
-        { "@type": "cr:Field", "@id": "contexts/elements", "name": "elements", "dataType": "sc:Text",
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/context_id",
+          "name": "context_id",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/tier",
+          "name": "tier",
+          "dataType": "sc:Text",
+          "description": "C1..C8 = exact element count"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/surface_kind",
+          "name": "surface.kind",
+          "dataType": "sc:Text",
+          "description": "ceiling | wall"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/surface_substrate",
+          "name": "surface.substrate",
+          "dataType": "sc:Text"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/surface_thickness_mm",
+          "name": "surface.thickness_mm",
+          "dataType": "sc:Float"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/n_elements",
+          "name": "n_elements",
+          "dataType": "sc:Integer"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/n_levels",
+          "name": "n_levels",
+          "dataType": "sc:Integer"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/total_load_kN",
+          "name": "total_load_kN",
+          "dataType": "sc:Float"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/bundle_width_mm",
+          "name": "bundle_width_mm",
+          "dataType": "sc:Float",
+          "description": "physical overall extent along the surface, insulation included"
+        },
+        {
+          "@type": "cr:Field",
+          "@id": "contexts/elements",
+          "name": "elements",
+          "dataType": "sc:Text",
           "description": "array of elements: kind, service, trade, shape, label, width_mm, height_mm, insulation_mm, load_kN, span_m, load_kN_per_m, level, along_mm, out_mm (revision 3.0 files omit span_m and load_kN_per_m)",
-          "repeated": true }
+          "repeated": true
+        }
       ]
     }
   ]

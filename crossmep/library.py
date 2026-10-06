@@ -35,22 +35,26 @@ WATER_DENSITY_KG_M3 = 1000.0
 KNPM_DECIMALS = 4                # precision of the recorded load_kN_per_m
 
 # --------------------------------------------------------------------------- #
-# Pipes -- EN 10255:2004 medium series, DN 15-100 (carbon steel)               #
+# Pipes -- EN 10255:2004 medium series, DN 15-150 (carbon steel)               #
 # --------------------------------------------------------------------------- #
 
-DN_SERIES: Tuple[int, ...] = (15, 20, 25, 32, 40, 50, 65, 80, 100)
+DN_SERIES: Tuple[int, ...] = (15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150)
+"""DN125 and DN150 were added with data revision 4.1 (the open clinic carries
+mains of DN100 and above); the DN bands of revisions 3.0 / 4.0 stop at DN100, so
+their draws are unchanged."""
 
 DN_OD_MM: Dict[int, float] = {15: 21.3, 20: 26.9, 25: 33.7, 32: 42.4, 40: 48.3,
-                              50: 60.3, 65: 76.1, 80: 88.9, 100: 114.3}
+                              50: 60.3, 65: 76.1, 80: 88.9, 100: 114.3, 125: 139.7, 150: 165.1}
 """Outside diameters, EN 10220:2002 / EN 10255:2004 (VERIFIED)."""
 
 EN10255_MEDIUM_WALL_MM: Dict[int, float] = {15: 2.6, 20: 2.6, 25: 3.2, 32: 3.2, 40: 3.2,
-                                            50: 3.6, 65: 3.6, 80: 4.0, 100: 4.5}
-"""Medium-series wall thickness, EN 10255:2004 (VERIFIED)."""
+                                            50: 3.6, 65: 3.6, 80: 4.0, 100: 4.5, 125: 5.0, 150: 5.0}
+"""Medium-series wall thickness, EN 10255:2004 (VERIFIED; DN125 / DN150 5.0 mm,
+whose published masses 16.6 / 19.8 kg/m the derivation reproduces)."""
 
-ASME_B311_WATER_SPAN_M: Dict[int, float] = {25: 2.1, 50: 3.0, 80: 3.7, 100: 4.3}
+ASME_B311_WATER_SPAN_M: Dict[int, float] = {25: 2.1, 50: 3.0, 80: 3.7, 100: 4.3, 150: 5.2}
 """ASME B31.1 Table 121.5 suggested support spacing, water service, for NPS 1, 2,
-3, 4 (= DN 25, 50, 80, 100): 7 / 10 / 12 / 14 ft.  The same values appear in the
+3, 4, 6 (= DN 25, 50, 80, 100, 150): 7 / 10 / 12 / 14 / 17 ft.  The same values appear in the
 ASHRAE Handbook (HVAC Systems and Equipment, "Pipes, Tubes, and Fittings") and
 MSS SP-69 (VERIFIED, two concordant sources; the ASME table itself is paywalled).
 Only these published points are used -- see :func:`support_span_m` -- never
@@ -201,11 +205,18 @@ PIPE_TRADES: Tuple[str, ...] = ("domestic", "heating", "chilled", "sprinkler")
 
 TRADE_DN_BAND: Dict[str, Tuple[int, int]] = {
     "domestic": (15, 32), "heating": (20, 65), "chilled": (25, 100), "sprinkler": (25, 100)}
-"""Inclusive DN band each pipe trade is drawn from (DEFAULT, disclosed)."""
+"""Inclusive DN band each pipe trade is drawn from, revisions 3.0 / 4.0 (DEFAULT, disclosed)."""
+
+TRADE_DN_BAND_4_1: Dict[str, Tuple[int, int]] = {
+    "domestic": (15, 50), "heating": (20, 100), "chilled": (25, 150), "sprinkler": (25, 150)}
+"""Revision 4.1 bands, widened at the top after the comparison with the open
+clinic, where DN100 and larger mains are common (DEFAULT, compared)."""
+
+DN_BANDS_BY_COMPOSITION: Dict[str, Dict[str, Tuple[int, int]]] = {"4.0": TRADE_DN_BAND, "4.1": TRADE_DN_BAND_4_1}
 
 
-def dn_band(trade: str) -> list:
-    lo, hi = TRADE_DN_BAND[trade]
+def dn_band(trade: str, composition: str = "4.0") -> list:
+    lo, hi = DN_BANDS_BY_COMPOSITION[composition][trade]
     return [dn for dn in DN_SERIES if lo <= dn <= hi]
 
 

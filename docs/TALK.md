@@ -131,25 +131,26 @@ tier everything else varies: kinds, trades, surfaces, stacking. So the element
 count is the one controlled axis of difficulty. And notice the walls: the
 section rotates, and electrical sits above water."
 
-## 10. Higher tiers are heavier and, overall, tighter, as designed (4:50)
+## 10. Higher tiers are heavier and tighter, as designed (4:50)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
-median of 2,000 freshly generated contexts per tier as diamonds; C6–C8 shaded
-("two or three rows").
+median of 2,000 freshly generated contexts per tier as diamonds.
 
 **Say:** "Now three analyses. The first is a design check, not a discovery: does
 difficulty grow with the tier? The count is fixed by construction, and load and
 congestion follow from the rules, so this shows the dataset behaves as designed.
-The load at the support rises at every step, from 0.1 to 1.7 kilonewtons. The
-closest gap shrinks from 120 to about 62 millimeters, but widens again at C6,
-where elements start stacking in two or three rows. So: report methods tier by
-tier."
+The load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons.
+The closest gap narrows at every step, from 130 to about 51 millimeters. So:
+report methods tier by tier."
 
-**Numbers** (`verify/tier_trends.py`): rank correlation of tier with load
-+0.56, with the closest gap -0.36; population median gap
-C5 70 mm, C6 75 mm; elements per row (median) 5 at C5, 3 at C6.
+**Numbers** (`verify/tier_trends.py`, revision 4.1): rank correlation of tier
+with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 kN,
+130 → 51 mm); population medians (2,000 per tier) rise at every step in load
+(0.21 → 2.47 kN) and narrow at every step in gap (149 → 55 mm). In revision 4.0
+the gap widened again at C6, where the generator always stacked two or three
+rows; 4.1 draws rows by count, so that step is gone.
 
-## 11. Spacing holds up on a clinic the generator never saw (5:25)
+## 11. Spacing holds up on a clinic the generator never saw (5:20)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
@@ -161,33 +162,35 @@ residential duplex. We kept a second open building aside, a medical-dental
 clinic, cut it into sections every 250 millimeters, the way a context is
 defined, and measured the gaps between pipes running side by side. On the left,
 the clinic: generated gaps are close to measured ones, though not identical. On
-the right, the distances. Generator to clinic: 28 millimeters. That is above the
+the right, the distances. Generator to clinic: 32 millimeters. That is above the
 8 a perfect generator would show, so not a perfect match, but about as close as
 the duplex's own two models are to each other. A fixed 25-millimeter gap would
 be about 190 off."
 
 **Numbers** (`verify/compare_sections.py`, pairs weighted by shared length):
-generated ↔ clinic 28 mm (95 % CI 16–44; noise floor 8); duplex MEP ↔ duplex
-Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85;
+generated ↔ clinic 32 mm (95 % CI 17–48; noise floor 8); duplex MEP ↔ duplex
+Plumbing 26; generated ↔ duplex 76 / 88; clinic ↔ duplex 71 / 85;
 797 measured pipe pairs on the clinic, 74 and 41 on the duplex. Across 11 settings
-of the cut, generated ↔ clinic stays at 27–36 mm.
+of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27–36
+across settings; 4.1 widens the DN bands, so more insulation and slightly wider
+bare gaps. The gap draw itself is unchanged.)
 
-## 12. A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (6:15)
+## 12. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (6:10)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
-DN40); the best share of pipes any k clamp sizes could attach (43 % with two,
-80 % with six, 100 % with twelve); 11.6 % (95 % CI 10.1–13.0); 0 of 1,971 trays,
+DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
+76 % with six, 100 % with fifteen); 14.5 % (95 % CI 12.7–16.2); 0 of 2,012 trays,
 ducts and conduits.
 
 **Say:** "The third analysis is a use of the dataset, not a test of it: what must a
-catalog of clamps cover? Our paper's two-size catalog attaches 11.6 percent of
-the pipes, with an interval of 10 to 13, all one size, DN40. Load is never the
+catalog of clamps cover? Our paper's two-size catalog attaches 14.5 percent of
+the pipes, with an interval of 13 to 16, all one size, DN40. Load is never the
 limit, and trays, ducts and conduits aren't covered at all. On the right is what
-the dataset asks of any catalog: two well-placed sizes could attach 43 percent,
-six sizes 80, twelve sizes every pipe. So 'what should the catalog contain'
+the dataset asks of any catalog: two well-placed sizes could attach 38 percent,
+six sizes 76, fifteen sizes every pipe. So 'what should the catalog contain'
 becomes a measurement."
 
-## 13. Set the parameters and the generator returns the designer's brief (6:55)
+## 13. Set the parameters and the generator returns the designer's brief (6:50)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
@@ -204,7 +207,7 @@ call that reproduces it. Scan the code to try it yourself."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
 appendix slide 17 shows two more sections. (See "Before the talk" above.)
 
-## 14. Train on the generator, evaluate on the benchmark, report per tier (8:05)
+## 14. Train on the generator, evaluate on the benchmark, report per tier (8:00)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
@@ -216,7 +219,7 @@ too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the
 same 125 contexts per tier for every method. Report per tier, with 95 percent
 intervals and paired tests."
 
-## 15. One section at one support today; a checker and real data come next (8:35)
+## 15. One section at one support today; a checker and real data come next (8:30)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -229,7 +232,7 @@ methods on the answer; the catalog as an input; and a real test set from
 commercial projects, with supports designed by engineers. That's where I'd value
 your eye."
 
-## 16. Support design now has open problems to learn from (9:15)
+## 16. Support design now has open problems to learn from (9:10)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
 problems, every constant sourced or declared a design choice, pipe spacing
@@ -262,25 +265,29 @@ sit: pipe gaps and stagger from a buildingSMART duplex, checked on a clinic.
 And declared choices, for what is not measured: the trade mix, the surface mix,
 the number of rows and the tier composition. Each constant carries its status in
 `VERIFICATION_LOG.md`. The composition (which services appear together) is
-declared, and it is now compared, not fitted, against what hanger locations
-carry in the two open buildings (`verify/compare_composition.py`): the pipe/duct
-split by count is close to the clinic's (TV ≤ 0.10 for three to eight elements),
-the generator mixes kinds and stacks rows more often than the clinic, and 70 %
-of clinic hanger locations carry a single element. The electrical share cannot
-be tested: the open electrical models hold fixtures only.
+declared; it was compared against what hanger locations carry in the two open
+buildings (`verify/compare_composition.py`), and data revision 4.1 adjusted four
+of its parameters after that comparison (rows drawn by count, kind continuity,
+duct pairs, DN bands to DN150), so for the current files the comparison is in
+sample: a design check. The electrical share cannot be tested: the open
+electrical models hold fixtures only.
 
-**"Is the trade mix realistic?"** Partly, and we say which part. Conditional on
-how many elements a hanger carries, the pipe-to-duct split in the clinic is
-within a total-variation distance of 0.10 of the generator's for three to eight
-elements (0.20 for pairs: in the clinic a duct runs beside a pipe more often
-than we draw it). Where the generator is off: it puts different kinds in one
-bundle more often than the clinic (six elements: 47 % of generated bundles mix
-kinds, 24 % in the clinic) and stacks rows more often (100 % vs 38 %). Bundle
-sizes: 70 % of clinic locations carry one element and 96 % three or fewer, so
-the congested tiers are rare in these two small buildings, which the datasheet
-says. Pipe sizes differ by building more than either differs from the generator
-(the clinic is a hospital with DN100+ mains, the duplex is 87 % DN25). Nothing
-was fitted to this; it is in `RESULTS.md` with intervals.
+**"Is the trade mix realistic?"** Partly, and we say which part. We cut the
+clinic's plumbing and HVAC models together and recorded what each hanger
+location carries. On the 4.0 files the pipe-to-duct split by count was within a
+total-variation distance of 0.10 of the clinic's for three to eight elements
+but 0.20 for pairs, and the generator mixed kinds in one bundle and stacked
+rows far more often than the clinic (six elements: 47 % mixed vs 24 %, 100 %
+stacked vs 38 %). Revision 4.1 changed four design parameters in response:
+rows are drawn by count, the next group tends to repeat the previous kind, duct
+pairs exist, and the DN bands reach DN150. On the 4.1 files the split is within
+0.13 for every count, mixing is within about ten points up to seven elements
+and stacking within seven points; that is in sample, so it is a design check,
+not evidence. What did not change: 70 % of clinic locations carry one element
+and 96 % three or fewer, so the congested tiers are rare in these two small
+buildings; and pipe sizes differ by building more than either differs from the
+generator (the clinic is a hospital with DN100+ mains, the duplex is 87 % DN25).
+The numbers are in `RESULTS.md` with intervals.
 
 **"Why these standards and not others?"** Four rules, in order. Geometry is
 metric and DN-keyed, so sizes follow the European series an EU contractor
@@ -302,8 +309,9 @@ generator could fail is Experiment 2.
 
 **"Was the generator tuned to the clinic?"** No. The gap distribution was fitted
 in June 2026 on the duplex; the clinic was measured afterwards and never used for
-fitting. Against the duplex the generator is 70–85 mm away, about as far as the
-clinic is from the duplex.
+fitting. Against the duplex the generator is 76–88 mm away, about as far as the
+clinic is from the duplex. Composition, not spacing, was adjusted after the
+clinic comparison (revision 4.1), and the composition check is marked in sample.
 
 **"Where do the numbers come from?"** Sizes, spans, weights and insulation from
 published standards (each constant cites its source in the code and the
@@ -388,7 +396,8 @@ elements of two rows, not the trapeze depth; the first row sits 90 mm from the
 slab. Both are labelled design parameters.
 
 **"Which pipe materials and substrates are in the public files?"** Carbon-steel
-pipe to EN 10255, DN15–100, on concrete slabs and walls (C25/C30, 150–300 mm).
+pipe to EN 10255, DN15–150 (DN125 and DN150 since revision 4.1), on concrete
+slabs and walls (C25/C30, 150–300 mm).
 Other materials and substrates are the next extension of the public element
 library.
 
@@ -414,18 +423,19 @@ depend on it: the right-hand chart asks the same question of any catalog, namely
 how many sizes, and where, this dataset needs, and `verify/catalog_stress.py
 --bins` runs it on yours.
 
-**"How certain is 11.6 %?"** The 95 % interval over contexts is 10.1–13.0
+**"How certain is 14.5 %?"** The 95 % interval over contexts is 12.7–16.2
 (cluster bootstrap: the elements of one context are correlated); over 16,000
-freshly generated contexts it is 10.8 % (10.5–11.2), and the eight tiers lie
-between 10.4 and 11.4 %. The value is sensitive to one edge: DN100
+freshly generated contexts it is 14.3 % (13.8–14.7), and the eight tiers lie
+between 12.7 and 14.9 %. The value is sensitive to one edge: DN100
 (114.3 mm) lies 0.3 mm above the 108–114 mm bin, so widening the bins by 0.5 mm
-gives 12.9 %. What does not change is that only DN40 is attached.
+gives 19.8 %. What does not change is that only DN40 is attached.
 
 **"Is that coverage what a designer could install?"** No, it is an upper bound:
 only size and capacity are tested. Clearance to neighbours, the insert on cold
 lines, anchors and rods are not modelled.
 
-**"The paper says 11.5 %, the slide 11.6 %."** The paper's figure was computed
-on an internal build with a larger pipe library; the public files give 11.6 %
-and 1,971 trays, ducts and conduits (paper: 1,832). `RESULTS.md` lists every
+**"The paper says 11.5 %, the slide 14.5 %."** The paper's figure was computed
+on an internal build with a larger pipe library; the public 4.0 files give
+11.6 %, and the current 4.1 files 14.5 % (wider DN bands put more pipes at DN40)
+with 2,012 trays, ducts and conduits (paper: 1,832). `RESULTS.md` lists every
 value for the public files and the tests pin them.

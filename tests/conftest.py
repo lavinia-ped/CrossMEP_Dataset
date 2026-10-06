@@ -19,8 +19,14 @@ def root() -> str:
 
 @pytest.fixture(scope="session")
 def benchmark():
-    """Released benchmark split, current data revision (4.0)."""
+    """Released benchmark split, current data revision (4.1)."""
     return cm.load("benchmark")
+
+
+@pytest.fixture(scope="session")
+def benchmark_v40():
+    """Released benchmark split of revision 4.0 (the geometry of the paper's numbers)."""
+    return cm.load("benchmark", "4.0")
 
 
 @pytest.fixture(scope="session")
@@ -32,6 +38,11 @@ def benchmark_v3():
 @pytest.fixture(scope="session")
 def all_splits():
     return {s: cm.load(s) for s in SPLITS}
+
+
+@pytest.fixture(scope="session")
+def all_splits_v40():
+    return {s: cm.load(s, "4.0") for s in SPLITS}
 
 
 @pytest.fixture(scope="session")
