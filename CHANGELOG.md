@@ -8,6 +8,13 @@ package version tracks code and documentation.
 
 ## 4.1.0 — 2026-10-06 (not yet tagged)
 
+### Talk
+- New slide 4 after the ISARC problem slide: one section in, verified supports out (build step by
+  step, check every design, verified designs ranked by cost) and the three things any such method
+  needs; kept generic because the approaches are unpublished. The opening now runs hospital →
+  the synthesis problem → what a method would look like → no public problems → CrossMEP. 17 main
+  slides, about 9:50; later slide numbers shift by one.
+
 ### Data revision 4.1
 - `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters
   changed after `verify/compare_composition.py` set the 4.0 choices against what hanger
