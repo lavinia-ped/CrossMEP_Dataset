@@ -5,21 +5,21 @@ speaker notes). Audience: CIB W78, a mix of BIM and IT researchers and MEP and
 construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
-Timing: 18 slides in about 8.5 minutes of speech at an easy pace (about 145 words a minute; slide 15 is a demo of the
+Timing: 16 slides in about 8.3 minutes of speech at an easy pace (about 145 words a minute; slide 13 is a demo of the
 Generator Studio, with its screenshot as the fallback). No appendix slides: the
 questions below are answered from the main slides.
 
 **Before the talk.**
-1. The QR codes on slides 17 and 18 and the closing link open
+1. The QR codes on slides 15 and 16 and the closing link open
    github.com/lavinia-ped/CrossMEP_Dataset. The repository must be public and its
    default branch must hold this release; scan both codes from a phone that is
    not signed in to GitHub.
-2. Slide 15's QR code opens the hosted Generator Studio: set its link sharing to
+2. Slide 13's QR code opens the hosted Generator Studio: set its link sharing to
    public and check it from a phone that is not signed in.
 3. Open the studio once with internet on the presenting laptop: the 3D view and
    the fonts load from CDNs (the drawing works offline).
 4. Rehearse once with a timer; the marks in the headings assume about 145 words
-   a minute and 35 s for the demo on slide 15.
+   a minute and 35 s for the demo on slide 13.
 
 ---
 
@@ -144,33 +144,18 @@ pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
 Spacing from measured open buildings. And a few choices of our own, like the
 trade mix, labelled as choices."
 
-## 10. 7,000 contexts in four splits; the test seeds are never trained on (4:00)
+## 10. Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed (4:00)
 
-**Show:** splits table; elements by kind; pipes by nominal size.
+**Show:** one benchmark context per tier as a strip (C1 to C8), then two bar
+charts of medians per tier, benchmark and population: load at the support rises,
+the closest clear gap narrows; a caption says this is a design check.
 
-**Say:** "Four splits on disjoint seeds: five thousand for training, five hundred each
-for validation and test, and a benchmark of a thousand, a hundred and twenty-
-five per tier. Plain JSON, with a schema and a datasheet."
-
-## 11. Difficulty is one number: tier Cn holds exactly n elements (4:15)
-
-**Show:** one benchmark context per tier, C1 to C8, ceilings and walls.
-
-**Say:** "One benchmark context per tier. C1 is a single element, the most common support
-in any building; C8 has eight services on three rows. Within a tier everything
-else varies, so the element count is the one controlled axis of difficulty. On
-walls the section rotates, and electrical sits above water."
-
-## 12. Higher tiers are heavier and tighter, as designed (4:40)
-
-**Show:** per-tier boxes of the closest gap and the load (benchmark), with the
-median of 2,000 freshly generated contexts per tier as diamonds.
-
-**Say:** "Three analyses. The first is a design check: the count is fixed by
-construction, and load and congestion follow from the rules. Load at the support
-rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap
-narrows at every step, from 130 to about 51 millimetres. The dataset behaves as
-designed."
+**Say:** "Three analyses. The first is a design check. One benchmark context per tier: C1
+is a single element, the most common support in any building; C8 has eight
+services on three rows. Within a tier everything else varies, so the element
+count is the one controlled axis. Load at the support rises with the tier, from
+about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from
+130 to about 51 millimetres. The dataset behaves as designed."
 
 **Numbers** (`verify/tier_trends.py`, revision 4.1): rank correlation of tier
 with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 kN,
@@ -179,11 +164,12 @@ with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 k
 the gap widened again at C6, where the generator always stacked two or three
 rows; 4.1 draws rows by count, so that step is gone.
 
-## 13. Spacing holds up on a clinic the generator never saw (5:00)
+## 11. Spacing holds up on a clinic the generator never saw (4:35)
 
-**Show:** left, gaps between side-by-side pipes measured on the clinic vs
-generated; right, Wasserstein-1 distances with 95 % intervals between the
-generator and three real models, and between the real models themselves.
+**Show:** left, the two gap distributions (clinic measured, generator) as a
+native chart; right, the Wasserstein distances with 95 % intervals, generated
+versus real and real versus real, with the noise floor; three tiles: 32 mm,
+26 mm (duplex to duplex), 190 mm (a fixed 25 mm gap).
 
 **Say:** "The second is the one the generator could fail: is the spacing realistic in a
 building it has never seen? The gap distribution was fitted on a residential
@@ -201,7 +187,7 @@ of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27�
 across settings; 4.1 widens the DN bands, so more insulation and slightly wider
 bare gaps. The gap draw itself is unchanged.)
 
-## 14. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (5:35)
+## 12. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (5:10)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
@@ -215,7 +201,7 @@ right, what the dataset asks of any catalog: two well-placed sizes reach 38
 percent, six sizes 76, fifteen every pipe. What the catalog should contain
 becomes a measurement."
 
-## 15. Set the parameters and the generator returns the designer's brief (6:05)
+## 13. Set the parameters and the generator returns the designer's brief (5:40)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
@@ -231,18 +217,20 @@ the released generator. Scan the code to try it."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide: its
 screenshot is the fallback. (See "Before the talk" above.)
 
-## 16. Train on the generator, evaluate on the benchmark, report per tier (7:10)
+## 14. Train on the generator, evaluate on the benchmark, report per tier (6:45)
 
-**Show:** six lines of Python, including `score` and `compare`; the interactive
-gallery; train, evaluate, report.
+**Show:** six lines of Python, including `score` and `compare`; the four splits
+as tiles (5,000 / 500 / 500 / 1,000 on disjoint seeds); train, evaluate, report.
 
 **Say:** "Using it takes a few lines: load a split, filter by composition, or generate
-your own mix. The same files serve reinforcement learning, constraint
-programming and benchmarking, and we ship the scoring. Train on the generator,
-C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every
-method. Report per tier, with intervals and paired tests."
+your own mix. Four splits on disjoint seeds: five thousand to train, five
+hundred each for validation and test, and a benchmark of a thousand, a hundred
+and twenty-five per tier. The same files serve reinforcement learning,
+constraint programming and benchmarking, and we ship the scoring. Train on the
+generator. Evaluate on the benchmark, the same contexts for every method. Report
+per tier, with intervals and paired tests."
 
-## 17. One section at one support today; a checker and real data come next (7:35)
+## 15. One section at one support today; a checker and real data come next (7:20)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -253,7 +241,7 @@ a public checker, so methods can be compared on the answer; the catalog as an
 input; and a real test set from commercial projects, with supports designed by
 engineers. That is where I would value your eye."
 
-## 18. Support design now has open problems to learn from (8:10)
+## 16. Support design now has open problems to learn from (7:50)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
 problems, every constant sourced or declared, spacing checked on two open

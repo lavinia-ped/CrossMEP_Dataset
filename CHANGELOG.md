@@ -33,9 +33,11 @@ package version tracks code and documentation.
   design space; CrossMEP fills it by construction and without limit (a new seed is a new set),
   uniform over the tiers or any mix on request.
 - The opening now runs hospital → one cross-section in, verified designs out → why it resists
-  automation → what a method would look like → the design space → the dataset. 18 slides and no
+  automation → what a method would look like → the design space → the dataset. 16 slides and no
   appendix (the 4.0.0 backup slides are dropped; the demo slide's screenshot is its own fallback),
-  about 8:30 of speech; later slide numbers shift by three from 4.0.0.
+  about 8:20 of speech. The splits slide is folded into the use slide and the tier gallery into
+  the design-check slide; the clinic slide is drawn natively (histogram and distance plot with
+  intervals) from `deck_data.json`, which now carries the gap histogram.
 
 ### Data revision 4.1
 - `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters
