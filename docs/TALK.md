@@ -107,8 +107,9 @@ Seven thousand contexts are the release, not the ceiling."
 
 ## 7. We generate what a designer receives: the section at one hanger (2:45)
 
-**Show:** one C5 context: the section on the left with the fields every element
-carries as chips; on the right the record as the designer reads it (element,
+**Show:** one C5 context from the Generator Studio: its drawing sheet and 3D view
+(grey run, the section face in the trade colour) on the left with the fields every
+element carries as chips; on the right the record as the designer reads it (element,
 trade, insulation, load per metre, span, load at the support), three facts about
 the context (slab, total load, closest gap) and the band of what is deliberately
 absent: channel, rods, clamps, anchors, and any correct answer.
@@ -121,8 +122,9 @@ feasible support depends on the catalog you build from."
 
 ## 8. Sections follow trade practice and measured spacing, not random shapes (3:15)
 
-**Show:** six steps (tier, surface, services, rows, spacing, check) beside a
-generated C7 context with its three rows and one sampled gap marked.
+**Show:** six step cards (tier, surface, services, rows, spacing, check) beside a
+generated C8 context from the Generator Studio: its drawing sheet with one sampled
+gap marked, and its 3D view with the three rows.
 
 **Say:** "How is a context made? By rules an engineer would recognize. The tier fixes the
 element count. We pick the surface and fill it the way trades run services: hot

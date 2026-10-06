@@ -1,0 +1,97 @@
+{
+ "code": "from crossmep.generate import generate_dataset\nrun = generate_dataset(12, seed=8, tier=\"C5\")\nrun[11].to_dict()    # section 12",
+ "record": {
+  "tier": "C5",
+  "surface": {
+   "kind": "ceiling",
+   "substrate": "concrete_C30",
+   "thickness_mm": 200
+  },
+  "n_elements": 5,
+  "n_levels": 2,
+  "total_load_kN": 3.3,
+  "bundle_width_mm": 1335.7,
+  "elements": [
+   {
+    "kind": "duct",
+    "service": "duct",
+    "trade": "ventilation",
+    "shape": "rect",
+    "label": "400x250 duct",
+    "width_mm": 400,
+    "height_mm": 250,
+    "insulation_mm": 0,
+    "load_kN": 0.28,
+    "span_m": 2.4,
+    "load_kN_per_m": 0.1148,
+    "level": 0,
+    "along_mm": -222,
+    "out_mm": 215
+   },
+   {
+    "kind": "duct",
+    "service": "duct",
+    "trade": "ventilation",
+    "shape": "rect",
+    "label": "400x250 duct",
+    "width_mm": 400,
+    "height_mm": 250,
+    "insulation_mm": 0,
+    "load_kN": 0.28,
+    "span_m": 2.4,
+    "load_kN_per_m": 0.1148,
+    "level": 0,
+    "along_mm": 222,
+    "out_mm": 271.3
+   },
+   {
+    "kind": "cable_tray",
+    "service": "tray",
+    "trade": "electrical",
+    "shape": "rect",
+    "label": "450 tray",
+    "width_mm": 450,
+    "height_mm": 60,
+    "insulation_mm": 0,
+    "load_kN": 1.62,
+    "span_m": 2,
+    "load_kN_per_m": 0.8093,
+    "level": 1,
+    "along_mm": -442.8,
+    "out_mm": 635.1
+   },
+   {
+    "kind": "cable_tray",
+    "service": "tray",
+    "trade": "electrical",
+    "shape": "rect",
+    "label": "300 tray",
+    "width_mm": 300,
+    "height_mm": 60,
+    "insulation_mm": 0,
+    "load_kN": 1.08,
+    "span_m": 2,
+    "load_kN_per_m": 0.5396,
+    "level": 1,
+    "along_mm": 236.8,
+    "out_mm": 546.3
+   },
+   {
+    "kind": "pipe",
+    "service": "heating",
+    "trade": "heating",
+    "shape": "round",
+    "label": "DN20",
+    "width_mm": 26.9,
+    "height_mm": 26.9,
+    "insulation_mm": 20,
+    "load_kN": 0.04,
+    "span_m": 2.1,
+    "load_kN_per_m": 0.0189,
+    "level": 1,
+    "along_mm": 634.4,
+    "out_mm": 585.4
+   }
+  ]
+ }
+}
