@@ -45,8 +45,8 @@ const REPO = "github.com/lavinia-ped/CrossMEP_Dataset";
 
 const THEME = {
   name: "CrossMEP",
-  headFontFace: "Calibri",
-  bodyFontFace: "Calibri",
+  headFontFace: "Aptos",
+  bodyFontFace: "Aptos",
   colors: {
     dk1: "0B0B0B", lt1: "FFFFFF", dk2: "1F2933", lt2: "EEF1F4",
     accent1: "2A78D6", accent2: "EB6834", accent3: "1BAF7A", accent4: "4A3AA7",
@@ -214,6 +214,26 @@ async function main() {
     slide.addText(text, { ...box, fontSize: size, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: name });
   }
 
+  // numbered references, in order of first use; refs(slide, [n, ...]) prints the ones a slide uses in dark grey above the footer
+  const REFS = {
+    1: "Pedrollo, Graeber & Fischer (2026), Feasibility-aware sequential synthesis of structural support assemblies, ISARC 2026",
+    2: "Pedrollo, Gvadzabia, Graeber & Fischer (2026), CrossMEP, CIB W78 2026 (this paper)",
+    3: "Korman, Fischer & Tatum (2003), Knowledge and reasoning for MEP coordination, J. Constr. Eng. Manage. 129(6)",
+    4: "EN 10220:2002, EN 10255:2004 (steel tubes: dimensions, medium series)",
+    5: "EN 1505:1997, EN 1506:2007 (sheet-metal air ducts: rectangular and circular dimensions)",
+    6: "IEC 61386-1 (conduit systems), IEC 61537 (cable tray and ladder systems)",
+    7: "NEMA VE 1 (metal cable tray systems: widths, load-class spans)",
+    8: "ASME B31.1 Table 121.5 (hanger spacing), as republished in the ASHRAE Handbook, HVAC Systems and Equipment",
+    9: "SMACNA, HVAC Duct Construction Standards, Metal and Flexible, Table 5-1",
+    10: "IET On-Site Guide (BS 7671), conduit support spacing; BS 7671 Reg. 528.3.2",
+    11: "GEG (Gebäudeenergiegesetz), Anlage 8 (pipe insulation thickness)",
+    12: "buildingSMART International (2020), Duplex Apartment and Medical-Dental Clinic sample IFC files, CC BY 4.0",
+  };
+  function refs(slide, ids, lead = "", y = 6.74, h = 0.26) {
+    const text = (lead ? lead + "   " : "") + ids.map((n) => `[${n}] ${REFS[n]}`).join("   ");
+    slide.addText(text, { x: 0.6, y, w: 12.13, h, fontSize: 8, color: INK2, valign: "bottom", margin: 0, isTextBox: true, objectName: "references" });
+  }
+
   function panel(slide, x, y, w, h, name) {
     slide.addShape(pres.ShapeType.roundRect, { x, y, w, h, rectRadius: 0.07, fill: { color: C.background2 }, objectName: name });
   }
@@ -296,7 +316,7 @@ async function main() {
     tile(s, 0.6, 5.35, tw, 1.3, "≈ 10,000", "support assemblies in one 200,000 sq ft hospital", { bigSize: 28 });
     tile(s, 0.6 + tw + 0.2, 5.35, tw, 1.3, "20 min – 2 h", "of engineering for each assembly, designed one by one", { bigSize: 28 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.35, tw, 1.3, "≈ ¼", "of MEP design effort; on the order of $600K per project", { bigSize: 28 });
-    caption(s, "Approximate practitioner estimates.", { x: 0.6, y: 6.7, w: 6.0, h: 0.25 }, "estimates note");
+    refs(s, [1], "Approximate practitioner estimates [1].");
     s.addNotes("Here is the scale. Every red mark in this hospital is a place where services hang from the structure. A modular support groups several services on one prefabricated frame: a structural support assembly. A hospital this size needs about ten thousand. Each takes twenty minutes to two hours to design, roughly a quarter of the MEP design effort. Practitioner estimates, but these are the numbers people live with. (0:25)");
   }
 
@@ -367,7 +387,7 @@ async function main() {
     };
     gloss(0.6, "Context, the brief: ", "the section at one hanger, its structure and services. This is what CrossMEP contains.", "context");
     gloss(0.6 + BW + 0.2, "Assembly, the answer: ", "catalog parts that carry the services to the structure. Not in CrossMEP: a method produces it.", "assembly");
-    caption(s, "The synthesis problem as defined at ISARC 2026.", { x: 0.6, y: 6.68, w: 6, h: 0.25 }, "isarc note");
+    refs(s, [1], "The synthesis problem as defined at ISARC 2026 [1].");
     s.addNotes("What exactly is designed, and from what? In: one cross-section at a hanger. The structure it hangs from, and the services crossing it, each with trade, position, size and weight per metre. That is the context: the brief. Out: assemblies of catalog parts that carry those services to the structure, checked for statics, anchors, connectors and buildability, ranked by cost. That is the answer. Keep the two apart: CrossMEP is contexts. It contains no assemblies. (0:55)");
   }
 
@@ -376,7 +396,7 @@ async function main() {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("Synthesizing the assembly from a catalog and a context has resisted automation", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: 0.6, y: 1.5, w: 7.4, h: 2.75 }, "route to section");
-    caption(s, "Design starts after coordination: at each hanger the designer works from the section across the run, not from the whole model.",
+    caption(s, "Design starts after coordination [3]: at each hanger the designer works from the section across the run, not from the whole model [2].",
       { x: img.x, y: img.y + img.h + 0.1, w: img.w, h: 0.5 }, "fig1 caption");
     panel(s, 8.25, 1.5, 4.48, 2.85, "practice card");
     s.addText([
@@ -384,7 +404,7 @@ async function main() {
       { text: " ", options: { fontSize: 6, breakLine: true } },
       { text: "Tools coordinate the model and check a design.", options: { breakLine: true } },
       { text: " ", options: { fontSize: 6, breakLine: true } },
-      { text: "Choosing the topology and the parts, from a fixed catalog, is still done by hand, one section at a time.", options: {} },
+      { text: "Choosing the topology and the parts, from a fixed catalog, is still done by hand, one section at a time [1].", options: {} },
     ], { x: 8.5, y: 1.65, w: 4.0, h: 2.6, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "practice" });
     const why = [
       ["Geometric judgment", "Engineers choose an assembly’s topology from experience."],
@@ -398,6 +418,7 @@ async function main() {
       s.addText(`${i + 1}. ${h}`, { x: x + 0.25, y: 4.8, w: cw - 0.5, h: 0.42, fontSize: 17, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "why head " + h });
       s.addText(t, { x: x + 0.25, y: 5.28, w: cw - 0.5, h: 0.9, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "why text " + h });
     });
+    refs(s, [1, 2, 3]);
     s.addNotes("Why is this still done by hand? Designers work from one section at each hanger, after coordination. Tools coordinate and check; they do not choose the layout or the parts. Three reasons: the topology comes from experience, the rules interact across thousands of combinations, and catalogs change faster than rule systems can be rewritten. (1:25)");
   }
 
@@ -554,9 +575,9 @@ async function main() {
     const steps = [
       ["Tier.", "Cn fixes the exact element count, n = 1 … 8."],
       ["Surface.", "Ceiling or wall (78 / 22 %); concrete slab or wall, 150–300 mm thick."],
-      ["Services.", "Grouped as trades run: hot + cold pairs, flow + return, chilled banks, sprinkler mains, 1–2 trays, ducts, conduit groups of 2–6."],
+      ["Services.", "Grouped as trades run [3]: hot + cold pairs, flow + return, chilled banks, sprinkler mains, 1–2 trays, ducts, conduit groups of 2–6."],
       ["Rows.", "Bulky first: ducts nearest the surface, then trays and conduits, then pipes."],
-      ["Spacing.", "Gaps drawn from gaps measured on a built project (at least 25 mm); stagger within rows; electrical above wet on walls."],
+      ["Spacing.", "Gaps drawn from gaps measured on a built project [12] (at least 25 mm); stagger within rows; electrical above wet on walls [10]."],
       ["Check.", "Every pair at least 25 mm clear; rows centred; sizes, insulation, loads and positions recorded."],
     ];
     steps.forEach(([head, text], i) => {
@@ -568,6 +589,7 @@ async function main() {
     const img = fitImage(s, path.join(FIG, "05_generation_example.png"), { x: 6.9, y: 1.5, w: 5.83, h: 4.3 }, "generation example");
     caption(s, "One generated benchmark context, three rows by priority; the gap marked is one draw from the measured distribution. Every context is seeded: the same seed gives the same file, byte for byte.",
       { x: 6.9, y: img.y + img.h + 0.12, w: 5.83, h: 0.75 }, "generation caption");
+    refs(s, [3, 10, 12]);
     s.addNotes("How is a context made? By rules an engineer would recognize. The tier fixes the element count. We pick the surface and fill it the way trades run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps are drawn from gaps measured on a built project, never below twenty-five millimetres. On walls, electrical stays above water. Same seed, same file. (3:15)");
   }
 
@@ -579,11 +601,11 @@ async function main() {
     const cell = (t, b) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, bold: !!b } });
     const rows = [
       [hdr("Element"), hdr("Sizes"), hdr("Load basis")],
-      [cell("Pipes DN15–100", true), cell("EN 10220 / EN 10255 medium series"), cell("steel + water × ASME B31.1 water-service span (published points only)")],
-      [cell("Insulation", true), cell("GEG Anlage 8 (heated); 30/50 mm condensation control (chilled)"), cell("—")],
-      [cell("Cable trays 150–600", true), cell("IEC 61537 systems, NEMA VE 1 widths"), cell("full tray: 50 kg/m at 300 mm datum, × 2.0 m (NEMA VE 1 class span)")],
-      [cell("Ducts", true), cell("EN 1505 rectangular; EN 1506 round"), cell("manufacturer duct-weight table incl. flanges, × 2.4 m (SMACNA)")],
-      [cell("Conduits Ø20–50", true), cell("IEC 61386-1, parallel groups of 2–6"), cell("steel tube + 40 %-of-bore cable fill, × 2.0 m (IET / BS 7671)")],
+      [cell("Pipes DN15–100", true), cell("EN 10220 / EN 10255 medium series [4]"), cell("steel + water × ASME B31.1 water-service span (published points only) [8]")],
+      [cell("Insulation", true), cell("GEG Anlage 8 (heated) [11]; 30/50 mm condensation control (chilled)"), cell("—")],
+      [cell("Cable trays 150–600", true), cell("IEC 61537 systems [6], NEMA VE 1 widths [7]"), cell("full tray: 50 kg/m at 300 mm datum, × 2.0 m (NEMA VE 1 class span) [7]")],
+      [cell("Ducts", true), cell("EN 1505 rectangular; EN 1506 round [5]"), cell("manufacturer duct-weight table incl. flanges, × 2.4 m (SMACNA) [9]")],
+      [cell("Conduits Ø20–50", true), cell("IEC 61386-1 [6], parallel groups of 2–6"), cell("steel tube + 40 %-of-bore cable fill, × 2.0 m (IET / BS 7671) [10]")],
     ];
     s.addTable(rows, { x: 0.6, y: 1.55, w: 7.9, colW: [1.9, 2.8, 3.2], fontFace: THEME.bodyFontFace, fontSize: 12,
       border: { type: "solid", color: GRID, pt: 0.75 }, rowH: [0.42, 0.78, 0.78, 0.6, 0.6, 0.6], valign: "middle", margin: 0.07, objectName: "sources table" });
@@ -591,13 +613,14 @@ async function main() {
     bullets(s, [
       "Bulky services nearest the slab: ducts, then containment, then pipes",
       "Trades run in banks: hot + cold pairs, flow + return, conduit groups",
-      "Electrical kept above wet services on walls (drip; BS 7671 528.3.2)",
-      "Clear gaps drawn from a distribution measured on a built project; 25 mm minimum",
+      "Electrical kept above wet services on walls (drip; BS 7671 528.3.2) [10]",
+      "Clear gaps drawn from a distribution measured on a built project [12]; 25 mm minimum",
       "Within-row stagger calibrated to measured elevation spread",
     ], { x: 8.85, y: 2.1, w: 3.9, h: 3.6 }, 13, "conventions");
-    panel(s, 0.6, 5.75, 12.13, 0.85, "sources note card");
+    panel(s, 0.6, 5.45, 12.13, 0.75, "sources note card");
     s.addText("Three kinds of ground: standards (what each element is and weighs), measured open buildings (how close neighbours sit) and declared design choices (trade mix, surface mix, number of rows). Every constant carries its source and status in the repository, and the log says why each standard was chosen over its alternatives.",
-      { x: 0.9, y: 5.8, w: 11.5, h: 0.75, fontSize: 13, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "sources note" });
+      { x: 0.9, y: 5.45, w: 11.5, h: 0.75, fontSize: 12.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "sources note" });
+    refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.25, 0.72);
     s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (3:45)");
   }
 
@@ -667,8 +690,9 @@ async function main() {
     const img = await cropImage(s, path.join(FIG, "04_gaps_vs_buildings.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2120, h: 790 }, "gap distributions", "top");
     const g = SEC.gen_to_real, r = SEC.real_to_real;
     const gc = g.clinic_plumbing[LW];
-    caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Clear gaps between side-by-side pipes, on sections every 250 mm. Clinic (${SEC.measured.clinic_plumbing.pairs} pipe pairs): ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}), more than the ${mm(gc.noise_floor.median)} mm a perfect generator would show, and about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic, CC BY 4.0.`,
-      { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 2 caption", 12.5);
+    caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Clear gaps between side-by-side pipes, on sections every 250 mm. Clinic (${SEC.measured.clinic_plumbing.pairs} pipe pairs): ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}), more than the ${mm(gc.noise_floor.median)} mm a perfect generator would show, and about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic [12].`,
+      { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.7 }, "experiment 2 caption", 12);
+    refs(s, [12], "", 6.8);
     s.addNotes(`The second is the one the generator could fail: is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We held out a medical clinic, cut it into sections every 250 millimetres, and measured the gaps between pipes side by side. Generator to clinic: ${mm(gc.w1)} millimetres. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimetre gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:00)`);
   }
 
@@ -695,11 +719,12 @@ async function main() {
     const tw = (12.13 - 2 * 0.2) / 3;
     const k2 = curve.find((r) => r.k === 2).pct, k6 = curve.find((r) => r.k === 6).pct;
     tile(s, 0.6, 5.1, tw, 1.6, `${fmt1(CB.pct_pipes)} %`,
-      `of benchmark pipes attachable with the paper’s two sizes (95 % CI ${fmt1(CB.ci[0])}–${fmt1(CB.ci[1])}); every one is DN40`, { labelSize: 11 });
+      `of benchmark pipes attachable with the paper’s two sizes [2] (95 % CI ${fmt1(CB.ci[0])}–${fmt1(CB.ci[1])}); every one is DN40`, { labelSize: 11 });
     tile(s, 0.6 + tw + 0.2, 5.1, tw, 1.6, `${fmt1(k2)} %`,
       `with two sizes placed where the pipes are; ${Math.round(k6)} % with six, and every pipe with ${curve.length}`, { labelSize: 11 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
       `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
+    refs(s, [2]);
     s.addNotes(`The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Trays, ducts and conduits are not covered at all. On the right, what the dataset asks of any catalog: two well-placed sizes reach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} every pipe. What the catalog should contain becomes a measurement. (5:35)`);
   }
 
