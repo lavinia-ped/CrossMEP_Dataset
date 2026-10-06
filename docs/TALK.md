@@ -261,9 +261,26 @@ NEMA class span for trays). Measured open buildings, for how close neighbours
 sit: pipe gaps and stagger from a buildingSMART duplex, checked on a clinic.
 And declared choices, for what is not measured: the trade mix, the surface mix,
 the number of rows and the tier composition. Each constant carries its status in
-`VERIFICATION_LOG.md`. What is not validated against any data is the
-composition (which services appear together); that rests on coordination
-practice.
+`VERIFICATION_LOG.md`. The composition (which services appear together) is
+declared, and it is now compared, not fitted, against what hanger locations
+carry in the two open buildings (`verify/compare_composition.py`): the pipe/duct
+split by count is close to the clinic's (TV ≤ 0.10 for three to eight elements),
+the generator mixes kinds and stacks rows more often than the clinic, and 70 %
+of clinic hanger locations carry a single element. The electrical share cannot
+be tested: the open electrical models hold fixtures only.
+
+**"Is the trade mix realistic?"** Partly, and we say which part. Conditional on
+how many elements a hanger carries, the pipe-to-duct split in the clinic is
+within a total-variation distance of 0.10 of the generator's for three to eight
+elements (0.20 for pairs: in the clinic a duct runs beside a pipe more often
+than we draw it). Where the generator is off: it puts different kinds in one
+bundle more often than the clinic (six elements: 47 % of generated bundles mix
+kinds, 24 % in the clinic) and stacks rows more often (100 % vs 38 %). Bundle
+sizes: 70 % of clinic locations carry one element and 96 % three or fewer, so
+the congested tiers are rare in these two small buildings, which the datasheet
+says. Pipe sizes differ by building more than either differs from the generator
+(the clinic is a hospital with DN100+ mains, the duplex is 87 % DN25). Nothing
+was fitted to this; it is in `RESULTS.md` with intervals.
 
 **"Why these standards and not others?"** Four rules, in order. Geometry is
 metric and DN-keyed, so sizes follow the European series an EU contractor
@@ -386,7 +403,8 @@ tray on a wall), and a generator for your own mix.
 
 **"Can I run the comparison on my own project?"** Yes: `verify/measure_ifc.py`
 cuts any IFC model into sections and measures the gaps; `verify/compare_sections.py`
-gives the same distances and intervals for your building.
+gives the same distances and intervals for your building, and
+`verify/compare_composition.py` the same composition comparison.
 
 **"What catalog is that? Is it a manufacturer's range?"** It is the
 illustrative two-size family printed in the paper (48–54 mm up to 2.5 kN;

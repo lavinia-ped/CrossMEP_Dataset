@@ -111,7 +111,13 @@ comparison is between bare surfaces; only pipe-pipe gaps are compared (the
 benchmark has too few duct-duct neighbours). (3) Two open buildings, a small
 residential model and a two-storey clinic; congested high-count racks are
 grounded in coordination practice and standards rather than measurement. (4)
-Trade-mix frequencies are plausible, not surveyed. (5) The June 2026 duplex
+Trade-mix frequencies are declared, not surveyed; `verify/compare_composition.py`
+compares them with what hanger locations carry in the two open buildings
+(disciplines merged): the pipe/duct split conditional on the count is within
+TV 0.10 of the clinic for three to eight elements, but the generator mixes kinds
+and stacks rows more often than the clinic, and the pipe-size mix differs by
+building; the electrical share and the surface mix cannot be tested on these
+models (their electrical models hold fixtures only). (5) The June 2026 duplex
 samples, to which the generator's gap distribution was fitted, cannot be
 regenerated with the procedure documented at the time (`verify/VERIFICATION.md`);
 they are kept because the generator constants and the paper's numbers derive from
