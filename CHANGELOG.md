@@ -9,6 +9,10 @@ package version tracks code and documentation.
 ## 4.1.0 — 2026-10-06 (not yet tagged)
 
 ### Talk
+- Aptos throughout (the PDF export substitutes Carlito where Aptos is not installed). Numbered
+  references: [n] markers in the text and a dark-grey reference line at the foot of every slide
+  that cites a source (the ISARC and CIB W78 papers, Korman et al. 2003, the standards, the
+  buildingSMART models).
 - New slide 3, from the ISARC 2026 talk, drawn as a diagram: one cross-section in (structure and
   services), verified support designs out (a rod trapeze, checked; up to ten, ranked by cost), with
   the two words the talk relies on, *context* (the brief, what CrossMEP contains) and *assembly*
