@@ -14,6 +14,13 @@ package version tracks code and documentation.
   with drawings, element tables, closest-pair dimensions, the spacing drawn and the
   reproducing Python call. `tests/test_studio.py` checks the embedded data against
   fresh runs.
+- Simplified for demonstrations: one bar of parameters and *Generate another*; the
+  section drawn as an A4 support detail (standard scale, callouts with size, trade,
+  level or wall offset and load, overall and clear-gap dimensions, notes, title
+  block) beside the 3D model; schedule, Python call, rules and spacing under
+  *Details*. Callout leaders are placed to cross no other service: over all 2,936
+  stored sections, 3 leaders cross a service, 6 pairs of leaders cross and 2
+  clear-gap figures touch a service (checked in a headless browser).
 
 ### Verification on sections of two open buildings
 - `verify/measure_ifc.py` rewritten: the models are cut into sections every 250 mm

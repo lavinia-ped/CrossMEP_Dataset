@@ -279,17 +279,22 @@ The verification chain is executable end to end:
 
 ## Generator Studio
 
-`docs/studio/index.html` is an interactive page: choose a tier or an exact
-composition, a mounting surface and a seed, and browse the sections the
-generator produces. Each section is shown as an engineering support detail
-(section A–A: hatched slab or wall, centrelines, numbered items, overall and
-closest-gap dimensions, a title block) beside a 3D model of 2.4 m of the run
-(three.js), with its element schedule, the spacing drawn in the run against the
-fitted distribution, and the Python call that reproduces it. It embeds real outputs of the released
-generator (tiers C1–C8 × seeds 0–9, 12 sections each; 247 compositions × ceiling /
-wall × seeds 0–2, 4 sections each); `python scripts/build_studio.py` rebuilds it,
-and `tests/test_studio.py` checks the embedded sections against fresh generator
-runs. Open the file in a browser; it needs no server.
+`docs/studio/index.html` is an interactive page for demonstrating the generator:
+choose a tier or an exact mix of services, the surface and a seed, and press
+*Generate another*. Each section is drawn as an A4 support detail the way an
+engineer would issue it (section A–A at a standard scale, 1:1 to 1:100; hatched
+slab or wall broken off where it continues; each service at true size with its
+insulation and centrelines; one callout per service with its size and trade,
+level below the soffit or offset from the wall, and load at the support; the
+overall dimension and the closest clear gap; notes and a title block) beside a
+3D model of 2.4 m of the run (three.js). *Enlarge* gives the sheet the full
+width. The element schedule, the Python call that reproduces the section, the
+generator's rules and the spacing drawn in the run sit under *Details*. It embeds
+real outputs of the released generator (tiers C1–C8 × seeds 0–9, 12 sections
+each; 247 compositions × ceiling / wall × seeds 0–2, 4 sections each);
+`python scripts/build_studio.py` rebuilds it, and `tests/test_studio.py` checks
+the embedded sections against fresh generator runs. Open the file in a browser;
+it needs no server.
 
 ## Presenting the dataset
 
