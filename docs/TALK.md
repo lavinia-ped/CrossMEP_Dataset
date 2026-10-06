@@ -5,7 +5,7 @@ speaker notes). Audience: CIB W78, a mix of BIM and IT researchers and MEP and
 construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
-Timing: 18 slides in about 9.9 minutes of speech at an easy pace (about 145 words a minute; slide 15 is a demo of the
+Timing: 18 slides in about 8.5 minutes of speech at an easy pace (about 145 words a minute; slide 15 is a demo of the
 Generator Studio, with its screenshot as the fallback); five appendix slides for questions,
 the first with two more studio sections.
 
@@ -28,28 +28,26 @@ the first with two more studio sections.
 **Show:** *CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections*;
 authors; a generated C8 context as title art.
 
-**Say:** "Hello everyone, I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable
-tray in a building hangs from a support that an engineer designs by hand, from
-the section at that spot. We want to teach machines to do some of that work, and
-the first thing we found missing was data: there was no public set of support-
-design problems. So, with David Gvadzabia, Torben Graeber and Martin Fischer, we
-built one. It's called CrossMEP."
+**Say:** "I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable tray in a
+building hangs from a support that an engineer designs by hand. We want machines
+to do some of that, and the first thing missing was data: no public set of
+support-design problems existed. So we built one, CrossMEP, with David
+Gvadzabia, Torben Graeber and Martin Fischer."
 
-## 2. A hospital needs about 10,000 support assemblies, each designed by hand (0:30)
+## 2. A hospital needs about 10,000 support assemblies, each designed by hand (0:25)
 
 **Show:** (from the ISARC 2026 talk) a hospital model with its support locations,
 zoomed to one modular support assembly; three figures (≈ 10,000 assemblies per
 hospital; 20 min – 2 h each; ≈ ¼ of MEP design effort).
 
-**Say:** "Here is the scale of it. In this hospital, every red mark is a place where
-pipes, ducts or cable trays hang from the structure. A modular support system
-groups several services onto one prefabricated frame: a structural support
-assembly. A hospital of two hundred thousand square feet needs about ten
-thousand of them. Each takes twenty minutes to two hours to design by hand,
-roughly a quarter of the whole MEP design effort. These are practitioner
-estimates."
+**Say:** "Here is the scale. Every red mark in this hospital is a place where services
+hang from the structure. A modular support groups several services on one
+prefabricated frame: a structural support assembly. A hospital this size needs
+about ten thousand. Each takes twenty minutes to two hours to design, roughly a
+quarter of the MEP design effort. Practitioner estimates, but these are the
+numbers people live with."
 
-## 3. A designer turns one cross-section into verified support assemblies (1:05)
+## 3. A designer turns one cross-section into verified support assemblies (0:55)
 
 **Show:** (from the ISARC 2026 talk) the problem as a diagram: in, one
 cross-section at a hanger (the structure with its anchor zones; the services
@@ -59,44 +57,40 @@ buildability; up to ten, ranked by installed cost). Below, the two words the
 talk relies on: the *context* is the brief and is what CrossMEP contains; the
 *assembly* is the answer and is what a method produces.
 
-**Say:** "What exactly is designed, and from what? At ISARC we defined the task like
-this. In: one cross-section at a hanger. The structure it hangs from, with its
-anchor zones, and the services crossing it, each with trade, position, size and
-weight per metre. We call that a context: the brief. Out: assemblies of catalog
-parts that carry those services to the structure, each checked for statics,
-anchors, connectors and buildability, up to ten, ranked by cost. The assembly is
-the answer. Keep the two apart: CrossMEP is contexts. It contains no
-assemblies."
+**Say:** "What exactly is designed, and from what? In: one cross-section at a hanger. The
+structure it hangs from, and the services crossing it, each with trade,
+position, size and weight per metre. That is the context: the brief. Out:
+assemblies of catalog parts that carry those services to the structure, checked
+for statics, anchors, connectors and buildability, ranked by cost. That is the
+answer. Keep the two apart: CrossMEP is contexts. It contains no assemblies."
 
-## 4. Synthesizing the assembly from a catalog and a context has resisted automation (1:40)
+## 4. Synthesizing the assembly from a catalog and a context has resisted automation (1:25)
 
 **Show:** (from the ISARC 2026 talk) the route-to-section figure from the paper;
 where practice stands (tools coordinate and check; topology and parts are chosen
 by hand); three reasons it resists automation.
 
-**Say:** "Why has this resisted automation? Designers don't work from the whole model:
-after coordination they work from one section at each hanger, like this one.
-Today's tools coordinate and check; choosing the layout and the parts is still
-manual. Three reasons. The topology comes from experience. Code, load and
-material rules interact across thousands of combinations. And catalogs change
-faster than rule systems can be rewritten."
+**Say:** "Why is this still done by hand? Designers work from one section at each hanger,
+after coordination. Tools coordinate and check; they do not choose the layout or
+the parts. Three reasons: the topology comes from experience, the rules interact
+across thousands of combinations, and catalogs change faster than rule systems
+can be rewritten."
 
-## 5. Whatever the method, it needs problems to learn from and a fixed set to compare on (2:10)
+## 5. Whatever the method, it needs problems to learn from and a fixed set to compare on (1:45)
 
 **Show:** a generic flow: the brief (section + catalog) → build the assembly
 step by step (rule table, search or a learned policy) → check every finished
 design → verified designs ranked by cost; below it the three things any such
 method needs. Deliberately generic: the approaches themselves are unpublished.
 
-**Say:** "What would a method look like? On the left, the context and a catalog of parts
-with prices. The rules say which actions are legal; each action adds parts. In
-the middle, a black box chooses the next action: a rule table, a search, or a
-learned policy. A verifier judges every finished design, statics, anchors,
-buildability, and feeds pass or fail back. Whatever sits in that black box, it
-needs problems to learn from, a fixed set to compare on, and problems that look
-like practice."
+**Say:** "What would a method look like? The context and a catalog go in. Rules say which
+actions are legal; each action adds parts. In the middle, a black box chooses
+the next action: a rule table, a search, or a learned policy. A verifier checks
+every finished design and feeds pass or fail back. Whatever sits in the black
+box, it needs problems to learn from, a fixed set to compare on, and problems
+that look like practice."
 
-## 6. Real designs cover one corner of the design space; CrossMEP covers all of it (2:45)
+## 6. Real designs cover one corner of the design space; CrossMEP covers all of it (2:20)
 
 **Show:** left, the design space (element count across, kinds / trades /
 surface up): the real designs available sit in one corner (few, one project
@@ -104,78 +98,71 @@ type, one trade mix), CrossMEP fills it by construction and without limit (a
 new seed is a new set), uniform over the tiers or on request (`generate_custom`); right, CrossMEP at a glance (7,000
 contexts · 31,484 elements · C1–C8 · 0 labels · traced · open).
 
-**Say:** "The real designs we had were few, and they sat in one corner of the design
-space: one kind of project, one trade mix. A method tuned to them measures fit
-to that project. So we generate. CrossMEP covers the space by construction, and
-without limit: a new seed is a new set of problems, uniform over the tiers, or
-shaped to whatever mix you ask for. The seven thousand contexts in eight tiers
-are the release, not the ceiling: deliberately unlabeled, every constant sourced
-or declared, and all of it open."
+**Say:** "The real designs we had were few, from one kind of project with one trade mix:
+one corner of the design space. A method tuned on them measures fit to that
+project. So we generate. CrossMEP fills the space by construction, without
+limit: a new seed is a new set, uniform over the tiers or any mix you ask for.
+Seven thousand contexts are the release, not the ceiling."
 
-## 7. We generate what a designer receives: the section at one hanger (3:25)
+## 7. We generate what a designer receives: the section at one hanger (2:45)
 
 **Show:** one C5 context with its table of fields.
 
-**Say:** "Here's one context: a two-dimensional section at one support location. Each
-element has its kind, service and trade, its size, its insulation, and its load,
-which is weight per metre times the span it was sized at, plus its position. Add
-the surface, a slab or a wall, and that's all. What you won't find is the
-support: no channel, no rods, no anchors, and no correct answer, because a
+**Say:** "Here is one context: a two-dimensional section at one support. Each element has
+its kind, service and trade, its size, insulation and position, and its load:
+weight per metre times the span it was sized at. Add the surface, slab or wall,
+and that is all. No channel, no rods, no anchors, no correct answer, because a
 feasible support depends on the catalog you build from."
 
-## 8. Sections follow trade practice and measured spacing, not random shapes (3:55)
+## 8. Sections follow trade practice and measured spacing, not random shapes (3:15)
 
 **Show:** six steps (tier, surface, services, rows, spacing, check) beside a
 generated C7 context with its three rows and one sampled gap marked.
 
-**Say:** "How do we make a context? By rules an engineer would recognize, not free
-randomness. The tier fixes how many elements there are. We pick the surface and
-fill it the way trades really run services: hot and cold together, flow and
-return together, conduits in groups, bulky services nearest the slab. Gaps
-between neighbors are drawn from gaps measured on a built project, never below
-twenty-five millimeters. On walls, electrical stays above water. Every context
-is checked; same seed, same file, byte for byte."
+**Say:** "How is a context made? By rules an engineer would recognize. The tier fixes the
+element count. We pick the surface and fill it the way trades run services: hot
+and cold together, flow and return together, conduits in groups, bulky services
+nearest the slab. Gaps are drawn from gaps measured on a built project, never
+below twenty-five millimetres. On walls, electrical stays above water. Same
+seed, same file."
 
-## 9. Sizes, spans and loads come from standards; the choices are declared (4:30)
+## 9. Sizes, spans and loads come from standards; the choices are declared (3:45)
 
 **Show:** sources table (pipes, insulation, trays, ducts, conduits) and layout
 conventions.
 
-**Say:** "Where do the numbers come from? Three places. Sizes, weights and spans come
-from standards: European steel pipe and duct standards, IEC for conduits and
-trays, ASME for spans, the German GEG for insulation. How close neighbors sit
-comes from measured open buildings. And a few things are simply our choices,
-like the trade mix, and we label them that way."
+**Say:** "Where do the numbers come from? Sizes, weights and spans from standards: EN for
+pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
+Spacing from measured open buildings. And a few choices of our own, like the
+trade mix, labelled as choices."
 
-## 10. 7,000 contexts in four splits; the test seeds are never trained on (4:55)
+## 10. 7,000 contexts in four splits; the test seeds are never trained on (4:00)
 
 **Show:** splits table; elements by kind; pipes by nominal size.
 
-**Say:** "The release has four splits on disjoint seeds, so a method is never tested on
-what it trained on: five thousand contexts for training, five hundred each for
-validation and test, and a benchmark of one thousand, a hundred and twenty-five
-per tier. Everything is plain JSON with a schema and a datasheet."
+**Say:** "Four splits on disjoint seeds: five thousand for training, five hundred each
+for validation and test, and a benchmark of a thousand, a hundred and twenty-
+five per tier. Plain JSON, with a schema and a datasheet."
 
-## 11. Difficulty is one number: tier Cn holds exactly n elements (5:20)
+## 11. Difficulty is one number: tier Cn holds exactly n elements (4:15)
 
 **Show:** one benchmark context per tier, C1 to C8, ceilings and walls.
 
-**Say:** "Here's one benchmark context per tier. C1 is a single element, the most common
-support in any building. By C8 you have eight services on three rows. Within a
-tier everything else varies, so the element count is the one controlled axis of
-difficulty. And notice the walls: the section rotates, and electrical sits above
-water."
+**Say:** "One benchmark context per tier. C1 is a single element, the most common support
+in any building; C8 has eight services on three rows. Within a tier everything
+else varies, so the element count is the one controlled axis of difficulty. On
+walls the section rotates, and electrical sits above water."
 
-## 12. Higher tiers are heavier and tighter, as designed (5:40)
+## 12. Higher tiers are heavier and tighter, as designed (4:40)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
 median of 2,000 freshly generated contexts per tier as diamonds.
 
-**Say:** "Now three analyses. The first is a design check, not a discovery: the count is
-fixed by construction, and load and congestion follow from the rules, so this
-shows the dataset behaves as designed. The load at the support rises with the
-tier, from about 0.3 to 2.0 kilonewtons. The closest gap narrows at every step,
-from 130 to about 51 millimeters."
+**Say:** "Three analyses. The first is a design check: the count is fixed by
+construction, and load and congestion follow from the rules. Load at the support
+rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap
+narrows at every step, from 130 to about 51 millimetres. The dataset behaves as
+designed."
 
 **Numbers** (`verify/tier_trends.py`, revision 4.1): rank correlation of tier
 with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 kN,
@@ -184,19 +171,19 @@ with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 k
 the gap widened again at C6, where the generator always stacked two or three
 rows; 4.1 draws rows by count, so that step is gone.
 
-## 13. Spacing holds up on a clinic the generator never saw (6:05)
+## 13. Spacing holds up on a clinic the generator never saw (5:00)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
 generator and three real models, and between the real models themselves.
 
-**Say:** "The second analysis is the one the generator could fail. Is the spacing
-realistic in a building it has never seen? The gap distribution was fitted on a
-residential duplex. We kept a second open building aside, a medical-dental
-clinic, cut it into sections every 250 millimeters, and measured the gaps
-between pipes running side by side. Generator to clinic: 32 millimeters. Above
-the 8 a perfect generator would show, but about as close as the duplex's own two
-models are to each other. A fixed 25-millimeter gap would be about 190 off."
+**Say:** "The second is the one the generator could fail: is the spacing realistic in a
+building it has never seen? The gap distribution was fitted on a residential
+duplex. We held out a medical clinic, cut it into sections every 250
+millimetres, and measured the gaps between pipes side by side. Generator to
+clinic: 32 millimetres. Above the 8 a perfect generator would show, but about as
+close as the duplex's own two models are to each other. A fixed 25-millimetre
+gap would be about 190 off."
 
 **Numbers** (`verify/compare_sections.py`, pairs weighted by shared length):
 generated ↔ clinic 32 mm (95 % CI 17–48; noise floor 8); duplex MEP ↔ duplex
@@ -206,67 +193,64 @@ of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27�
 across settings; 4.1 widens the DN bands, so more insulation and slightly wider
 bare gaps. The gap draw itself is unchanged.)
 
-## 14. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (6:45)
+## 14. A two-size catalog attaches 1 pipe in 7; the dataset shows what to cover (5:35)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
 76 % with six, 100 % with fifteen); 14.5 % (95 % CI 12.7–16.2); 0 of 2,012 trays,
 ducts and conduits.
 
-**Say:** "The third analysis is a use of the dataset, not a test of it: what must a
-catalog of clamps cover? Our paper's two-size catalog attaches 14.5 percent of
-the pipes, with an interval of 13 to 16, all one size, DN40. Load is never the
-limit, and trays, ducts and conduits aren't covered at all. On the right is what
-the dataset asks of any catalog: two well-placed sizes could attach 38 percent,
-six sizes 76, fifteen sizes every pipe. So 'what should the catalog contain'
+**Say:** "The third is a use of the dataset: what must a catalog of clamps cover? Our
+paper's two-size catalog attaches 14.5 percent of the pipes, interval 13 to 16,
+all one size, DN40. Trays, ducts and conduits are not covered at all. On the
+right, what the dataset asks of any catalog: two well-placed sizes reach 38
+percent, six sizes 76, fifteen every pipe. What the catalog should contain
 becomes a measurement."
 
-## 15. Set the parameters and the generator returns the designer's brief (7:25)
+## 15. Set the parameters and the generator returns the designer's brief (6:05)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
 3D; QR code to the hosted studio.
 
 **Say:** "Let me show it. This is the Generator Studio. I choose what crosses the hanger,
-a tier or an exact mix, and a seed. Out comes the section a support designer
-receives, drawn the way an engineer would issue it: every service at true size,
-its level below the slab, its load, the closest clear gap, and the same run in
-3D. Every section is a stored output of the released generator, with the call
-that reproduces it. Scan the code to try it yourself."
+a tier or an exact mix, and a seed. Out comes the section a designer receives,
+drawn as an engineer would issue it: every service at true size, its level, its
+load, the closest gap, and the run in 3D. Every section is a stored output of
+the released generator. Scan the code to try it."
 
 **Do (about 30 s):** switch to the studio; click C3, then *Generate another*
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
 appendix slide 19 shows two more sections. (See "Before the talk" above.)
 
-## 16. Train on the generator, evaluate on the benchmark, report per tier (8:35)
+## 16. Train on the generator, evaluate on the benchmark, report per tier (7:10)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
 
 **Say:** "Using it takes a few lines: load a split, filter by composition, or generate
-your own mix. With no labels, the same files serve reinforcement learning,
-constraint programming, and benchmarking. We ship the scoring too. Train on the
-generator, from C1 up to C8. Evaluate on the benchmark, the same 125 contexts
-per tier for every method. Report per tier, with 95 percent intervals and paired
-tests."
+your own mix. The same files serve reinforcement learning, constraint
+programming and benchmarking, and we ship the scoring. Train on the generator,
+C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every
+method. Report per tier, with intervals and paired tests."
 
-## 17. One section at one support today; a checker and real data come next (9:00)
+## 17. One section at one support today; a checker and real data come next (7:35)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
-**Say:** "A word on scope. CrossMEP is one section at one support. Pipe spacing was
-checked on two open buildings; the rest rests on practice and standards, and the
-trade mix is a design choice. It's not for structural design of real
-installations. Next: a public checker, so we can compare methods on the answer;
-the catalog as an input; and a real test set from commercial projects, with
-supports designed by engineers. That's where I'd value your eye."
+**Say:** "Scope. CrossMEP is one section at one support. Pipe spacing was checked on two
+open buildings; the rest rests on practice and standards, and the trade mix is a
+design choice. It is not for the structural design of real installations. Next:
+a public checker, so methods can be compared on the answer; the catalog as an
+input; and a real test set from commercial projects, with supports designed by
+engineers. That is where I would value your eye."
 
-## 18. Support design now has open problems to learn from (9:35)
+## 18. Support design now has open problems to learn from (8:10)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
-problems, every constant sourced or declared a design choice, pipe spacing
-checked on two open buildings, and all of it open. If you coordinate services or
-design supports, try the studio and tell me what looks wrong. Thank you."
+problems, every constant sourced or declared, spacing checked on two open
+buildings, all of it open. If you coordinate services or design supports, try
+the studio and tell me what looks wrong. Thank you."
 
 **Appendix slides:** two more sections from the Generator Studio (the demo
 fallback); per-tier statistics of the benchmark split; the realism
