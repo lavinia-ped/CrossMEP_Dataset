@@ -208,6 +208,59 @@ def section_gaps(runs: Sequence[Dict], step_mm: float = DEFAULTS["step_mm"], ban
     return records, counts
 
 
+STACK_MM = 1500.0   # a bundle of another row counts as stacked within this vertical distance (below one storey)
+
+
+def section_bundles(runs: Sequence[Dict], step_mm: float = DEFAULTS["step_mm"], band_mm: float = DEFAULTS["band_mm"],
+                    break_mm: float = DEFAULTS["break_mm"], stack_mm: float = STACK_MM) -> List[Dict]:
+    """What one hanger location carries: on every section, each row bundle (the
+    same rows and bundle breaks as :func:`section_gaps`) with its member runs'
+    kinds and sizes, its across-extent and the number of rows stacked with it
+    (bundles of other rows in the same section whose across-extents overlap and
+    whose centre elevation is within ``stack_mm``, so that the other storey of a
+    building does not count).  One record per (section, bundle); ``gids``
+    identifies the physical bundle."""
+    out: List[Dict] = []
+    for axis in (0, 1):
+        S = [r for r in runs if r["axis"] == axis]
+        if not S:
+            continue
+        t0, t1 = min(r["a0"] for r in S), max(r["a1"] for r in S)
+        for t in np.arange(t0 + step_mm / 2.0, t1, step_mm):
+            cut = sorted((r for r in S if r["a0"] < t < r["a1"]), key=lambda r: (r["z"], r["u"], r["gid"]))
+            if not cut:
+                continue
+            rows: List[List[Dict]] = []
+            for r in cut:
+                if rows and r["z"] - rows[-1][0]["z"] <= band_mm:
+                    rows[-1].append(r)
+                else:
+                    rows.append([r])
+            here: List[Dict] = []
+            for i, row in enumerate(rows):
+                row.sort(key=lambda r: (r["u"], r["gid"]))
+                bundle = [row[0]]
+                for a, b in zip(row, row[1:]):
+                    if (b["u"] - b["w"] / 2.0) - (a["u"] + a["w"] / 2.0) >= break_mm:
+                        here.append({"row": i, "members": bundle})
+                        bundle = [b]
+                    else:
+                        bundle.append(b)
+                here.append({"row": i, "members": bundle})
+            for b in here:
+                m = b["members"]
+                u0, u1 = min(r["u"] - r["w"] / 2.0 for r in m), max(r["u"] + r["w"] / 2.0 for r in m)
+                b.update({"u0": u0, "u1": u1, "z": sum(r["z"] for r in m) / len(m)})
+            for b in here:
+                stack = 1 + sum(1 for o in here if o["row"] != b["row"] and o["u0"] < b["u1"] and b["u0"] < o["u1"]
+                                and abs(o["z"] - b["z"]) <= stack_mm)
+                m = b["members"]
+                out.append({"axis": axis, "t_mm": float(t), "row": b["row"], "n": len(m),
+                            "kinds": [r["kind"] for r in m], "sizes": [r.get("size") for r in m],
+                            "gids": tuple(sorted(r["gid"] for r in m)), "stack": stack})
+    return out
+
+
 def pair_table(records: Iterable[Dict]) -> List[Dict]:
     """One row per neighbour pair: median gap over its sections, the number of
     sections (its length weight), min and max gap and both kinds."""

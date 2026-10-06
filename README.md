@@ -113,6 +113,7 @@ python -m crossmep validate                       # validator + JSON Schema over
 python -m crossmep results                        # per-tier tables, kinds, catalog coverage
 python verify/compare_gaps.py                     # section 5.2 as published (June 2026 duplex samples)
 python verify/compare_sections.py --sensitivity   # section 5.2 on sections of two open buildings, with intervals
+python verify/compare_composition.py              # what a hanger carries in the open buildings vs the generator
 python verify/tier_trends.py                      # section 5.1 with intervals and a population estimate
 python verify/catalog_stress.py                   # section 5.3: error bars, sensitivity, demand curve
 python -m pytest                                  # everything above as tests
@@ -257,10 +258,23 @@ The verification chain is executable end to end:
    gaps measured on the duplex in June 2026; `verify/compare_gaps.py` reproduces
    the paper's §5.2 numbers from those shipped samples, which the documented
    June procedure does not regenerate (`verify/VERIFICATION.md`).
-3. **Conventions.** Tiering order, service banking, insulation schedules and
+3. **Composition vs. open buildings.** `verify/compare_composition.py` cuts the
+   merged disciplines of each building (clinic: Plumbing + HVAC; duplex: MEP) the
+   same way and records what each hanger location carries. In the clinic, 70 % of
+   locations carry one element and 96 % three or fewer; conditional on the count,
+   the generator's pipe/duct split is within a total-variation distance of 0.10
+   of the clinic for three to eight elements (0.20 for pairs, where ducts pair
+   with pipes more often than drawn), but it mixes kinds in one bundle and stacks
+   rows more often than the clinic does. Pipe sizes differ by building (the
+   clinic is a hospital with DN100+ mains, the duplex is 87 % DN25); the two
+   buildings are farther from each other (TV 0.87) than either is from the
+   generator (0.41 / 0.67). Not testable on these models: the electrical share
+   (their electrical models hold fixtures only) and the mounting surface. Nothing
+   is fitted to this; it says where the declared choices stand (`RESULTS.md`).
+4. **Conventions.** Tiering order, service banking, insulation schedules and
    the wall drip rule (0 violations in 2,913 wet/electrical pairs on the
    benchmark) are tested over hundreds of unseen seeds.
-4. **Catalog stress test (paper §5.3).** `crossmep/catalog.py` states precisely
+5. **Catalog stress test (paper §5.3).** `crossmep/catalog.py` states precisely
    what "a clamp catalog attaches this element" means, and
    `verify/catalog_stress.py` answers it with error bars instead of one number.
    For the paper's two-size catalog (48–54 mm up to 2.5 kN; 108–114 mm up to

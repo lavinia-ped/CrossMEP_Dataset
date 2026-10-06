@@ -13,6 +13,17 @@ every record without IfcOpenShell (`tests/test_sections.py` checks this).
 | `clinic_plumbing.json` | `Clinic_Plumbing.ifc` | `e662a8d0273694b745a313fc18ee8d4916db03453caa8f9d00d4d80b62bb6e23` | 55,834,520 |
 | `clinic_hvac.json` | `Clinic_HVAC.ifc` | `39c88a79f48fbe56da86afb0fb3ebd188f8930df3df7dbfbd9ecaa535aaeab9b` | 26,914,597 |
 
+Two further discipline models were opened and found to contain no `IfcFlowSegment`
+(fixtures, terminals and equipment only), so they carry no conduit or tray runs
+to measure: `Clinic_Electrical.ifc`
+(`70c436de1f1e8a860acfba61b68da1c9243d18dcbbddb98b88b550a642d95d32`, 6,800,204
+bytes) and `Duplex_Electrical_20121207.ifc`
+(`d47b014ed5b3428496683ee75e4664013f6df8237ea571b8d13f877cea0b7a94`, 1,602,758
+bytes). `Duplex_Plumbing_20121113.ifc` re-exports most of the MEP model's pipes
+(161 of its 231 segments have the same bounding box as an MEP segment), so the
+composition comparison (`verify/compare_composition.py`) uses the MEP model alone
+for the duplex and merges Plumbing + HVAC for the clinic.
+
 The files were downloaded on 5 October 2026 from
 <https://github.com/buildingsmart-community/Community-Sample-Test-Files>
 (`IFC 2.3.0.1 (IFC 2x3)/Duplex Apartment/` and `.../Medical-Dental Clinic/`);

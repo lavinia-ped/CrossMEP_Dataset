@@ -38,4 +38,4 @@ jobs:
       - name: Catalog stress test runs
         run: python verify/catalog_stress.py --n-boot 200 --mc-per-tier 100
       - name: Realism and trend scripts run
-        run: python verify/compare_sections.py --n-boot 100 --n-floor 50 && python verify/tier_trends.py --per-tier 100 --n-boot 200
+        run: python verify/compare_sections.py --n-boot 100 --n-floor 50 && python verify/compare_composition.py --n-boot 100 && python verify/tier_trends.py --per-tier 100 --n-boot 200

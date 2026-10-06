@@ -8,6 +8,17 @@ package version tracks code and documentation.
 
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
+### Composition compared on the open buildings
+- `verify/compare_composition.py` and `measure_ifc.section_bundles`: what each hanger
+  location carries in the merged disciplines of the clinic (Plumbing + HVAC) and the duplex
+  (MEP), against the benchmark contexts made of the same kinds: bundle sizes, kind shares,
+  kind mixing and row stacking conditional on the count, pipe sizes by DN; bootstrap over
+  physical bundles. Nothing is fitted. Findings in `RESULTS.md`, the log (section 6) and the
+  DATASHEET; 14 tests in `tests/test_composition.py`; runs in CI.
+- The Clinic and Duplex Electrical models were opened and contain no flow segments
+  (recorded with SHA-256 in `verify/measured/README.md`), so the electrical share stays
+  declared; the Duplex Plumbing model duplicates most MEP pipes and is not merged.
+
 ### Verification log
 - Sources upgraded without changing any value (data byte-identical): tray widths are the
   NEMA VE 1 series (VERIFIED); the pipe spans are confirmed by the ASHRAE Handbook hanger
