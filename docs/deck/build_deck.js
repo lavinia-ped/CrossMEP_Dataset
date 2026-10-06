@@ -410,9 +410,9 @@ async function main() {
       [hdr("Element"), hdr("Sizes"), hdr("Load basis")],
       [cell("Pipes DN15–100", true), cell("EN 10220 / EN 10255 medium series"), cell("steel + water × ASME B31.1 water-service span (published points only)")],
       [cell("Insulation", true), cell("GEG Anlage 8 (heated); 30/50 mm condensation control (chilled)"), cell("—")],
-      [cell("Cable trays 150–600", true), cell("IEC 61537 systems"), cell("full tray: 50 kg/m at 300 mm datum, × 2.0 m")],
-      [cell("Ducts", true), cell("EN 1505 rectangular; EN 1506 round"), cell("manufacturer duct-weight table incl. flanges, × 2.4 m")],
-      [cell("Conduits Ø20–50", true), cell("IEC 61386-1, parallel groups of 2–6"), cell("steel tube + 40 %-of-bore cable fill, × 2.0 m")],
+      [cell("Cable trays 150–600", true), cell("IEC 61537 systems, NEMA VE 1 widths"), cell("full tray: 50 kg/m at 300 mm datum, × 2.0 m (NEMA VE 1 class span)")],
+      [cell("Ducts", true), cell("EN 1505 rectangular; EN 1506 round"), cell("manufacturer duct-weight table incl. flanges, × 2.4 m (SMACNA)")],
+      [cell("Conduits Ø20–50", true), cell("IEC 61386-1, parallel groups of 2–6"), cell("steel tube + 40 %-of-bore cable fill, × 2.0 m (IET / BS 7671)")],
     ];
     s.addTable(rows, { x: 0.6, y: 1.55, w: 7.9, colW: [1.9, 2.8, 3.2], fontFace: THEME.bodyFontFace, fontSize: 12,
       border: { type: "solid", color: GRID, pt: 0.75 }, rowH: [0.42, 0.78, 0.78, 0.6, 0.6, 0.6], valign: "middle", margin: 0.07, objectName: "sources table" });
@@ -420,12 +420,12 @@ async function main() {
     bullets(s, [
       "Bulky services nearest the slab: ducts, then containment, then pipes",
       "Trades run in banks: hot + cold pairs, flow + return, conduit groups",
-      "Electrical kept above wet services on walls (drip)",
+      "Electrical kept above wet services on walls (drip; BS 7671 528.3.2)",
       "Clear gaps drawn from a distribution measured on a built project; 25 mm minimum",
       "Within-row stagger calibrated to measured elevation spread",
     ], { x: 8.85, y: 2.1, w: 3.9, h: 3.6 }, 13, "conventions");
     panel(s, 0.6, 5.75, 12.13, 0.85, "sources note card");
-    s.addText("Three kinds of ground: standards (what each element is and weighs), measured open buildings (how close neighbours sit) and declared design choices (trade mix, surface mix, number of rows). Every constant carries its source and status in the repository.",
+    s.addText("Three kinds of ground: standards (what each element is and weighs), measured open buildings (how close neighbours sit) and declared design choices (trade mix, surface mix, number of rows). Every constant carries its source and status in the repository, and the log says why each standard was chosen over its alternatives.",
       { x: 0.9, y: 5.8, w: 11.5, h: 0.75, fontSize: 13, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "sources note" });
     s.addNotes("Where do the numbers come from? Three places. Sizes, weights and spans come from standards: European steel pipe and duct standards, IEC for conduits and trays, ASME for spans, the German GEG for insulation. How close neighbors sit comes from measured open buildings. And a few things are simply our choices, like the trade mix, and we label them that way. Loads are computed in code from all of this. (3:35)");
   }

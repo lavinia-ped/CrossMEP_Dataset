@@ -254,15 +254,29 @@ problems are grounded and well behaved.
 **"What is the generator actually grounded on?"** Three things. Standards, for
 what each element is and weighs: pipe sizes and walls (EN 10220, EN 10255),
 insulation (GEG Anlage 8, a chilled-water schedule), duct sizes (EN 1505, 1506)
-with a manufacturer weight table, conduit sizes (IEC 61386-1), trays (a
-manufacturer series), spans (ASME B31.1 for water pipes; practice values for
-trays, ducts and conduits). Measured open buildings, for how close neighbours
+with a manufacturer weight table, conduit sizes (IEC 61386-1), trays (the
+NEMA VE 1 width series), spans (ASME B31.1 for water pipes, confirmed by the
+ASHRAE Handbook; the IET table for conduits; SMACNA's maximum for ducts; the
+NEMA class span for trays). Measured open buildings, for how close neighbours
 sit: pipe gaps and stagger from a buildingSMART duplex, checked on a clinic.
 And declared choices, for what is not measured: the trade mix, the surface mix,
 the number of rows and the tier composition. Each constant carries its status in
 `VERIFICATION_LOG.md`. What is not validated against any data is the
 composition (which services appear together); that rests on coordination
 practice.
+
+**"Why these standards and not others?"** Four rules, in order. Geometry is
+metric and DN-keyed, so sizes follow the European series an EU contractor
+orders against (EN 10220/10255, EN 1505/1506, IEC 61386, IEC 61537). Where the
+European standard fixes no value, we take the international reference whose
+values are openly republished: NEMA VE 1 for tray widths and class spans, ASME
+B31.1 for pipe spans (the ASHRAE Handbook prints the same four values), SMACNA
+for duct hangers, the IET table under BS 7671 for conduits. We prefer sources
+whose full text can be checked, which is why insulation follows the German GEG,
+a statute with public text. And we prefer values stable across editions. Where
+the value is not the standard's exact figure, the log says how the standard
+brackets it. Section 10 of the log lists the alternatives we did not use and
+why (BS EN 806-4, NEC, DIN 4140, DW/144).
 
 **"Isn't Experiment 1 circular? The generator makes higher tiers heavier."**
 Yes, and the slide says so: it is a design check that the dataset behaves as
@@ -335,8 +349,10 @@ to a building's mix if given, and a paired test against another method.
 a design parameter; everything the lognormal would place beyond lands there.
 
 **"Those spans look short / long."** They are ASME B31.1 Table 121.5
-water-service points (2.1 / 3.0 / 3.7 / 4.3 m for NPS 1 / 2 / 3 / 4), assigned
-by a floor rule with no interpolation; trays 2.0 m, ducts 2.4 m, conduits 2.0 m.
+water-service points (2.1 / 3.0 / 3.7 / 4.3 m for NPS 1 / 2 / 3 / 4, the same
+values as the ASHRAE Handbook hanger table), assigned by a floor rule with no
+interpolation; trays 2.0 m (below the shortest NEMA VE 1 class span), ducts
+2.4 m (under the SMACNA 10 ft maximum), conduits 2.0 m (the IET table).
 Every element records its span and load per metre, so a method can treat the
 span as a variable.
 

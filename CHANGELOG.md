@@ -8,6 +8,18 @@ package version tracks code and documentation.
 
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
+### Verification log
+- Sources upgraded without changing any value (data byte-identical): tray widths are the
+  NEMA VE 1 series (VERIFIED); the pipe spans are confirmed by the ASHRAE Handbook hanger
+  table (VERIFIED, two concordant sources); the conduit span follows the IET On-Site Guide
+  table under BS 7671 (VERIFIED); the wall rule follows BS 7671 Reg. 528.3.2 (VERIFIED);
+  the tray span is bracketed by the NEMA VE 1 class spans and the duct span by the SMACNA
+  Table 5-1 maximum (PRACTICE-CITED); the tiering criteria cite Korman, Fischer & Tatum (2003).
+- New section 10, "Why these standards": the four selection rules, the preference order
+  of sources and the alternatives not used (BS EN 806-4, NEC, DIN 4140, DW/144); section 11
+  lists the public texts used for the checks; section 9 lists the value changes deferred to
+  a data revision 4.1.
+
 ### Talk
 - `docs/CrossMEP_CIBW78_talk.pptx` and its PDF (16 slides + 5 appendix, speaker notes on
   every slide) and `docs/TALK.md` (the same talk as a script, with a pre-talk checklist and
