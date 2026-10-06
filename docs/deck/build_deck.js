@@ -418,22 +418,32 @@ async function main() {
 
     // inputs
     const IX = 0.6, IW = 1.9;
-    s.addShape(pres.ShapeType.roundRect, { x: IX, y: Y, w: IW, h: 1.05, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box context" });
-    text({ x: IX, y: Y, w: IW, h: 1.05 }, "Context", "structure, services, loads", C.text1, INK2, "context");
+    s.addShape(pres.ShapeType.roundRect, { x: IX, y: Y, w: IW, h: 1.2, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box context" });
+    // a small section: slab, duct, two pipes, a tray
+    const g = { fill: { color: THEME.colors.lt1 }, line: { color: INK2, width: 0.75 } };
+    s.addShape(pres.ShapeType.rect, { x: IX + 0.25, y: Y + 0.12, w: IW - 0.5, h: 0.1, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "mini slab" });
+    s.addShape(pres.ShapeType.rect, { x: IX + 0.35, y: Y + 0.3, w: 0.42, h: 0.24, ...g, objectName: "mini duct" });
+    s.addShape(pres.ShapeType.ellipse, { x: IX + 0.9, y: Y + 0.33, w: 0.21, h: 0.21, ...g, objectName: "mini pipe a" });
+    s.addShape(pres.ShapeType.ellipse, { x: IX + 1.17, y: Y + 0.39, w: 0.15, h: 0.15, ...g, objectName: "mini pipe b" });
+    s.addShape(pres.ShapeType.rect, { x: IX + 1.4, y: Y + 0.45, w: 0.26, h: 0.09, ...g, objectName: "mini tray" });
+    text({ x: IX, y: Y + 0.58, w: IW, h: 0.6 }, "Context", "structure, services, loads", C.text1, INK2, "context");
     s.addShape(pres.ShapeType.can, { x: IX + 0.1, y: Y + H - 1.15, w: IW - 0.2, h: 1.15, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box catalog" });
     text({ x: IX, y: Y + H - 1.05, w: IW, h: 1.0 }, "Catalog", "parts, sizes, unit costs", C.text1, INK2, "catalog");
 
     // rules
     const RX = 3.0, RW = 2.0;
     s.addShape(pres.ShapeType.roundRect, { x: RX, y: Y, w: RW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk2, width: 1.25 }, objectName: "box rules" });
-    text({ x: RX, y: Y, w: RW, h: H }, "Rules", "which actions are legal in a state; each action adds parts", C.text1, INK2, "rules");
-    arrow(IX + IW, RX, Y + 0.52, "context to rules");
+    const pic = async (icon, hex, x, w, name) => { const d = await iconData(icon, hex); if (d) s.addImage({ data: d, x: x + (w - 0.5) / 2, y: Y + 0.3, w: 0.5, h: 0.5, objectName: "icon " + name }); };
+    await pic("FiList", THEME.colors.dk2, RX, RW, "rules");
+    text({ x: RX, y: Y + 0.85, w: RW, h: H - 0.95 }, "Rules", "which actions are legal in a state; each action adds parts", C.text1, INK2, "rules");
+    arrow(IX + IW, RX, Y + 0.6, "context to rules");
     arrow(IX + IW - 0.1, RX, Y + H - 0.55, "catalog to rules");
 
     // the approach: a black box
     const BX = 5.6, BW = 2.4;
     s.addShape(pres.ShapeType.roundRect, { x: BX, y: Y, w: BW, h: H, rectRadius: 0.06, fill: { color: THEME.colors.dk1 }, objectName: "black box approach" });
-    text({ x: BX, y: Y, w: BW, h: H }, "Approach", "a black box that chooses the next action\n\nrule table · search · learned policy", THEME.colors.lt1, ICE, "approach", 16, 11.5);
+    await pic("FiCpu", THEME.colors.lt1, BX, BW, "approach");
+    text({ x: BX, y: Y + 0.85, w: BW, h: H - 0.95 }, "Approach", "a black box that chooses the next action\n\nrule table · search · learned policy", THEME.colors.lt1, ICE, "approach", 16, 11.5);
     arrow(RX + RW, BX, MID - 0.35, "legal actions");
     label(RX + RW, MID - 0.66, BX - RX - RW, "legal actions", "legal actions");
     arrow(BX, RX + RW, MID + 0.35, "chosen action");
@@ -442,11 +452,18 @@ async function main() {
     // verifier and output
     const VX = 8.6, VW = 2.0, OX = 11.05, OW = 1.68;
     s.addShape(pres.ShapeType.roundRect, { x: VX, y: Y, w: VW, h: H, rectRadius: 0.06, fill: { color: "EAF5EE" }, line: { color: THEME.colors.accent6, width: 1.5 }, objectName: "box verifier" });
-    text({ x: VX, y: Y, w: VW, h: H }, "Verifier", "judges every finished design: statics, anchors, connectors, buildability", C.text1, INK2, "verifier");
+    await pic("FiCheckCircle", THEME.colors.accent6, VX, VW, "verifier");
+    text({ x: VX, y: Y + 0.85, w: VW, h: H - 0.95 }, "Verifier", "judges every finished design: statics, anchors, connectors, buildability", C.text1, INK2, "verifier");
     arrow(BX + BW, VX, MID, "finished design");
     label(BX + BW, MID - 0.31, VX - BX - BW, "finished design", "finished design");
     s.addShape(pres.ShapeType.roundRect, { x: OX, y: Y, w: OW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk1, width: 1.5 }, objectName: "box output" });
-    text({ x: OX, y: Y, w: OW, h: H }, "Verified designs", "up to ten, ranked by installed cost", C.text1, INK2, "output");
+    // a small rod trapeze: slab, two rods, a bar, two pipes
+    s.addShape(pres.ShapeType.rect, { x: OX + 0.2, y: Y + 0.18, w: OW - 0.4, h: 0.1, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "mini out slab" });
+    [OX + 0.3, OX + OW - 0.33].forEach((rx, i) => s.addShape(pres.ShapeType.rect, { x: rx, y: Y + 0.28, w: 0.03, h: 0.47, fill: { color: THEME.colors.dk2 }, objectName: "mini rod " + i }));
+    s.addShape(pres.ShapeType.rect, { x: OX + 0.22, y: Y + 0.75, w: OW - 0.44, h: 0.04, fill: { color: THEME.colors.dk2 }, objectName: "mini bar" });
+    s.addShape(pres.ShapeType.ellipse, { x: OX + 0.48, y: Y + 0.52, w: 0.23, h: 0.23, ...g, objectName: "mini out pipe a" });
+    s.addShape(pres.ShapeType.ellipse, { x: OX + 0.86, y: Y + 0.58, w: 0.17, h: 0.17, ...g, objectName: "mini out pipe b" });
+    text({ x: OX, y: Y + 0.85, w: OW, h: H - 0.95 }, "Verified designs", "up to ten, ranked by installed cost", C.text1, INK2, "output");
     arrow(VX + VW, OX, MID, "to output");
 
     // feedback
