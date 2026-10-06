@@ -837,32 +837,50 @@ function render3D(ctx) {
   const v = V3, S = 0.001, L = RUN_MM * S, sk = ctx.surface.kind, g = screen(ctx), T = ctx.surface.thickness_mm;
   if (v.group) { v.scene.remove(v.group); dispose(v.group); }
   const grp = new THREE.Group(); v.group = grp;
-  const edgeMat = new THREE.LineBasicMaterial({ color: 0x1f2a26, transparent: true, opacity: 0.55 });
-  const add = (geom, mat, x, y, edges = true) => {
-    const mesh = new THREE.Mesh(geom, mat); mesh.position.set(x, y, 0); grp.add(mesh);
+  // The run is drawn grey and cut at the section plane: the far half solid, the near half ghosted,
+  // and the cut face at the plane filled in the trade colour, so the 3D view reads as the section.
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x1f2a26, transparent: true, opacity: 0.4 });
+  const add = (geom, mat, x, y, edges = true, z = 0) => {
+    const mesh = new THREE.Mesh(geom, mat); mesh.position.set(x, y, z); grp.add(mesh);
     if (edges) { const ed = new THREE.LineSegments(new THREE.EdgesGeometry(geom, 25), edgeMat.clone()); ed.position.copy(mesh.position); ed.rotation.copy(mesh.rotation); grp.add(ed); }
     return mesh;
   };
+  const GREY = 0xb9c0bb, CAP = 0.004, H = L / 2;
+  const solid = (metal) => new THREE.MeshStandardMaterial({ color: GREY, roughness: 0.6, metalness: metal ? 0.3 : 0.1 });
+  const ghost = () => new THREE.MeshStandardMaterial({ color: GREY, transparent: true, opacity: 0.16, roughness: 0.6, depthWrite: false });
+  const capMat = (col, alpha = 1) => new THREE.MeshBasicMaterial({ color: col, transparent: alpha < 1, opacity: alpha, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
   for (const s of g) {
     x0 = Math.min(x0, s.X - s.w / 2 - s.ins); x1 = Math.max(x1, s.X + s.w / 2 + s.ins);
     y0 = Math.min(y0, s.Y - s.h / 2 - s.ins); y1 = Math.max(y1, s.Y + s.h / 2 + s.ins);
-    const X = s.X * S, Y = -s.Y * S, col = trade3(s.e.trade);
-    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.5, metalness: s.e.kind === "pipe" || s.e.kind === "conduit" ? 0.35 : 0.15 });
+    const X = s.X * S, Y = -s.Y * S, col = trade3(s.e.trade), metal = s.e.kind === "pipe" || s.e.kind === "conduit";
+    // halves: far (z < 0) solid, near (z > 0) ghosted
+    const run = (geomOf, dx, dy, edges) => {
+      add(geomOf(H), solid(metal), X + dx, Y + dy, edges, -H / 2);
+      add(geomOf(H), ghost(), X + dx, Y + dy, false, H / 2);
+    };
     if (s.e.shape === "round") {
-      const cyl = new THREE.CylinderGeometry(s.w / 2 * S, s.w / 2 * S, L, 40, 1); cyl.rotateX(Math.PI / 2);
-      add(cyl, mat, X, Y);
+      const r = s.w / 2 * S;
+      run((len) => { const c = new THREE.CylinderGeometry(r, r, len, 40, 1); c.rotateX(Math.PI / 2); return c; }, 0, 0, true);
+      const cap = new THREE.CylinderGeometry(r, r, CAP, 40, 1); cap.rotateX(Math.PI / 2);
+      add(cap, capMat(col), X, Y, false, 0);
       if (s.ins > 0) {
-        const ins = new THREE.CylinderGeometry((s.w / 2 + s.ins) * S, (s.w / 2 + s.ins) * S, L * 0.96, 40, 1, true); ins.rotateX(Math.PI / 2);
-        add(ins, new THREE.MeshStandardMaterial({ color: col, transparent: true, opacity: 0.22, roughness: 0.9, side: THREE.DoubleSide, depthWrite: false }), X, Y, false);
+        const ri = (s.w / 2 + s.ins) * S;
+        run((len) => { const c = new THREE.CylinderGeometry(ri, ri, len * 0.96, 40, 1, true); c.rotateX(Math.PI / 2); return c; }, 0, 0, false);
+        add(new THREE.RingGeometry(r, ri, 40), capMat(col, 0.45), X, Y, false, CAP / 2 + 0.0005);
       }
     } else if (s.e.kind === "cable_tray") {
       const t = Math.min(4, s.h * 0.08) * S, w = s.w * S, h = s.h * S;
-      add(new THREE.BoxGeometry(w, t, L), mat, X, Y - h / 2 + t / 2);
-      add(new THREE.BoxGeometry(t, h, L), mat, X - w / 2 + t / 2, Y);
-      add(new THREE.BoxGeometry(t, h, L), mat, X + w / 2 - t / 2, Y);
+      run((len) => new THREE.BoxGeometry(w, t, len), 0, -h / 2 + t / 2, true);
+      run((len) => new THREE.BoxGeometry(t, h, len), -w / 2 + t / 2, 0, true);
+      run((len) => new THREE.BoxGeometry(t, h, len), w / 2 - t / 2, 0, true);
+      add(new THREE.BoxGeometry(w, t, CAP), capMat(col), X, Y - h / 2 + t / 2, false, 0);
+      add(new THREE.BoxGeometry(t, h, CAP), capMat(col), X - w / 2 + t / 2, Y, false, 0);
+      add(new THREE.BoxGeometry(t, h, CAP), capMat(col), X + w / 2 - t / 2, Y, false, 0);
+      add(new THREE.PlaneGeometry(w - 2 * t, h - t), capMat(col, 0.25), X, Y + t / 2, false, 0);
     } else {
-      add(new THREE.BoxGeometry(s.w * S, s.h * S, L), mat, X, Y);
+      run((len) => new THREE.BoxGeometry(s.w * S, s.h * S, len), 0, 0, true);
+      add(new THREE.BoxGeometry(s.w * S, s.h * S, CAP), capMat(col), X, Y, false, 0);
     }
   }
   const concrete = new THREE.MeshStandardMaterial({ color: new THREE.Color(css("--dwg-concrete")), roughness: 0.95 });

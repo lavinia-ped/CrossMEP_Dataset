@@ -8,7 +8,15 @@ package version tracks code and documentation.
 
 ## 4.1.0 — 2026-10-06 (not yet tagged)
 
+### Studio
+- 3D view: the run is drawn grey and cut at the section plane, the far half solid and the near
+  half ghosted, with the cut face filled in the trade colour, so the model reads as the section.
+
 ### Talk
+- Slides 7 and 8 show Generator Studio output instead of matplotlib figures: the A4 drawing
+  sheet and the 3D view of one studio section each (`scripts/screenshot_contexts.js`; tier C5
+  seed 8 section 11 and tier C8 seed 1 section 6), with slide 7's table and facts read from the
+  captured record.
 - Aptos throughout (the PDF export substitutes Carlito where Aptos is not installed). Numbered
   references: [n] markers in the text and a dark-grey reference line at the foot of every slide
   that cites a source (the ISARC and CIB W78 papers, Korman et al. 2003, the standards, the

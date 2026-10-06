@@ -330,8 +330,9 @@ screenshot as the fallback, with speaker notes on every slide; `docs/TALK.md` is
 practitioners ask; `docs/figures/` holds the figures. Everything regenerates from
 the released data: `python scripts/make_figures.py` (`pip install matplotlib
 "qrcode[pil]"`) writes the figures and the numbers the deck prints,
-`scripts/screenshot_gallery.js` and `scripts/screenshot_studio.js` (Playwright)
-capture the gallery and the studio, and `node docs/deck/build_deck.js` (`npm install
+`scripts/screenshot_gallery.js`, `scripts/screenshot_studio.js` and
+`scripts/screenshot_contexts.js` (Playwright) capture the gallery, the studio and two
+studio sections (sheet, 3D view and record) for slides 7 and 8, and `node docs/deck/build_deck.js` (`npm install
 pptxgenjs react-icons react react-dom sharp jszip`) builds the deck;
 `docs/deck/preview.py` renders a trace of the build for layout checks where
 LibreOffice is unavailable.

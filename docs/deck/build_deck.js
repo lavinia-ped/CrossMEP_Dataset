@@ -143,6 +143,28 @@ function recordLines(r) {
   return L;
 }
 
+// Extract src out of a PNG, crop it to its content (pixels that differ from the corner pixel), pad, and fit it in box.
+async function trimImage(slide, file, box, src, name, align = "center", pad = 24) {
+  if (!sharp) return fitImage(slide, file, box, name);
+  const { data, info } = await sharp(file).extract({ left: src.x, top: src.y, width: src.w, height: src.h }).raw().toBuffer({ resolveWithObject: true });
+  const ch = info.channels, bg = [data[0], data[1], data[2]];
+  let x0 = info.width, y0 = info.height, x1 = -1, y1 = -1;
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
+    const i = (y * info.width + x) * ch;
+    if (Math.abs(data[i] - bg[0]) + Math.abs(data[i + 1] - bg[1]) + Math.abs(data[i + 2] - bg[2]) > 60) {
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+  }
+  x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(info.width - 1, x1 + pad); y1 = Math.min(info.height - 1, y1 + pad);
+  const buf = await sharp(file).extract({ left: src.x + x0, top: src.y + y0, width: x1 - x0 + 1, height: y1 - y0 + 1 }).png().toBuffer();
+  const ar = (x1 - x0 + 1) / (y1 - y0 + 1);
+  let W = box.w, H = W / ar;
+  if (H > box.h) { H = box.h; W = H * ar; }
+  const x = box.x + (box.w - W) / 2, y = align === "top" ? box.y : box.y + (box.h - H) / 2;
+  slide.addImage({ data: "image/png;base64," + buf.toString("base64"), x, y, w: W, h: H, objectName: name });
+  return { x, y, w: W, h: H };
+}
+
 // --------------------------------------------------------------------------- deck
 
 async function main() {
@@ -599,16 +621,19 @@ async function main() {
     s.addNotes("The real designs we had were few, from one kind of project with one trade mix: one corner of the design space. A method tuned on them measures fit to that project. So we generate. CrossMEP fills the space by construction, without limit: a new seed is a new set, uniform over the tiers or any mix you ask for. Seven thousand contexts are the release, not the ceiling. (2:20)");
   }
 
+  // studio captures (scripts/screenshot_contexts.js): crop boxes and the trade colours of the 3D view
+  const TRADE = { domestic: ["domestic water", THEME.colors.accent1], heating: ["heating", THEME.colors.accent2], chilled: ["chilled water", THEME.colors.accent3],
+                  sprinkler: ["sprinkler", THEME.colors.accent5], electrical: ["electrical", THEME.colors.accent4], ventilation: ["ventilation", THEME.colors.accent6] };
+  const SHEET = { x: 60, y: 60, w: 2520, h: 1480 };      // the drawing area of the A4 sheet, inside the frame and above the title block
+  const VIEW3D = { x: 20, y: 20, w: 2600, h: 860 };      // the 3D view above its key
+
   // ========================================================================= 7 anatomy
   pres.addSection({ title: "The dataset" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("We generate what a designer receives: the section at one hanger", { placeholder: "title" });
-    // the same context the figure script picks: first C5 ceiling section with three trades on two rows
-    const bench = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "v4.1", "mep_contexts_v4.1_benchmark.json"), "utf8")).contexts;
-    const ctx = bench.find((c) => c.tier === "C5" && c.surface.kind === "ceiling" && new Set(c.elements.map((e) => e.trade)).size >= 3 && c.n_levels === 2);
-    const TRADE = { domestic: ["domestic water", THEME.colors.accent1], heating: ["heating", THEME.colors.accent2], chilled: ["chilled water", THEME.colors.accent3],
-                    sprinkler: ["sprinkler", THEME.colors.accent5], electrical: ["electrical", THEME.colors.accent4], ventilation: ["ventilation", THEME.colors.accent6] };
+    // the studio section captured by scripts/screenshot_contexts.js (tier C5, seed 8, section 11), with its stored record
+    const ctx = JSON.parse(fs.readFileSync(path.join(FIG, "11_c5.json"), "utf8")).record;
     let gap = Infinity;   // closest clear gap between insulation surfaces, as crossmep.tasks.min_clear_gap (ceiling)
     ctx.elements.forEach((p, i) => ctx.elements.slice(i + 1).forEach((q) => {
       const da = Math.abs(p.along_mm - q.along_mm) - (p.width_mm + q.width_mm) / 2 - p.insulation_mm - q.insulation_mm;
@@ -616,15 +641,20 @@ async function main() {
       gap = Math.min(gap, Math.max(da, dn));
     }));
 
-    // left: the section, cropped out of the figure
-    const img = await cropImage(s, path.join(FIG, "01_what_a_context_is.png"), { x: 0.6, y: 1.45, w: 6.3, h: 4.35 }, { x: 30, y: 40, w: 1060, h: 650 }, "context section", "top");
-    s.addText("What every element carries", { x: 0.6, y: 5.95, w: 6.3, h: 0.3, fontSize: 12, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "fields heading" });
+    // left: the section as a support detail, then the same run in 3D beside what every element carries
+    const sheet = await trimImage(s, path.join(FIG, "11_c5_sheet.png"), { x: 0.6, y: 1.45, w: 6.3, h: 3.05 }, SHEET, "section sheet", "top");
+    s.addShape(pres.ShapeType.rect, { x: sheet.x - 0.06, y: sheet.y - 0.06, w: sheet.w + 0.12, h: sheet.h + 0.12, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: "sheet frame" });
+    const v3 = await trimImage(s, path.join(FIG, "11_c5_3d.png"), { x: 0.6, y: 4.7, w: 2.7, h: 1.95 }, VIEW3D, "section 3d", "top");
+    const legend = [...new Set(ctx.elements.map((e) => e.trade))].flatMap((t) => [{ text: "● ", options: { color: TRADE[t][1] } }, { text: TRADE[t][0] + "   ", options: { color: INK2 } }]);
+    s.addText(legend, { x: 0.6, y: 6.68, w: 3.2, h: 0.22, fontSize: 9, margin: 0, isTextBox: true, objectName: "3d legend" });
+    s.addText("What every element carries", { x: 3.55, y: 4.7, w: 3.35, h: 0.3, fontSize: 12, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "fields heading" });
     const chips = ["kind", "service, trade", "size", "insulation", "position", "load = kN/m × span"];
-    let cx = 0.6;
+    let cx = 3.55, cy = 5.1;
     chips.forEach((t) => {
       const w = 0.24 + t.length * 0.064;
-      s.addShape(pres.ShapeType.roundRect, { x: cx, y: 6.3, w, h: 0.34, rectRadius: 0.17, fill: { color: THEME.colors.lt2 }, line: { color: GRID, width: 0.75 }, objectName: "chip " + t });
-      s.addText(t, { x: cx, y: 6.3, w, h: 0.34, fontSize: 10, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "chip text " + t });
+      if (cx + w > 6.9) { cx = 3.55; cy += 0.46; }
+      s.addShape(pres.ShapeType.roundRect, { x: cx, y: cy, w, h: 0.34, rectRadius: 0.17, fill: { color: THEME.colors.lt2 }, line: { color: GRID, width: 0.75 }, objectName: "chip " + t });
+      s.addText(t, { x: cx, y: cy, w, h: 0.34, fontSize: 10, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "chip text " + t });
       cx += w + 0.12;
     });
 
@@ -632,15 +662,15 @@ async function main() {
     const RX = 7.15, RW = 12.73 - RX;
     s.addText("What the support designer is given", { x: RX, y: 1.45, w: RW, h: 0.35, fontSize: 14, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "given heading" });
     const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "left" } });
-    const cell = (t, a, b) => ({ text: t, options: { fontSize: 11.5, color: THEME.colors.dk1, align: a || "left", bold: !!b } });
+    const cell = (t, a, b) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "left", bold: !!b } });
     const rows = [[hdr("Element"), hdr("Trade"), hdr("Ins. mm", "right"), hdr("kN/m", "right"), hdr("Span", "right"), hdr("kN at support", "right")]];
     ctx.elements.forEach((e) => {
       const [name, color] = TRADE[e.trade];
-      rows.push([cell(e.label, "left", true),
-        { text: [{ text: "● ", options: { color, fontSize: 11.5 } }, { text: name, options: { color: THEME.colors.dk1, fontSize: 11.5 } }], options: { align: "left" } },
+      rows.push([cell(e.label.replace("x", "×"), "left", true),
+        { text: [{ text: "● ", options: { color, fontSize: 11 } }, { text: name, options: { color: THEME.colors.dk1, fontSize: 11 } }], options: { align: "left" } },
         cell(String(Math.round(e.insulation_mm)), "right"), cell(e.load_kN_per_m.toFixed(3), "right"), cell(`${e.span_m.toFixed(1)} m`, "right"), cell(e.load_kN.toFixed(2), "right", true)]);
     });
-    s.addTable(rows, { x: RX, y: 1.85, w: RW, colW: [1.0, 1.5, 0.7, 0.75, 0.68, RW - 4.63], fontFace: THEME.bodyFontFace, fontSize: 11.5,
+    s.addTable(rows, { x: RX, y: 1.85, w: RW, colW: [1.35, 1.3, 0.7, 0.7, 0.65, RW - 4.7], fontFace: THEME.bodyFontFace, fontSize: 11,
       border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.34, valign: "middle", margin: 0.06, objectName: "record table" });
 
     // three facts about the whole context
@@ -693,10 +723,14 @@ async function main() {
       s.addText([{ text: head, options: { bold: true, color: C.text1, breakLine: true } }, { text, options: { color: INK2, fontSize: 11.5 } }],
         { x: 1.9, y, w: 4.65, h: SH, fontSize: 13, valign: "middle", margin: 0, isTextBox: true, objectName: "step " + (i + 1) });
     }
-    const img = fitImage(s, path.join(FIG, "05_generation_example.png"), { x: 6.95, y: 1.5, w: 5.78, h: 4.1 }, "generation example");
-    s.addShape(pres.ShapeType.rect, { x: img.x, y: img.y, w: img.w, h: img.h, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: "example frame" });
-    caption(s, "One generated benchmark context, three rows by priority; the gap marked is one draw from the measured distribution.",
-      { x: 6.95, y: img.y + img.h + 0.1, w: 5.78, h: 0.45 }, "generation caption", 11.5);
+    const ctx8 = JSON.parse(fs.readFileSync(path.join(FIG, "12_c8.json"), "utf8")).record;
+    const sheet8 = await trimImage(s, path.join(FIG, "12_c8_sheet.png"), { x: 6.95, y: 1.5, w: 5.78, h: 2.95 }, SHEET, "generated sheet", "top");
+    s.addShape(pres.ShapeType.rect, { x: sheet8.x - 0.06, y: sheet8.y - 0.06, w: sheet8.w + 0.12, h: sheet8.h + 0.12, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: "generated sheet frame" });
+    const v38 = await trimImage(s, path.join(FIG, "12_c8_3d.png"), { x: 6.95, y: 4.6, w: 2.75, h: 1.85 }, VIEW3D, "generated 3d", "top");
+    const legend8 = [...new Set(ctx8.elements.map((e) => e.trade))].flatMap((t) => [{ text: "● ", options: { color: TRADE[t][1] } }, { text: TRADE[t][0] + "   ", options: { color: INK2 } }]);
+    s.addText(legend8, { x: 6.95, y: 6.48, w: 3.0, h: 0.22, fontSize: 9, margin: 0, isTextBox: true, objectName: "generated 3d legend" });
+    caption(s, `One generated context, tier ${ctx8.tier}: ${ctx8.n_elements} services on ${ctx8.n_levels} rows, ducts nearest the slab, then the tray and conduits, then the pipe. The gap marked on the sheet is one draw from the measured distribution; the same seed gives the same section.`,
+      { x: 9.95, y: 4.6, w: 2.78, h: 1.9 }, "generation caption", 11);
     refs(s, [3, 10, 12]);
     s.addNotes("How is a context made? By rules an engineer would recognize. The tier fixes the element count. We pick the surface and fill it the way trades run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps are drawn from gaps measured on a built project, never below twenty-five millimetres. On walls, electrical stays above water. Same seed, same file. (3:15)");
   }
