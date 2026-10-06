@@ -544,6 +544,7 @@ async function main() {
     // a thumbnail of one context: a slab (or wall) with n elements hanging from it
     const mini = (x, y, w, h, n, kinds, color, name, wall = false) => {
       const g = { fill: { color }, line: { color: THEME.colors.lt1, width: 0.4 } };
+      s.addShape(pres.ShapeType.rect, { x: x - 0.05, y: y - 0.05, w: w + 0.1, h: h + 0.1, fill: { color: THEME.colors.lt1 }, line: { color: MUTED, width: 0.5 }, objectName: `mini card ${name}` });
       if (wall) {
         s.addShape(pres.ShapeType.rect, { x, y, w: 0.035, h, fill: { color: INK2 }, objectName: `mini wall ${name}` });
         const step = h / (n + 1), f = Math.min(1, step / 0.13);
@@ -575,23 +576,26 @@ async function main() {
     const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
     const cw2 = right.w / 8, rh = right.h / 3;
     for (let n = 1; n <= 8; n++) rows.forEach((kinds, r) => {
-      const x = right.x + (n - 1) * cw2 + 0.06, y = right.y + r * rh + 0.05;
-      mini(x, y, cw2 - 0.12, rh - 0.1, n, kinds, C.accent1, `syn ${n}${r}`, r === 2);
+      const x = right.x + (n - 1) * cw2 + 0.09, y = right.y + r * rh + 0.08;
+      mini(x, y, cw2 - 0.18, rh - 0.16, n, kinds, C.accent1, `syn ${n}${r}`, r === 2);
     });
     s.addText("CrossMEP at a glance", { x: 6.35, y: 1.5, w: 6.38, h: 0.4, fontSize: 16, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "glance heading" });
-    const tw = (6.38 - 2 * 0.2) / 3, th = 2.15;
+    const tw = (6.38 - 0.2) / 2, th = 1.3;
     const tiles = [
-      [fmtInt(comp.contexts), "contexts, four splits, disjoint seeds"],
-      [fmtInt(comp.elements), "elements, four kinds, six trades"],
-      ["C1–C8", "tiers by exact element count"],
-      ["0 labels", "the brief, not the answer"],
-      ["Traced", "every constant sourced or declared"],
-      ["Open", "data CC BY 4.0, code MIT"],
+      [fmtInt(comp.contexts), "contexts in four splits, on disjoint seeds", "FiDatabase"],
+      [fmtInt(comp.elements), "elements: pipes, trays, ducts, conduits; six trades", "FiGrid"],
+      ["C1–C8", "eight tiers by exact element count", "FiBarChart2"],
+      ["0 labels", "the brief, not the answer", "FiTag"],
+      ["Traced", "every constant sourced or declared", "FiBookOpen"],
+      ["Open", "data CC BY 4.0, code MIT, seeded generator", "FiUnlock"],
     ];
-    tiles.forEach(([big, label], i) => {
-      const r = Math.floor(i / 3), c = i % 3;
-      tile(s, 6.35 + c * (tw + 0.2), 2.05 + r * (th + 0.2), tw, th, big, label, { bigSize: 26, labelSize: 11.5 });
-    });
+    for (const [i, [big, label, icon]] of tiles.entries()) {
+      const r = Math.floor(i / 2), c = i % 2, x = 6.35 + c * (tw + 0.2), y = 2.0 + r * (th + 0.17);
+      panel(s, x, y, tw, th, "glance " + big);
+      await iconCircle(s, x + 0.22, y + 0.33, 0.64, icon, "", "glance " + big);
+      s.addText(big, { x: x + 1.05, y: y + 0.12, w: tw - 1.2, h: 0.55, fontSize: 24, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "glance value " + big });
+      s.addText(label, { x: x + 1.05, y: y + 0.68, w: tw - 1.2, h: 0.55, fontSize: 11.5, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: "glance label " + big });
+    }
     s.addNotes("The real designs we had were few, from one kind of project with one trade mix: one corner of the design space. A method tuned on them measures fit to that project. So we generate. CrossMEP fills the space by construction, without limit: a new seed is a new set, uniform over the tiers or any mix you ask for. Seven thousand contexts are the release, not the ceiling. (2:20)");
   }
 
