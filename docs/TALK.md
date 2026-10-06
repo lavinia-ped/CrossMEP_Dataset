@@ -107,7 +107,11 @@ Seven thousand contexts are the release, not the ceiling."
 
 ## 7. We generate what a designer receives: the section at one hanger (2:45)
 
-**Show:** one C5 context with its table of fields.
+**Show:** one C5 context: the section on the left with the fields every element
+carries as chips; on the right the record as the designer reads it (element,
+trade, insulation, load per metre, span, load at the support), three facts about
+the context (slab, total load, closest gap) and the band of what is deliberately
+absent: channel, rods, clamps, anchors, and any correct answer.
 
 **Say:** "Here is one context: a two-dimensional section at one support. Each element has
 its kind, service and trade, its size, insulation and position, and its load:

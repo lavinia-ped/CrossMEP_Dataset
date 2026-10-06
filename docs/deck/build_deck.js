@@ -604,9 +604,68 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("We generate what a designer receives: the section at one hanger", { placeholder: "title" });
-    const img = fitImage(s, path.join(FIG, "01_what_a_context_is.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.95 }, "context figure");
-    caption(s, "Per element: kind, service and trade · bare size · insulation per side · load per metre × the span it was sized at = load at the support · position along and out from the surface. Per context: slab or wall, substrate, thickness. Absent by design: channel, rods, clamps, anchors — and any “correct” answer, since a feasible support depends on the catalog you build from.",
-      { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "context caption");
+    // the same context the figure script picks: first C5 ceiling section with three trades on two rows
+    const bench = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "v4.1", "mep_contexts_v4.1_benchmark.json"), "utf8")).contexts;
+    const ctx = bench.find((c) => c.tier === "C5" && c.surface.kind === "ceiling" && new Set(c.elements.map((e) => e.trade)).size >= 3 && c.n_levels === 2);
+    const TRADE = { domestic: ["domestic water", THEME.colors.accent1], heating: ["heating", THEME.colors.accent2], chilled: ["chilled water", THEME.colors.accent3],
+                    sprinkler: ["sprinkler", THEME.colors.accent5], electrical: ["electrical", THEME.colors.accent4], ventilation: ["ventilation", THEME.colors.accent6] };
+    let gap = Infinity;   // closest clear gap between insulation surfaces, as crossmep.tasks.min_clear_gap (ceiling)
+    ctx.elements.forEach((p, i) => ctx.elements.slice(i + 1).forEach((q) => {
+      const da = Math.abs(p.along_mm - q.along_mm) - (p.width_mm + q.width_mm) / 2 - p.insulation_mm - q.insulation_mm;
+      const dn = Math.abs(p.out_mm - q.out_mm) - (p.height_mm + q.height_mm) / 2 - p.insulation_mm - q.insulation_mm;
+      gap = Math.min(gap, Math.max(da, dn));
+    }));
+
+    // left: the section, cropped out of the figure
+    const img = await cropImage(s, path.join(FIG, "01_what_a_context_is.png"), { x: 0.6, y: 1.45, w: 6.3, h: 4.35 }, { x: 30, y: 40, w: 1060, h: 650 }, "context section", "top");
+    s.addText("What every element carries", { x: 0.6, y: 5.95, w: 6.3, h: 0.3, fontSize: 12, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "fields heading" });
+    const chips = ["kind", "service, trade", "size", "insulation", "position", "load = kN/m × span"];
+    let cx = 0.6;
+    chips.forEach((t) => {
+      const w = 0.24 + t.length * 0.064;
+      s.addShape(pres.ShapeType.roundRect, { x: cx, y: 6.3, w, h: 0.34, rectRadius: 0.17, fill: { color: THEME.colors.lt2 }, line: { color: GRID, width: 0.75 }, objectName: "chip " + t });
+      s.addText(t, { x: cx, y: 6.3, w, h: 0.34, fontSize: 10, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "chip text " + t });
+      cx += w + 0.12;
+    });
+
+    // right: the record as the designer reads it
+    const RX = 7.15, RW = 12.73 - RX;
+    s.addText("What the support designer is given", { x: RX, y: 1.45, w: RW, h: 0.35, fontSize: 14, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "given heading" });
+    const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "left" } });
+    const cell = (t, a, b) => ({ text: t, options: { fontSize: 11.5, color: THEME.colors.dk1, align: a || "left", bold: !!b } });
+    const rows = [[hdr("Element"), hdr("Trade"), hdr("Ins. mm", "right"), hdr("kN/m", "right"), hdr("Span", "right"), hdr("kN at support", "right")]];
+    ctx.elements.forEach((e) => {
+      const [name, color] = TRADE[e.trade];
+      rows.push([cell(e.label, "left", true),
+        { text: [{ text: "● ", options: { color, fontSize: 11.5 } }, { text: name, options: { color: THEME.colors.dk1, fontSize: 11.5 } }], options: { align: "left" } },
+        cell(String(Math.round(e.insulation_mm)), "right"), cell(e.load_kN_per_m.toFixed(3), "right"), cell(`${e.span_m.toFixed(1)} m`, "right"), cell(e.load_kN.toFixed(2), "right", true)]);
+    });
+    s.addTable(rows, { x: RX, y: 1.85, w: RW, colW: [1.0, 1.5, 0.7, 0.75, 0.68, RW - 4.63], fontFace: THEME.bodyFontFace, fontSize: 11.5,
+      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.34, valign: "middle", margin: 0.06, objectName: "record table" });
+
+    // three facts about the whole context
+    const facts = [
+      ["FiLayers", `${Math.round(ctx.surface.thickness_mm)} mm`, `${ctx.surface.kind} slab, ${ctx.surface.substrate.replace("_", " ")}`],
+      ["FiArrowDown", `${ctx.total_load_kN.toFixed(2)} kN`, "total load at this support"],
+      ["FiMinimize2", `${Math.round(gap)} mm`, `closest clear gap, ${ctx.n_levels} rows`],
+    ];
+    const fw = (RW - 0.3) / 3, FY = 1.85 + 0.34 * rows.length + 0.25;
+    for (const [i, [icon, big, label]] of facts.entries()) {
+      const x = RX + i * (fw + 0.15);
+      panel(s, x, FY, fw, 1.0, "fact " + label);
+      await iconCircle(s, x + 0.15, FY + 0.25, 0.5, icon, "", "fact " + label);
+      s.addText([{ text: big, options: { bold: true, fontSize: 12.5, color: C.text1, breakLine: true } }, { text: label, options: { fontSize: 9.5, color: INK2 } }],
+        { x: x + 0.75, y: FY + 0.08, w: fw - 0.85, h: 0.84, valign: "middle", margin: 0, isTextBox: true, objectName: "fact text " + label });
+    }
+
+    // what is deliberately absent
+    const NY = FY + 1.2;
+    s.addShape(pres.ShapeType.roundRect, { x: RX, y: NY, w: RW, h: 6.64 - NY, rectRadius: 0.07, fill: { color: THEME.colors.dk2 }, objectName: "absent band" });
+    const slash = await iconData("FiSlash", THEME.colors.lt1);
+    if (slash) s.addImage({ data: slash, x: RX + 0.25, y: NY + (6.64 - NY) / 2 - 0.25, w: 0.5, h: 0.5, objectName: "icon absent" });
+    s.addText([{ text: "Not given, by design: ", options: { bold: true, color: THEME.colors.lt1 } },
+               { text: "channel, rods, clamps, anchors. No correct answer either: a feasible support depends on the catalog you build from.", options: { color: ICE } }],
+      { x: RX + 0.95, y: NY, w: RW - 1.15, h: 6.64 - NY, fontSize: 12, valign: "middle", margin: 0, isTextBox: true, objectName: "absent text" });
     s.addNotes("Here is one context: a two-dimensional section at one support. Each element has its kind, service and trade, its size, insulation and position, and its load: weight per metre times the span it was sized at. Add the surface, slab or wall, and that is all. No channel, no rods, no anchors, no correct answer, because a feasible support depends on the catalog you build from. (2:45)");
   }
 
