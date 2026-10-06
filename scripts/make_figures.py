@@ -18,6 +18,7 @@ Figures (benchmark split of the current data revision; 200 dpi):
     title_art.png               a congested section in light ink for the dark title slide
     deck_data.json              every number the slide deck prints (docs/deck/build_deck.js)
     qr_repo.png                 QR code of the repository URL
+    qr_studio.png               QR code of the hosted Generator Studio
 
 Style: light chart surface, thin marks, hairline solid gridlines, text in ink
 tokens; trade identity by colour PLUS a text label on every element, so nothing
@@ -547,13 +548,17 @@ def write_deck_data(splits, stress, trends, sections):
         json.dump(data, f, indent=1)
 
 
-def write_qr(url="https://github.com/lavinia-ped/CrossMEP_Dataset"):
+REPO_URL = "https://github.com/lavinia-ped/CrossMEP_Dataset"
+STUDIO_URL = "https://claude.ai/artifact/78t5vUgYfvXN2jUsWPeKWJ"   # hosted copy of docs/studio/index.html
+
+
+def write_qr(url=REPO_URL, name="qr_repo.png"):
     try:
         import qrcode
     except ImportError:
         print("qrcode not installed; skipping QR (pip install qrcode[pil])")
         return
-    qrcode.make(url, box_size=10, border=2).save(os.path.join(OUT, "qr_repo.png"))
+    qrcode.make(url, box_size=10, border=2).save(os.path.join(OUT, name))
 
 
 def main() -> int:
@@ -574,6 +579,7 @@ def main() -> int:
     print("title art:", fig_title_art(bench))
     write_deck_data(splits, stress, trends, sections)
     write_qr()
+    write_qr(STUDIO_URL, "qr_studio.png")
     print("wrote", sorted(os.listdir(OUT)))
     return 0
 

@@ -2,13 +2,17 @@
 /* Build the ten-minute CIB W78 talk on CrossMEP as a PowerPoint file.
 
    Inputs:  docs/figures/*.png and docs/figures/deck_data.json, both written by
-            scripts/make_figures.py from the released data; the gallery
-            screenshot from scripts/screenshot_gallery.js.
+            scripts/make_figures.py from the released data (with the QR codes of
+            the repository and the hosted studio); the gallery screenshot from
+            scripts/screenshot_gallery.js; the Generator Studio screenshots
+            (08_studio_demo, 09_studio_wall, 10_studio_mix) from
+            scripts/screenshot_studio.js.
    Output:  docs/CrossMEP_CIBW78_talk.pptx (speaker notes = docs/TALK.md)
 
    Rebuild:
        pip install matplotlib "qrcode[pil]" && python scripts/make_figures.py
        NODE_PATH=$(npm root -g) node scripts/screenshot_gallery.js        # needs Playwright
+       NODE_PATH=$(npm root -g) node scripts/screenshot_studio.js         # needs Playwright
        npm install pptxgenjs react-icons react react-dom sharp jszip      # anywhere; set NODE_PATH to it
        node docs/deck/build_deck.js
 
@@ -425,30 +429,30 @@ async function main() {
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 1: higher tiers are heavier and, on average, tighter", { placeholder: "title" });
+    s.addText("Experiment 1, a design check: difficulty grows with the tier", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "03_tiers_stats.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, "tier statistics");
     const pg = TR.population.clear_gap_mm.per_tier;
-    caption(s, `Boxes: the benchmark, 125 contexts per tier. Diamonds: medians of ${fmtInt(TR.settings.per_tier)} freshly generated contexts per tier, so the trends belong to the generator, not to sampling noise. Load rises at every tier (rank correlation with tier ${rho(TR.benchmark.load_kN.spearman)}); the closest gap shrinks overall (${rho(TR.benchmark.clear_gap_mm.spearman)}) but widens again at C6 (${mm(pg.C5.median)} → ${mm(pg.C6.median)} mm), where the generator starts stacking elements in two or three rows.`,
+    caption(s, `A check that the dataset behaves as designed, not a finding about buildings: the tier fixes the element count, and load and congestion follow from the generator’s rules. Boxes: the benchmark, 125 contexts per tier; diamonds: medians of ${fmtInt(TR.settings.per_tier)} freshly generated contexts per tier. Load rises at every tier (rank correlation with tier ${rho(TR.benchmark.load_kN.spearman)}); the closest gap shrinks overall (${rho(TR.benchmark.clear_gap_mm.spearman)}) but widens again at C6 (${mm(pg.C5.median)} → ${mm(pg.C6.median)} mm), where the generator starts stacking elements in two or three rows.`,
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.65 }, "experiment 1 caption");
-    s.addNotes(`First experiment: are the tiers ordered by difficulty? The count is exact by construction, so we look at congestion and load. The boxes are the benchmark; the diamonds are medians over ${fmtInt(TR.settings.per_tier)} freshly generated contexts per tier - the generator itself, not sampling noise. Load at the support rises at every step, from ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. Congestion rises overall - the closest gap falls from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimetres - but at C6 the generator starts stacking in two or three rows, so each row holds fewer elements and the gap widens again. So the tier fixes the count; congestion and load follow on average, and methods should be compared tier by tier. (5:20)`);
+    s.addNotes(`The first experiment is a design check, not a discovery: does difficulty grow with the tier, as intended? The count is fixed by construction; load and congestion follow from the rules, so this shows the dataset behaves as designed. Load at the support rises at every step, from ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. The closest gap falls from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimetres, but widens again at C6, where the generator starts stacking in two or three rows. So report methods tier by tier. (5:20)`);
   }
 
   // ========================================================================= 10 experiment 2
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 2: generated spacing matches a building it never saw", { placeholder: "title" });
+    s.addText("Experiment 2, the real test: spacing in a building it never saw", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "04_gaps_vs_buildings.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, "gap distributions");
     const g = SEC.gen_to_real, r = SEC.real_to_real;
     const gc = g.clinic_plumbing[LW];
-    caption(s, `Sections cut every 250 mm through two open IFC buildings from buildingSMART (CC BY 4.0), measuring the clear gap between side-by-side pipes. The medical-dental clinic, a real building with ${SEC.measured.clinic_plumbing.pairs} measured pipe pairs, is ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}): about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). The small residential duplex is as far from the generator (${span(g.duplex_mep[LW].w1, g.duplex_plumbing[LW].w1)} mm) as from the clinic (${span(r["clinic_plumbing|duplex_mep"][LW].w1, r["clinic_plumbing|duplex_plumbing"][LW].w1)} mm).`,
+    caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Sections cut every 250 mm through two open IFC buildings from buildingSMART (CC BY 4.0), measuring the clear gap between side-by-side pipes. The medical-dental clinic, a real building with ${SEC.measured.clinic_plumbing.pairs} measured pipe pairs, is ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}): about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). The small residential duplex is as far from the generator (${span(g.duplex_mep[LW].w1, g.duplex_plumbing[LW].w1)} mm) as from the clinic (${span(r["clinic_plumbing|duplex_mep"][LW].w1, r["clinic_plumbing|duplex_plumbing"][LW].w1)} mm).`,
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.65 }, "experiment 2 caption");
-    s.addNotes(`Second experiment: is the spacing realistic? We took two open buildings from buildingSMART - a residential duplex and a medical-dental clinic, which is a real building - and cut sections every 250 millimetres, the way a context is defined, measuring the gap between pipes running side by side. On the left, the clinic, which the generator never saw: the generated gaps follow the measured ones closely. On the right, the distances. Generated to clinic: ${mm(gc.w1)} millimetres, about as close as the duplex's own two models are to each other. The small duplex is as far from the generator as it is from the clinic. A fixed modular gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} millimetres off. (6:15)`);
+    s.addNotes(`The second experiment is the one the generator could fail: is the spacing realistic in a building it never saw? The gap distribution was fitted on a residential duplex from buildingSMART. We held out a second open building, a medical-dental clinic, which is a real building, cut it into sections every 250 millimetres, the way a context is defined, and measured the gap between pipes running side by side. On the left, the clinic: the generated gaps follow the measured ones. On the right, the distances: generated to clinic ${mm(gc.w1)} millimetres, about as close as the duplex's own two models are to each other. A fixed modular gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} millimetres off. (6:00)`);
   }
 
   // ========================================================================= 11 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 3: a two-size clamp catalog attaches 1 pipe in 9", { placeholder: "title" });
+    s.addText("Experiment 3, a use: what must a clamp catalog cover?", { placeholder: "title" });
     const sizes = Object.keys(CAT.by_size);
     s.addChart(pres.ChartType.bar, [
       { name: "attachable", labels: sizes, values: sizes.map((k) => CAT.by_size[k].covered) },
@@ -473,11 +477,27 @@ async function main() {
       `with two sizes placed where the pipes are; ${Math.round(k6)} % with six, and every pipe with ${curve.length}`, { labelSize: 11 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
       `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
-    s.addNotes(`The third experiment connects the dataset to the task it serves: what must a catalog of clamps cover? Take the two-size catalog from the paper as an illustration. It attaches ${fmt1(CB.pct_pipes)} per cent of the pipes - ${CB.covered} of ${fmtInt(CB.pipes)}, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])} - and every one is a single size, DN40. Load never binds: the heaviest pipe is ${CB.max_pipe_load_kN.toFixed(2)} kilonewtons against a ${CB.min_bin_capacity_kN.toFixed(1)} kilonewton clamp. Trays, ducts and conduits are not covered at all. On the right is what the dataset asks of any catalog: two sizes placed where the pipes are would attach ${Math.round(k2)} per cent, six sizes ${Math.round(k6)}, and ${curve.length} sizes every pipe. So 'what should the catalog contain' becomes a measurement. (7:05)`);
+    s.addNotes(`The third is a use of the dataset, not a test of it: what must a catalog of clamps cover? Take the paper's two-size catalog as an illustration. It attaches ${fmt1(CB.pct_pipes)} per cent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all of one size, DN40; load never binds, and trays, ducts and conduits are not covered at all. On the right is what the dataset asks of any catalog: two well-placed sizes attach ${Math.round(k2)} per cent, six ${Math.round(k6)}, ${curve.length} every pipe. So 'what should the catalog contain' becomes a measurement. (6:50)`);
   }
 
-  // ========================================================================= 12 using it
+  // ========================================================================= 12 demo
   pres.addSection({ title: "Use" });
+  {
+    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
+    s.addText("See it: set the parameters, get the support designer’s brief", { placeholder: "title" });
+    const img = fitImage(s, path.join(FIG, "08_studio_demo.png"), { x: 0.6, y: 1.45, w: 8.75, h: 5.0 }, "studio screenshot");
+    caption(s, "Generator Studio, tier C7, seed 0: the section as a support detail (scale 1:20) and in 3D.", { x: 0.6, y: img.y + img.h + 0.08, w: img.w, h: 0.3 }, "studio caption");
+    const x = 9.65, w = 12.73 - x;
+    bullets(s, [
+      "In: a tier or an exact mix of services, slab or wall, a seed",
+      "Out: the section a support designer receives, with sizes, levels, loads and clear gaps",
+      "Every section is a stored output of the released generator, with the Python call that reproduces it",
+    ], { x, y: 1.5, w, h: 3.0 }, 14, "studio bullets");
+    s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.6) / 2, y: 4.55, w: 1.6, h: 1.6, objectName: "qr studio" });
+    s.addText("Try it: docs/studio in the repository", { x, y: 6.2, w, h: 0.35, fontSize: 11, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
+    s.addNotes("Here is what that means in practice. In the studio I choose what crosses the hanger: a tier, or an exact mix, and the seed. Out comes the section a support designer receives, drawn the way an engineer would issue it: every service at true size, its level below the slab, its load at the support, the closest clear gap; and the same run in 3D. Every section is a stored output of the released generator, with the Python call that reproduces it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 16 shows two more sections.] (7:30)");
+  }
+  // ========================================================================= 13 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("Using CrossMEP: train, evaluate, report", { placeholder: "title" });
@@ -506,10 +526,10 @@ async function main() {
       s.addText(head, { x: x + 0.25, y: 5.32, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
       s.addText(text, { x: x + 0.25, y: 5.75, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
     });
-    s.addNotes("Using it takes a few lines. Load a split - only the Python standard library is needed - filter by composition, or generate your own mix with the same rules; there is an interactive gallery for inspection. Because there are no labels, the same files serve reinforcement learning, constraint-programming baselines and human benchmarking, and we ship the scoring too: train on the generator with as many seeds as you like, from C1 up to C8; evaluate on the benchmark, the same 125 contexts per tier for every method; and report per tier with 95 per cent intervals and paired tests, so two methods can be compared fairly. (7:50)");
+    s.addNotes("Using it takes a few lines: load a split with the Python standard library, filter by composition, or generate your own mix with the same rules. Because there are no labels, the same files serve reinforcement learning, constraint-programming baselines and human benchmarking, and we ship the scoring: train on the generator, from C1 up to C8; evaluate on the benchmark, the same 125 contexts per tier for every method; report per tier with 95 per cent intervals and paired tests. (8:10)");
   }
 
-  // ========================================================================= 13 scope & next
+  // ========================================================================= 14 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("Scope, and what comes next", { placeholder: "title" });
@@ -535,10 +555,10 @@ async function main() {
       { text: "open the gallery, filter for the scenes you know, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
-    s.addNotes("Its scope: one section at one support - routing, branches and spacing are outside it, although the span is recorded so a method can vary it. Realism is checked on sections of two open buildings; congested racks rest on practice and standards. The trade mix is a design choice, and the data is not for structural design. Next: a public checker for support designs, with best-known costs, so methods can be compared on the answer and not only on the brief; the catalog as an input, so a method is tested on catalogs it has never seen; and a real test set from commercial projects, with supports designed by engineers - which is where we would value your eye. (8:40)");
+    s.addNotes("Its scope: one section at one support - routing, branches and spacing are outside it, although the span is recorded so a method can vary it. Realism is checked on sections of two open buildings; congested racks rest on practice and standards. The trade mix is a design choice, and the data is not for structural design. Next: a public checker for support designs, with best-known costs, so methods can be compared on the answer and not only on the brief; the catalog as an input, so a method is tested on catalogs it has never seen; and a real test set from commercial projects, with supports designed by engineers - which is where we would value your eye. (8:45)");
   }
 
-  // ========================================================================= 14 closing
+  // ========================================================================= 15 closing
   {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
     s.addText("CrossMEP: the brief, not the answer", { placeholder: "title" });
@@ -550,11 +570,22 @@ async function main() {
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.6, y: 2.5, w: 2.3, h: 2.3, objectName: "qr closing" });
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
-    s.addNotes("CrossMEP is the brief, not the answer: 7,000 support-design problems, every number traced to its source, checked against two open buildings, and open. The QR code takes you to the data, the code and the gallery. Thank you. (9:10)");
+    s.addNotes("CrossMEP is the brief, not the answer: 7,000 support-design problems, every number traced to its source, checked against two open buildings, and open. The QR code takes you to the data, the code, the gallery and the studio. Thank you. (9:15)");
   }
 
   // ========================================================================= appendix
   pres.addSection({ title: "Appendix" });
+  {
+    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });   // backup for the live demo
+    s.addText("Appendix: two more sections from the Generator Studio", { placeholder: "title" });
+    const cw = (12.13 - 0.25) / 2;
+    const a = fitImage(s, path.join(FIG, "09_studio_wall.png"), { x: 0.6, y: 1.45, w: cw, h: 4.7 }, "studio wall sheet");
+    const b = fitImage(s, path.join(FIG, "10_studio_mix.png"), { x: 0.6 + cw + 0.25, y: 1.45, w: cw, h: 4.7 }, "studio mix sheet");
+    caption(s, "Tier C6, seed 0, section 5: six pipes fixed to a wall; offsets from the wall face, the closest clear gap 25 mm.", { x: a.x, y: a.y + a.h + 0.08, w: a.w, h: 0.5 }, "wall caption");
+    caption(s, "Exact mix: 2 pipes, 1 tray, 1 duct, 2 conduits on a slab; levels below the soffit and the load at the support.", { x: b.x, y: b.y + b.h + 0.08, w: b.w, h: 0.5 }, "mix caption");
+    s.addNotes("Backup for the live demo. Left: a wall section, six pipes in two rows, each labelled with its size, trade, insulation, offset from the wall and load at the support. Right: an exact mix on a slab, with a duct, a tray, conduits and pipes, their levels below the soffit and the closest clear gap.");
+  }
+
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
     s.addText("Appendix: per-tier statistics, benchmark split", { placeholder: "title" });
