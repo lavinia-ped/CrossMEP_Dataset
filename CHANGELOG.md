@@ -21,8 +21,9 @@ package version tracks code and documentation.
   design space; CrossMEP fills it by construction and without limit (a new seed is a new set),
   uniform over the tiers or any mix on request.
 - The opening now runs hospital → one cross-section in, verified designs out → why it resists
-  automation → what a method would look like → the design space → the dataset. 18 main slides,
-  about 8:30; later slide numbers shift by three from 4.0.0.
+  automation → what a method would look like → the design space → the dataset. 18 slides and no
+  appendix (the 4.0.0 backup slides are dropped; the demo slide's screenshot is its own fallback),
+  about 8:30 of speech; later slide numbers shift by three from 4.0.0.
 
 ### Data revision 4.1
 - `data/v4.1/`: four splits on the same seeds, regenerated with four composition parameters

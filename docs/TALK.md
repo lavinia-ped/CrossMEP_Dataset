@@ -6,8 +6,8 @@ construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
 Timing: 18 slides in about 8.5 minutes of speech at an easy pace (about 145 words a minute; slide 15 is a demo of the
-Generator Studio, with its screenshot as the fallback); five appendix slides for questions,
-the first with two more studio sections.
+Generator Studio, with its screenshot as the fallback). No appendix slides: the
+questions below are answered from the main slides.
 
 **Before the talk.**
 1. The QR codes on slides 17 and 18 and the closing link open
@@ -220,8 +220,8 @@ load, the closest gap, and the run in 3D. Every section is a stored output of
 the released generator. Scan the code to try it."
 
 **Do (about 30 s):** switch to the studio; click C3, then *Generate another*
-twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
-appendix slide 19 shows two more sections. (See "Before the talk" above.)
+twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide: its
+screenshot is the fallback. (See "Before the talk" above.)
 
 ## 16. Train on the generator, evaluate on the benchmark, report per tier (7:10)
 
@@ -251,12 +251,6 @@ engineers. That is where I would value your eye."
 problems, every constant sourced or declared, spacing checked on two open
 buildings, all of it open. If you coordinate services or design supports, try
 the studio and tell me what looks wrong. Thank you."
-
-**Appendix slides:** two more sections from the Generator Studio (the demo
-fallback); per-tier statistics of the benchmark split; the realism
-check in detail (samples, both weightings, noise floors, sensitivity to the cut);
-the catalog stress test with error bars (per tier, per split, sensitivity to the
-diameter rule and bin tolerance); one stored record in JSON.
 
 ---
 
