@@ -931,41 +931,34 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("Train on the generator, evaluate on the benchmark, report per tier", { placeholder: "title" });
+    // the protocol as a flow: generator -> train -> benchmark -> report
+    const steps = [
+      ["FiCpu", "Generator", "unlimited problems: a new seed is a new set; a curriculum from C1 up to C8"],
+      ["FiLayers", "Train", `${fmtInt(D.splits.train.contexts)} contexts (seed ${D.splits.train.seed}); validation ${fmtInt(D.splits.val.contexts)}, test ${fmtInt(D.splits.test.contexts)}, on their own seeds`],
+      ["FiTarget", "Benchmark", `${fmtInt(D.splits.benchmark.contexts)} contexts, 125 per tier, seed ${D.splits.benchmark.seed}: never trained on, the same for every method`],
+      ["FiBarChart2", "Report", "per tier, with 95 % intervals and paired tests between methods"],
+    ];
+    const FW = 2.5, FG = (12.13 - 4 * FW) / 3, FY = 1.5, FH = 2.25;
+    const links = ["train on", "evaluate on", "then"];
+    for (const [i, [icon, head, body]] of steps.entries()) {
+      const x = 0.6 + i * (FW + FG);
+      panel(s, x, FY, FW, FH, "flow " + head);
+      await iconCircle(s, x + 0.25, FY + 0.25, 0.6, icon, "", "flow " + head);
+      s.addText(head, { x: x + 1.0, y: FY + 0.25, w: FW - 1.2, h: 0.6, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "flow head " + head });
+      s.addText(body, { x: x + 0.25, y: FY + 1.0, w: FW - 0.5, h: FH - 1.15, fontSize: 12, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "flow text " + head });
+      if (i < 3) {
+        s.addShape(pres.ShapeType.line, { x: x + FW + 0.05, y: FY + 0.55, w: FG - 0.1, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "flow arrow " + i });
+        s.addText(links[i], { x: x + FW - 0.25, y: FY + 0.6, w: FG + 0.5, h: 0.25, fontSize: 9.5, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "flow link " + i });
+      }
+    }
     codeCard(s, [
       "import crossmep.tasks as cm",
-      "data = cm.load(\"benchmark\")  # 1,000 contexts",
-      "cm.filter_contexts(data, pipes=2, trays=1)",
-      "",
+      "data = cm.load(\"benchmark\")  # 1,000 contexts, or generate your own mix",
       "from crossmep.evaluate import score, compare",
-      "score(my_results, data)  # per tier, 95 % CI",
-      "compare(mine, baseline, data)  # paired test",
-    ], { x: 0.6, y: 1.55, w: 6.0, h: 2.05 }, 13, "code");
-    caption(s, "Loading, metrics and scoring need only the Python standard library; the generator needs NumPy.",
-      { x: 0.6, y: 3.75, w: 6.0, h: 0.6 }, "code caption");
-    // the four splits, on disjoint seeds
-    s.addText("Four splits on disjoint seeds; the test seeds are never trained on", { x: 6.95, y: 1.55, w: 5.78, h: 0.3, fontSize: 12.5, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "splits heading" });
-    const names = { train: "train", val: "validation", test: "test", benchmark: "benchmark" };
-    const sw = (5.78 - 3 * 0.12) / 4;
-    ["train", "val", "test", "benchmark"].forEach((sp, i) => {
-      const v = D.splits[sp], x = 6.95 + i * (sw + 0.12);
-      panel(s, x, 1.95, sw, 1.5, "split " + sp);
-      s.addText(fmtInt(v.contexts), { x: x + 0.12, y: 2.02, w: sw - 0.24, h: 0.5, fontSize: 22, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "split count " + sp });
-      s.addText([{ text: names[sp], options: { bold: true, color: C.text1, breakLine: true } }, { text: `seed ${v.seed}` + (sp === "benchmark" ? " · 125 per tier" : ""), options: { color: INK2 } }],
-        { x: x + 0.12, y: 2.55, w: sw - 0.24, h: 0.8, fontSize: 10.5, valign: "top", margin: 0, isTextBox: true, objectName: "split label " + sp });
-    });
-    caption(s, `${fmtInt(comp.contexts)} contexts, ${fmtInt(comp.elements)} elements; tiers assigned round-robin. Plain JSON files with a schema and a datasheet.`, { x: 6.95, y: 3.55, w: 5.78, h: 0.55 }, "splits caption", 11);
-    const uses = [
-      ["Train", "on the generator: unlimited seeds, a curriculum from C1 up to C8"],
-      ["Evaluate", "on the benchmark: 125 held-out contexts per tier, the same for every method"],
-      ["Report", "per tier with 95 % intervals, paired tests between methods"],
-    ];
-    const uw = (12.13 - 2 * 0.2) / 3;
-    uses.forEach(([head, text], i) => {
-      const x = 0.6 + i * (uw + 0.2);
-      panel(s, x, 4.75, uw, 1.4, "use " + head);
-      s.addText(head, { x: x + 0.25, y: 4.87, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
-      s.addText(text, { x: x + 0.25, y: 5.3, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
-    });
+      "score(my_results, data)  # per tier, 95 % CI    compare(mine, baseline, data)  # paired test",
+    ], { x: 0.6, y: 4.1, w: 12.13, h: 1.45 }, 13, "code");
+    caption(s, "Four lines to load, score and compare; loading, metrics and scoring need only the Python standard library, the generator needs NumPy. The same files serve reinforcement learning, constraint programming and benchmarking: there are no labels to fit a method to.",
+      { x: 0.6, y: 5.7, w: 12.13, h: 0.55 }, "code caption", 11.5);
     s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Four splits on disjoint seeds: five thousand to train, five hundred each for validation and test, and a benchmark of a thousand, a hundred and twenty-five per tier. The same files serve reinforcement learning, constraint programming and benchmarking, and we ship the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for every method. Report per tier, with intervals and paired tests. (6:45)");
   }
 
@@ -973,23 +966,28 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("One section at one support today; a checker and real data come next", { placeholder: "title" });
-    const cw = (12.13 - 0.25) / 2;
-    panel(s, 0.6, 1.5, cw, 3.55, "scope card");
-    s.addText("Scope", { x: 0.9, y: 1.65, w: cw - 0.6, h: 0.45, fontSize: 18, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "scope heading" });
-    bullets(s, [
-      "One cross-section at one support: routing, branches and elevation changes are outside it; so is support spacing — the span is recorded per element, so a method can vary it",
-      "Realism checked on sections of two open buildings, a residential duplex and a medical clinic; congested racks rest on coordination practice and standards",
-      "Trade mix and tier composition are design choices, not survey results",
-      "Synthetic: not for the structural design of real installations",
-    ], { x: 0.9, y: 2.2, w: cw - 0.6, h: 2.75 }, 14, "scope bullets");
-    const x2 = 0.6 + cw + 0.25;
-    panel(s, x2, 1.5, cw, 3.55, "next card");
-    s.addText("Next", { x: x2 + 0.3, y: 1.65, w: cw - 0.6, h: 0.45, fontSize: 18, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "next heading" });
-    bullets(s, [
-      "A public checker for support designs, with best-known costs from an exact solver on the small tiers",
-      "The catalog as an input: generated catalogs, and tests on catalogs a method has never seen",
-      "A real test set: sections from commercial projects with supports designed by engineers",
-    ], { x: x2 + 0.3, y: 2.2, w: cw - 0.6, h: 2.75 }, 14, "next bullets");
+    const cw = (12.13 - 0.25) / 2, x2 = 0.6 + cw + 0.25;
+    const column = async (x, head, rows, numbered, name) => {
+      panel(s, x, 1.5, cw, 3.55, name + " card");
+      s.addText(head, { x: x + 0.3, y: 1.6, w: cw - 0.6, h: 0.4, fontSize: 18, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: name + " heading" });
+      const rh = (3.55 - 0.65) / rows.length;
+      for (const [i, [icon, text]] of rows.entries()) {
+        const y = 2.1 + i * rh;
+        await iconCircle(s, x + 0.3, y + rh / 2 - 0.22, 0.44, numbered ? null : icon, i + 1, name + " " + i);
+        s.addText(text, { x: x + 0.95, y, w: cw - 1.2, h: rh, fontSize: 12.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: name + " text " + i });
+      }
+    };
+    await column(0.6, "Scope", [
+      ["FiCrop", "One cross-section at one support: routing, branches and support spacing are outside it; the span is recorded, so a method can vary it"],
+      ["FiCheckCircle", "Realism checked on two open buildings, a residential duplex and a medical clinic; congested racks rest on practice and standards"],
+      ["FiEdit3", "Trade mix and tier composition are design choices, not survey results"],
+      ["FiAlertTriangle", "Synthetic: not for the structural design of real installations"],
+    ], false, "scope");
+    await column(x2, "Next", [
+      [null, "A public checker for support designs, with best-known costs from an exact solver on the small tiers"],
+      [null, "The catalog as an input: generated catalogs, and catalogs a method has never seen"],
+      [null, "A real test set: sections from commercial projects with supports designed by engineers"],
+    ], true, "next");
     s.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 5.3, w: 12.13, h: 1.35, rectRadius: 0.07, fill: { color: C.text2 }, objectName: "ask band" });
     s.addText([{ text: "If you coordinate services or design supports, ", options: { bold: true } },
       { text: "open the studio, generate the sections you know from your projects, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],

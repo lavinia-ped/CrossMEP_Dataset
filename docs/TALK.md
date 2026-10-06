@@ -219,8 +219,9 @@ screenshot is the fallback. (See "Before the talk" above.)
 
 ## 14. Train on the generator, evaluate on the benchmark, report per tier (6:45)
 
-**Show:** six lines of Python, including `score` and `compare`; the four splits
-as tiles (5,000 / 500 / 500 / 1,000 on disjoint seeds); train, evaluate, report.
+**Show:** the protocol as a flow, generator → train (5,000; validation and
+test 500 each) → benchmark (1,000, 125 per tier, never trained on) → report per
+tier; four lines of Python to load, score and compare.
 
 **Say:** "Using it takes a few lines: load a split, filter by composition, or generate
 your own mix. Four splits on disjoint seeds: five thousand to train, five
@@ -232,7 +233,8 @@ per tier, with intervals and paired tests."
 
 ## 15. One section at one support today; a checker and real data come next (7:20)
 
-**Show:** scope; next steps; the request to practitioners with the QR code.
+**Show:** scope as four icon rows, next steps as three numbered rows; the
+request to practitioners with the QR code.
 
 **Say:** "Scope. CrossMEP is one section at one support. Pipe spacing was checked on two
 open buildings; the rest rests on practice and standards, and the trade mix is a
