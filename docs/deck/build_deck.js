@@ -528,35 +528,65 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("Real designs cover one corner of the design space; CrossMEP covers all of it", { placeholder: "title" });
-    // the design space: element count across, kinds and trades up; real designs cluster, the generator covers
+    // the design space: element count across, kinds / surface up. Real designs: a few near-identical
+    // sections in one corner. CrossMEP: a section for every tier, with kinds and surfaces varied.
     const plot = (x, y, w, h, head, sub, name) => {
       panel(s, x, y, w, h, "space " + name);
-      s.addText([{ text: head, options: { bold: true, fontSize: 14, color: C.text1, breakLine: true } }, { text: sub, options: { fontSize: 11.5, color: INK2 } }],
-        { x: x + 0.2, y: y + 0.12, w: w - 0.4, h: 0.62, valign: "top", margin: 0, isTextBox: true, objectName: "space head " + name });
-      const ax = { x: x + 0.55, y: y + 0.85, w: w - 0.8, h: h - 1.3 };
+      s.addText([{ text: head, options: { bold: true, fontSize: 14, color: C.text1 } }, { text: "   " + sub, options: { fontSize: 11.5, color: INK2 } }],
+        { x: x + 0.2, y: y + 0.1, w: w - 0.4, h: 0.32, valign: "middle", margin: 0, isTextBox: true, objectName: "space head " + name });
+      const ax = { x: x + 0.5, y: y + 0.52, w: w - 0.75, h: h - 0.95 };
       s.addShape(pres.ShapeType.line, { x: ax.x, y: ax.y + ax.h, w: ax.w, h: 0, line: { color: INK2, width: 1, endArrowType: "triangle" }, objectName: "x axis " + name });
       s.addShape(pres.ShapeType.line, { x: ax.x, y: ax.y, w: 0, h: ax.h, line: { color: INK2, width: 1, beginArrowType: "triangle" }, objectName: "y axis " + name });
       s.addText("elements at the hanger: 1 … 8", { x: ax.x, y: ax.y + ax.h + 0.03, w: ax.w, h: 0.25, fontSize: 10, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "x label " + name });
-      s.addText("kinds, trades, surface", { x: x + 0.02, y: ax.y, w: 0.5, h: ax.h, fontSize: 10, color: INK2, align: "center", valign: "middle", rotate: 270, margin: 0, isTextBox: true, objectName: "y label " + name });
+      s.addText("kinds, trades, surface", { x: x - 0.03, y: ax.y, w: 0.5, h: ax.h, fontSize: 10, color: INK2, align: "center", valign: "middle", rotate: 270, margin: 0, isTextBox: true, objectName: "y label " + name });
       return ax;
     };
-    const dot = (ax, u, v, color, d, name) => s.addShape(pres.ShapeType.ellipse, { x: ax.x + u * ax.w - d / 2, y: ax.y + (1 - v) * ax.h - d / 2, w: d, h: d, fill: { color }, line: { color: THEME.colors.lt1, width: 0.5 }, objectName: "dot " + name });
-    const left = plot(0.6, 1.5, 5.7, 2.3, "The real designs we had", "few, from one kind of project with one trade mix: one corner of the space", "real");
-    const cluster = [[0.12, 0.2], [0.18, 0.26], [0.22, 0.17], [0.15, 0.33], [0.27, 0.24], [0.2, 0.12], [0.31, 0.3], [0.09, 0.28], [0.25, 0.36], [0.33, 0.19], [0.17, 0.4], [0.3, 0.1]];
-    cluster.forEach(([u, v], i) => dot(left, u, v, THEME.colors.accent2, 0.16, "real " + i));
-    s.addShape(pres.ShapeType.ellipse, { x: left.x + 0.02 * left.w, y: left.y + (1 - 0.48) * left.h, w: 0.38 * left.w, h: 0.46 * left.h, fill: { type: "none" }, line: { color: THEME.colors.accent2, width: 1, dashType: "dash" }, objectName: "real cluster ring" });
-    s.addText("a method tuned here measures fit to that project", { x: left.x + 0.44 * left.w, y: left.y + 0.25 * left.h, w: 0.55 * left.w, h: 0.5, fontSize: 11, color: INK2, italic: true, margin: 0, isTextBox: true, objectName: "real note" });
-    const right = plot(0.6, 3.95, 5.7, 2.3, "CrossMEP", "the space filled by construction, without limit: a new seed is a new set; uniform over the tiers, or any mix you ask for (generate_custom)", "synthetic");
-    for (let i = 0; i < 8; i++) for (let j = 0; j < 4; j++) dot(right, 0.08 + i * 0.125, 0.12 + j * 0.26, C.accent1, 0.13, `syn ${i}${j}`);
+    // a thumbnail of one context: a slab (or wall) with n elements hanging from it
+    const mini = (x, y, w, h, n, kinds, color, name, wall = false) => {
+      const g = { fill: { color }, line: { color: THEME.colors.lt1, width: 0.4 } };
+      if (wall) {
+        s.addShape(pres.ShapeType.rect, { x, y, w: 0.035, h, fill: { color: INK2 }, objectName: `mini wall ${name}` });
+        const step = h / (n + 1), f = Math.min(1, step / 0.13);
+        for (let i = 0; i < n; i++) {
+          const cy = y + step * (i + 1), k = kinds[i % kinds.length];
+          if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: x + 0.09, y: cy - 0.045 * f, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
+          else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.05 * f, w: 0.15 * f, h: 0.1 * f, ...g, objectName: `mini ${name} ${i}` });
+          else s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.025 * f, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
+        }
+        return;
+      }
+      s.addShape(pres.ShapeType.rect, { x, y, w, h: 0.035, fill: { color: INK2 }, objectName: `mini slab ${name}` });
+      const step = w / (n + 1), f = Math.min(1, step / 0.17);
+      for (let i = 0; i < n; i++) {
+        const cx = x + step * (i + 1), k = kinds[i % kinds.length];
+        if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: cx - 0.045 * f, y: y + 0.08, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
+        else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: cx - 0.075 * f, y: y + 0.07, w: 0.15 * f, h: 0.11 * f, ...g, objectName: `mini ${name} ${i}` });
+        else s.addShape(pres.ShapeType.rect, { x: cx - 0.06 * f, y: y + 0.1, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
+      }
+    };
+    const left = plot(0.6, 1.5, 5.7, 2.3, "The real designs we had", "few · one project · one trade mix", "real");
+    // a handful of near-identical sections in one corner
+    [[0.03, 0.05], [0.14, 0.12], [0.25, 0.04], [0.06, 0.4], [0.2, 0.36], [0.33, 0.3]].forEach(([u, v], i) =>
+      mini(left.x + u * left.w, left.y + (1 - v) * left.h - 0.26, 0.5, 0.26, 3, ["pipe"], THEME.colors.accent2, "real " + i));
+    s.addShape(pres.ShapeType.ellipse, { x: left.x - 0.02, y: left.y + 0.35 * left.h, w: 0.5 * left.w, h: 0.68 * left.h, fill: { type: "none" }, line: { color: THEME.colors.accent2, width: 1, dashType: "dash" }, objectName: "real cluster ring" });
+    s.addText("a method tuned here only fits that project", { x: left.x + 0.52 * left.w, y: left.y + 0.3 * left.h, w: 0.48 * left.w, h: 0.5, fontSize: 11, color: INK2, italic: true, margin: 0, isTextBox: true, objectName: "real note" });
+    const right = plot(0.6, 3.95, 5.7, 2.3, "CrossMEP", "every tier · kinds and surfaces varied · unlimited", "synthetic");
+    // one column per tier (n elements), three rows: pipes; mixed kinds; on a wall
+    const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
+    const cw2 = right.w / 8, rh = right.h / 3;
+    for (let n = 1; n <= 8; n++) rows.forEach((kinds, r) => {
+      const x = right.x + (n - 1) * cw2 + 0.06, y = right.y + r * rh + 0.05;
+      mini(x, y, cw2 - 0.12, rh - 0.1, n, kinds, C.accent1, `syn ${n}${r}`, r === 2);
+    });
     s.addText("CrossMEP at a glance", { x: 6.35, y: 1.5, w: 6.38, h: 0.4, fontSize: 16, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "glance heading" });
     const tw = (6.38 - 2 * 0.2) / 3, th = 2.15;
     const tiles = [
-      [fmtInt(comp.contexts), "contexts in four splits on disjoint seeds"],
-      [fmtInt(comp.elements), "elements: pipes, cable trays, ducts and conduits; six trades"],
-      ["C1–C8", "eight difficulty tiers by exact element count"],
-      ["0 labels", "the brief, not the answer: no support-assembly information"],
-      ["Traced", "every constant with its source, or declared a design choice"],
-      ["Open", "data CC BY 4.0, code MIT; a seeded, deterministic generator"],
+      [fmtInt(comp.contexts), "contexts, four splits, disjoint seeds"],
+      [fmtInt(comp.elements), "elements, four kinds, six trades"],
+      ["C1–C8", "tiers by exact element count"],
+      ["0 labels", "the brief, not the answer"],
+      ["Traced", "every constant sourced or declared"],
+      ["Open", "data CC BY 4.0, code MIT"],
     ];
     tiles.forEach(([big, label], i) => {
       const r = Math.floor(i / 3), c = i % 3;
