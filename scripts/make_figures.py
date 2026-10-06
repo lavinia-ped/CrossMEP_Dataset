@@ -557,6 +557,15 @@ def write_deck_data(splits, stress, trends, sections):
                "fixed_floor_gap": r["baselines"]["fixed_floor_gap_to_mep"]},
         "measured": r["measured"], "fit": dict(r["fit"]),
     }
+    # the gap histogram of figure 04, for the deck's native chart: share of pipe pairs per 25 mm bin
+    cs = _verify_module("compare_sections")
+    gen = np.concatenate(cs.generated_samples(bench))
+    gc, wc = cs.measured_sample(cs.load_measured("clinic_plumbing"))
+    bins = np.arange(0, 601, 25)
+    hc, _ = np.histogram(gc, bins=bins, weights=wc)
+    hg, _ = np.histogram(gen, bins=bins)
+    data["gap_hist"] = {"bin_mm": [int(b) for b in bins[:-1]], "clinic": [float(v) for v in hc / hc.sum()],
+                        "generated": [float(v) for v in hg / hg.sum()], "clinic_pairs": int(len(gc)), "generated_pairs": int(len(gen))}
     c2 = [c for c in bench if c["tier"] == "C2" and c["surface"]["kind"] == "ceiling"]
     data["example_record"] = next(
         (c for c in c2 if any(e["insulation_mm"] > 0 for e in c["elements"])

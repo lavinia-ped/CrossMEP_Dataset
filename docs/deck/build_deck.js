@@ -793,79 +793,88 @@ async function main() {
     s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (3:45)");
   }
 
-  // ========================================================================= 10 release
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText(`${fmtInt(comp.contexts)} contexts in four splits; the test seeds are never trained on`, { placeholder: "title" });
-    const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12, align: a || "right" } });
-    const num = (t, b, a) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, bold: !!b, align: a || "right" } });
-    const names = { train: "train", val: "validation", test: "test", benchmark: "benchmark" };
-    const rows = [[hdr("split", "left"), hdr("contexts"), hdr("elements"), hdr("seed")]];
-    let tc = 0, te = 0;
-    for (const sp of ["train", "val", "test", "benchmark"]) {
-      const v = D.splits[sp];
-      tc += v.contexts; te += v.elements;
-      rows.push([num(names[sp], false, "left"), num(fmtInt(v.contexts)), num(fmtInt(v.elements)), num(String(v.seed))]);
-    }
-    rows.push([num("total", true, "left"), num(fmtInt(tc), true), num(fmtInt(te), true), num("")]);
-    s.addTable(rows, { x: 0.6, y: 1.55, w: 5.6, colW: [1.7, 1.3, 1.4, 1.2], fontFace: THEME.bodyFontFace, fontSize: 12,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.42, valign: "middle", margin: 0.08, objectName: "splits table" });
-    bullets(s, [
-      "Tiers assigned round-robin: 625 per tier in train, 125 in the benchmark",
-      "Four in five contexts hang from a ceiling, one in five from a wall",
-      `Six trades: electrical ${fmtInt(comp.trades.electrical)}, domestic water ${fmtInt(comp.trades.domestic)}, heating ${fmtInt(comp.trades.heating)}, chilled water ${fmtInt(comp.trades.chilled)}, sprinkler ${fmtInt(comp.trades.sprinkler)}, ventilation ${fmtInt(comp.trades.ventilation)} elements`,
-      "Plain JSON, with a JSON Schema, Croissant metadata and a datasheet",
-    ], { x: 0.6, y: 4.35, w: 5.6, h: 2.35 }, 13, "release facts");
-    const kinds = comp.kinds;
-    s.addChart(pres.ChartType.bar, [{ name: "elements", labels: ["pipes", "conduits", "cable trays", "ducts"],
-      values: [kinds.pipe, kinds.conduit, kinds.cable_tray, kinds.duct] }],
-      chartStyle({ x: 6.55, y: 1.5, w: 6.18, h: 2.45, barDir: "bar", barGapWidthPct: 70, catAxisOrientation: "maxMin",
-        valAxisHidden: true, valGridLine: { style: "none" }, dataLabelFormatCode: "#,##0",
-        title: "Elements by kind, all splits", objectName: "kinds chart" }));
-    const dnLabels = Object.keys(comp.dn);
-    s.addChart(pres.ChartType.bar, [{ name: "pipes", labels: dnLabels, values: dnLabels.map((k) => comp.dn[k]) }],
-      chartStyle({ x: 6.55, y: 4.1, w: 6.18, h: 2.6, barDir: "col", barGapWidthPct: 80, dataLabelFormatCode: "#,##0",
-        dataLabelFontSize: 9, valAxisLabelFormatCode: "#,##0", valAxisMinVal: 0, valAxisMaxVal: 4000, valAxisMajorUnit: 1000,
-        title: "Pipes by nominal size, all splits", objectName: "dn chart" }));
-    s.addNotes("Four splits on disjoint seeds: five thousand for training, five hundred each for validation and test, and a benchmark of a thousand, a hundred and twenty-five per tier. Plain JSON, with a schema and a datasheet. (4:00)");
-  }
-
-  // ========================================================================= 11 gallery
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Difficulty is one number: tier Cn holds exactly n elements", { placeholder: "title" });
-    const img = fitImage(s, path.join(FIG, "02_tier_gallery.png"), { x: 0.6, y: 1.4, w: 12.13, h: 4.95 }, "tier gallery");
-    caption(s, "One benchmark context per tier; dashed rings are insulation. Within a tier, kinds, trades, services, surfaces and stacking all vary, so element count is the one controlled difficulty axis. C1 is the most common support in any building; C8 is a congested rack.",
-      { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "gallery caption");
-    s.addNotes("One benchmark context per tier. C1 is a single element, the most common support in any building; C8 has eight services on three rows. Within a tier everything else varies, so the element count is the one controlled axis of difficulty. On walls the section rotates, and electrical sits above water. (4:15)");
-  }
-
-  // ========================================================================= 12 experiment 1
+  // ========================================================================= 10 tiers and the design check (gallery + experiment 1)
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Higher tiers are heavier and tighter, as designed", { placeholder: "title" });
-    const img = await cropImage(s, path.join(FIG, "03_tiers_stats.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2000, h: 715 }, "tier statistics", "top");
-    const pg = TR.population.clear_gap_mm.per_tier;
-    caption(s, `A check that the dataset behaves as designed: the tier fixes the element count; load and congestion follow from the rules. Boxes: benchmark, 125 contexts per tier (IQR, whiskers 1.5 IQR); diamonds: medians of ${fmtInt(TR.settings.per_tier)} generated contexts per tier. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)}; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}; ${mm(pg.C2.median)} → ${mm(pg.C8.median)} mm in the population).`,
-      { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 1 caption", 12.5);
-    s.addNotes(`Three analyses. The first is a design check: the count is fixed by construction, and load and congestion follow from the rules. Load at the support rises with the tier, from about ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons, and the closest gap narrows at every step, from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimetres. The dataset behaves as designed. (4:40)`);
+    s.addText("Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed", { placeholder: "title" });
+    // one benchmark context per tier: the two rows of the gallery figure, side by side as one strip
+    const gal = path.join(FIG, "02_tier_gallery.png"), gw = (12.13 - 0.15) / 2;
+    await cropImage(s, gal, { x: 0.6, y: 1.45, w: gw, h: 1.8 }, { x: 0, y: 0, w: 2400, h: 560 }, "tiers C1 to C4", "top");
+    await cropImage(s, gal, { x: 0.6 + gw + 0.15, y: 1.45, w: gw, h: 1.8 }, { x: 0, y: 560, w: 2400, h: 560 }, "tiers C5 to C8", "top");
+    caption(s, "One benchmark context per tier, C1 to C8; dashed rings are insulation. Within a tier, kinds, trades, surfaces and stacking all vary: the element count is the one controlled axis of difficulty.",
+      { x: 0.6, y: 2.88, w: 12.13, h: 0.4 }, "gallery caption", 11);
+    // the design check: medians per tier, benchmark (125 per tier) and population (2,000 per tier)
+    const tiers = D.tiers, lb = TR.benchmark.load_kN.per_tier, lp = TR.population.load_kN.per_tier;
+    const gb = TR.benchmark.clear_gap_mm.per_tier, gp = TR.population.clear_gap_mm.per_tier, gt = tiers.slice(1);
+    const two = (extra) => chartStyle({ chartColors: [THEME.colors.accent1, "B9C0BB"], showLegend: true, legendPos: "b", legendFontSize: 9, legendFontFace: "+mn-lt",
+      barGrouping: "clustered", barGapWidthPct: 60, dataLabelFontSize: 8.5, ...extra });
+    s.addChart(pres.ChartType.bar, [
+      { name: "benchmark median", labels: tiers, values: tiers.map((t) => lb[t].median) },
+      { name: `population median (${fmtInt(TR.settings.per_tier)} per tier)`, labels: tiers, values: tiers.map((t) => lp[t].median) }],
+      two({ x: 0.6, y: 3.35, w: 5.95, h: 2.95, barDir: "col", dataLabelFormatCode: "0.00", valAxisLabelFormatCode: "0.0", valAxisMinVal: 0,
+        title: "Heavier with the tier: median load at the support (kN)", objectName: "load chart" }));
+    s.addChart(pres.ChartType.bar, [
+      { name: "benchmark median", labels: gt, values: gt.map((t) => gb[t].median) },
+      { name: `population median (${fmtInt(TR.settings.per_tier)} per tier)`, labels: gt, values: gt.map((t) => gp[t].median) }],
+      two({ x: 6.78, y: 3.35, w: 5.95, h: 2.95, barDir: "col", dataLabelFormatCode: "0", valAxisLabelFormatCode: "0", valAxisMinVal: 0,
+        title: "Tighter with the tier: median closest clear gap (mm)", objectName: "gap chart" }));
+    caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the count; load and congestion follow from the rules. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}). Bootstrap intervals in RESULTS.md.`,
+      { x: 0.6, y: 6.38, w: 12.13, h: 0.5 }, "experiment 1 caption", 10.5);
+    s.addNotes("Three analyses. The first is a design check. One benchmark context per tier: C1 is a single element, the most common support in any building; C8 has eight services on three rows. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:00)");
   }
 
-  // ========================================================================= 13 experiment 2
+  // ========================================================================= 11 experiment 2
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
     s.addText("Spacing holds up on a clinic the generator never saw", { placeholder: "title" });
-    const img = await cropImage(s, path.join(FIG, "04_gaps_vs_buildings.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2120, h: 790 }, "gap distributions", "top");
     const g = SEC.gen_to_real, r = SEC.real_to_real;
     const gc = g.clinic_plumbing[LW];
-    caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Clear gaps between side-by-side pipes, on sections every 250 mm. Clinic (${SEC.measured.clinic_plumbing.pairs} pipe pairs): ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}), more than the ${mm(gc.noise_floor.median)} mm a perfect generator would show, and about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic [12].`,
-      { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.7 }, "experiment 2 caption", 12);
-    refs(s, [12], "", 6.8);
-    s.addNotes(`The second is the one the generator could fail: is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We held out a medical clinic, cut it into sections every 250 millimetres, and measured the gaps between pipes side by side. Generator to clinic: ${mm(gc.w1)} millimetres. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimetre gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:00)`);
+    // left: the two gap distributions, share of pipe pairs per 25 mm bin
+    const H = D.gap_hist;
+    s.addChart(pres.ChartType.bar, [
+      { name: `measured: Medical-Dental Clinic, ${fmtInt(H.clinic_pairs)} pipe pairs`, labels: H.bin_mm.map(String), values: H.clinic.map((v) => 100 * v) },
+      { name: `generated: CrossMEP benchmark, ${fmtInt(H.generated_pairs)} pipe pairs`, labels: H.bin_mm.map(String), values: H.generated.map((v) => 100 * v) }],
+      chartStyle({ x: 0.6, y: 1.45, w: 5.9, h: 4.1, barDir: "col", barGrouping: "clustered", barGapWidthPct: 30, chartColors: [THEME.colors.accent1, THEME.colors.accent2],
+        showValue: false, showLegend: true, legendPos: "t", legendFontSize: 9, legendFontFace: "+mn-lt", catAxisLabelFontSize: 8, catAxisLabelFrequency: 4,
+        valAxisLabelFormatCode: "0", valAxisTitle: "share of pipe pairs (%)", showValAxisTitle: true, valAxisTitleFontSize: 9,
+        catAxisTitle: "clear gap between neighbouring pipes, bare surfaces (mm)", showCatAxisTitle: true, catAxisTitleFontSize: 9,
+        title: "A building the generator never saw", objectName: "gap histogram" }));
+    // right: Wasserstein-1 distances with 95 % intervals, drawn to scale
+    const rows = [["generated ↔ Clinic", gc, THEME.colors.accent2], ["Duplex MEP ↔ Duplex Plumbing", r["duplex_mep|duplex_plumbing"][LW], THEME.colors.accent1],
+                  ["generated ↔ Duplex MEP", g.duplex_mep[LW], THEME.colors.accent2], ["Clinic ↔ Duplex MEP", r["clinic_plumbing|duplex_mep"][LW], THEME.colors.accent1],
+                  ["generated ↔ Duplex Plumbing", g.duplex_plumbing[LW], THEME.colors.accent2], ["Clinic ↔ Duplex Plumbing", r["clinic_plumbing|duplex_plumbing"][LW], THEME.colors.accent1]];
+    const PX = 6.75, PW = 5.98, PY = 1.45, PH = 4.1;
+    panel(s, PX, PY, PW, PH, "distance panel");
+    s.addText("How far apart the distributions are: Wasserstein-1 (mm) with 95 % interval", { x: PX + 0.2, y: PY + 0.08, w: PW - 0.4, h: 0.3, fontSize: 12, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "distance title" });
+    const AX = PX + 2.55, AW = PW - 2.95, AY = PY + 0.55, AH = PH - 1.05, XMAX = 160;
+    const xpos = (v) => AX + Math.min(v, XMAX) / XMAX * AW;
+    [0, 40, 80, 120, 160].forEach((v) => {
+      s.addShape(pres.ShapeType.line, { x: xpos(v), y: AY, w: 0, h: AH, line: { color: GRID, width: 0.75 }, objectName: "grid " + v });
+      s.addText(String(v), { x: xpos(v) - 0.3, y: AY + AH + 0.02, w: 0.6, h: 0.22, fontSize: 9, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "tick " + v });
+    });
+    const rh = AH / rows.length;
+    rows.forEach(([label, v, color], i) => {
+      const y = AY + rh * (i + 0.5);
+      s.addText(label, { x: PX + 0.15, y: y - 0.15, w: 2.35, h: 0.3, fontSize: 9.5, color: C.text1, align: "right", valign: "middle", margin: 0, isTextBox: true, objectName: "row " + label });
+      s.addShape(pres.ShapeType.line, { x: xpos(v.lo), y, w: xpos(v.hi) - xpos(v.lo), h: 0, line: { color, width: 2.5 }, objectName: "ci " + label });
+      s.addShape(pres.ShapeType.ellipse, { x: xpos(v.w1) - 0.07, y: y - 0.07, w: 0.14, h: 0.14, fill: { color }, line: { color: THEME.colors.lt1, width: 0.75 }, objectName: "w1 " + label });
+      if (v.noise_floor) s.addShape(pres.ShapeType.line, { x: xpos(v.noise_floor.median), y: y - 0.1, w: 0, h: 0.2, line: { color: MUTED, width: 1.5 }, objectName: "floor " + label });
+      s.addText(mm(v.w1), { x: xpos(v.hi) + 0.05, y: y - 0.13, w: 0.5, h: 0.26, fontSize: 10, bold: i === 0, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + label });
+    });
+    s.addText([{ text: "● ", options: { color: THEME.colors.accent2 } }, { text: "generated vs a real model     ", options: { color: INK2 } },
+               { text: "● ", options: { color: THEME.colors.accent1 } }, { text: "real vs real     ", options: { color: INK2 } },
+               { text: "|  noise floor: what a perfect generator would show", options: { color: INK2 } }],
+      { x: PX + 0.2, y: PY + PH - 0.3, w: PW - 0.4, h: 0.25, fontSize: 9, margin: 0, isTextBox: true, objectName: "distance legend" });
+    const tw = (12.13 - 2 * 0.2) / 3;
+    tile(s, 0.6, 5.72, tw, 0.95, `${mm(gc.w1)} mm`, `generator to clinic (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}); fitted on the duplex, clinic held out`, { bigSize: 20, labelSize: 10 });
+    tile(s, 0.6 + tw + 0.2, 5.72, tw, 0.95, `${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm`, "the duplex's own two models from each other: about as close as real is to real", { bigSize: 20, labelSize: 10 });
+    tile(s, 0.6 + 2 * (tw + 0.2), 5.72, tw, 0.95, `${Math.round(gc.fixed_25mm / 10) * 10} mm`, "what a fixed 25 mm gap would be from the clinic", { bigSize: 20, labelSize: 10 });
+    refs(s, [12], `Sections every 250 mm, clinic pipe pairs weighted by shared length; models: buildingSMART Duplex Apartment and Medical-Dental Clinic [12].`, 6.74);
+    s.addNotes(`The second is the one the generator could fail: is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We held out a medical clinic, cut it into sections every 250 millimetres, and measured the gaps between pipes side by side. Generator to clinic: ${mm(gc.w1)} millimetres. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimetre gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (4:35)`);
   }
 
-  // ========================================================================= 14 experiment 3
+  // ========================================================================= 12 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
     s.addText(`A two-size catalog attaches 1 pipe in ${Math.round(100 / CB.pct_pipes)}; the dataset shows what to cover`, { placeholder: "title" });
@@ -894,10 +903,10 @@ async function main() {
     tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
       `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
     refs(s, [2]);
-    s.addNotes(`The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Trays, ducts and conduits are not covered at all. On the right, what the dataset asks of any catalog: two well-placed sizes reach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} every pipe. What the catalog should contain becomes a measurement. (5:35)`);
+    s.addNotes(`The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Trays, ducts and conduits are not covered at all. On the right, what the dataset asks of any catalog: two well-placed sizes reach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} every pipe. What the catalog should contain becomes a measurement. (5:10)`);
   }
 
-  // ========================================================================= 15 demo
+  // ========================================================================= 13 demo
   pres.addSection({ title: "Use" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
@@ -912,9 +921,9 @@ async function main() {
     const v3 = await cropImage(s, demo, { x, y: row, w, h: 2.6 }, { x: 1700, y: 400, w: 980, h: 700 }, "studio 3D", "top");
     s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.35) / 2, y: v3.y + v3.h + 0.25, w: 1.35, h: 1.35, objectName: "qr studio" });
     s.addText("Scan to open the studio", { x, y: v3.y + v3.h + 1.65, w, h: 0.3, fontSize: 12, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
-    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:05)");
+    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (5:40)");
   }
-  // ========================================================================= 16 using it
+  // ========================================================================= 14 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("Train on the generator, evaluate on the benchmark, report per tier", { placeholder: "title" });
@@ -929,10 +938,18 @@ async function main() {
     ], { x: 0.6, y: 1.55, w: 6.0, h: 2.05 }, 13, "code");
     caption(s, "Loading, metrics and scoring need only the Python standard library; the generator needs NumPy. Command line: python -m crossmep generate | validate | evaluate.",
       { x: 0.6, y: 3.75, w: 6.0, h: 0.6 }, "code caption");
-    const galleryFile = path.join(FIG, "07_gallery_screenshot.png");
-    const galleryH = (await sharp(galleryFile).metadata()).height;          // the filter bar and the first cards sit at the bottom
-    const img = await cropImage(s, galleryFile, { x: 6.95, y: 1.55, w: 5.78, h: 3.1 }, { x: 0, y: Math.max(0, galleryH - 800), w: 1370, h: Math.min(800, galleryH) }, "gallery screenshot");
-    caption(s, "Interactive gallery: filter the benchmark by tier, kind, trade and surface.", { x: img.x, y: img.y + img.h + 0.08, w: img.w, h: 0.3 }, "gallery screenshot caption");
+    // the four splits, on disjoint seeds
+    s.addText("Four splits on disjoint seeds; the test seeds are never trained on", { x: 6.95, y: 1.55, w: 5.78, h: 0.3, fontSize: 12.5, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "splits heading" });
+    const names = { train: "train", val: "validation", test: "test", benchmark: "benchmark" };
+    const sw = (5.78 - 3 * 0.12) / 4;
+    ["train", "val", "test", "benchmark"].forEach((sp, i) => {
+      const v = D.splits[sp], x = 6.95 + i * (sw + 0.12);
+      panel(s, x, 1.95, sw, 1.5, "split " + sp);
+      s.addText(fmtInt(v.contexts), { x: x + 0.12, y: 2.02, w: sw - 0.24, h: 0.5, fontSize: 22, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "split count " + sp });
+      s.addText([{ text: names[sp], options: { bold: true, color: C.text1, breakLine: true } }, { text: `seed ${v.seed}` + (sp === "benchmark" ? " · 125 per tier" : ""), options: { color: INK2 } }],
+        { x: x + 0.12, y: 2.55, w: sw - 0.24, h: 0.8, fontSize: 10.5, valign: "top", margin: 0, isTextBox: true, objectName: "split label " + sp });
+    });
+    caption(s, `${fmtInt(comp.contexts)} contexts, ${fmtInt(comp.elements)} elements; tiers assigned round-robin. Plain JSON with a JSON Schema, Croissant metadata and a datasheet.`, { x: 6.95, y: 3.55, w: 5.78, h: 0.55 }, "splits caption", 11);
     const uses = [
       ["Train", "on the generator: unlimited seeds, a curriculum from C1 up to C8"],
       ["Evaluate", "on the benchmark: 125 held-out contexts per tier, the same for every method"],
@@ -941,14 +958,14 @@ async function main() {
     const uw = (12.13 - 2 * 0.2) / 3;
     uses.forEach(([head, text], i) => {
       const x = 0.6 + i * (uw + 0.2);
-      panel(s, x, 5.2, uw, 1.4, "use " + head);
-      s.addText(head, { x: x + 0.25, y: 5.32, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
-      s.addText(text, { x: x + 0.25, y: 5.75, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
+      panel(s, x, 4.75, uw, 1.4, "use " + head);
+      s.addText(head, { x: x + 0.25, y: 4.87, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
+      s.addText(text, { x: x + 0.25, y: 5.3, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
     });
-    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. The same files serve reinforcement learning, constraint programming and benchmarking, and we ship the scoring. Train on the generator, C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every method. Report per tier, with intervals and paired tests. (7:10)");
+    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Four splits on disjoint seeds: five thousand to train, five hundred each for validation and test, and a benchmark of a thousand, a hundred and twenty-five per tier. The same files serve reinforcement learning, constraint programming and benchmarking, and we ship the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for every method. Report per tier, with intervals and paired tests. (6:45)");
   }
 
-  // ========================================================================= 17 scope & next
+  // ========================================================================= 15 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("One section at one support today; a checker and real data come next", { placeholder: "title" });
@@ -974,10 +991,10 @@ async function main() {
       { text: "open the gallery, filter for the scenes you know, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
-    s.addNotes("Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It is not for the structural design of real installations. Next: a public checker, so methods can be compared on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That is where I would value your eye. (7:35)");
+    s.addNotes("Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It is not for the structural design of real installations. Next: a public checker, so methods can be compared on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That is where I would value your eye. (7:20)");
   }
 
-  // ========================================================================= 18 closing
+  // ========================================================================= 16 closing
   {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
     s.addText("Support design now has open problems to learn from", { placeholder: "title" });
@@ -990,7 +1007,7 @@ async function main() {
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.6, y: 2.5, w: 2.3, h: 2.3, objectName: "qr closing" });
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
-    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (8:10)");
+    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (7:50)");
   }
 
   await pres.writeFile({ fileName: OUT });
