@@ -313,9 +313,15 @@ async function main() {
     s.addShape(pres.ShapeType.rect, { ...ins, fill: { type: "none" }, line: orange, objectName: "inset frame" });
     s.addText("1 unit = 1 structural support assembly (SSA)", { x: ins.x, y: 1.45, w: ins.w, h: 0.45, fontSize: 15, bold: true, color: C.text1, valign: "bottom", margin: 0, isTextBox: true, objectName: "inset label" });
     const tw = (12.13 - 2 * 0.2) / 3;
-    tile(s, 0.6, 5.35, tw, 1.3, "≈ 10,000", "support assemblies in one 200,000 sq ft hospital", { bigSize: 28 });
-    tile(s, 0.6 + tw + 0.2, 5.35, tw, 1.3, "20 min – 2 h", "of engineering for each assembly, designed one by one", { bigSize: 28 });
-    tile(s, 0.6 + 2 * (tw + 0.2), 5.35, tw, 1.3, "≈ ¼", "of MEP design effort; on the order of $600K per project", { bigSize: 28 });
+    const stat = async (x, icon, big, label, name) => {
+      panel(s, x, 5.35, tw, 1.3, "tile " + name);
+      await iconCircle(s, x + 0.25, 5.35 + 0.33, 0.64, icon, "", name);
+      s.addText(big, { x: x + 1.1, y: 5.42, w: tw - 1.3, h: 0.6, fontSize: 28, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + name });
+      s.addText(label, { x: x + 1.1, y: 6.02, w: tw - 1.3, h: 0.58, fontSize: 12, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: "label " + name });
+    };
+    await stat(0.6, "FiLayers", "≈ 10,000", "support assemblies in one 200,000 sq ft hospital", "assemblies");
+    await stat(0.6 + tw + 0.2, "FiClock", "20 min – 2 h", "of engineering for each assembly, designed one by one", "time");
+    await stat(0.6 + 2 * (tw + 0.2), "FiPieChart", "≈ ¼", "of MEP design effort; on the order of $600K per project", "effort");
     refs(s, [1], "Approximate practitioner estimates [1].");
     s.addNotes("Here is the scale. Every red mark in this hospital is a place where services hang from the structure. A modular support groups several services on one prefabricated frame: a structural support assembly. A hospital this size needs about ten thousand. Each takes twenty minutes to two hours to design, roughly a quarter of the MEP design effort. Practitioner estimates, but these are the numbers people live with. (0:25)");
   }
@@ -399,25 +405,27 @@ async function main() {
     caption(s, "Design starts after coordination [3]: at each hanger the designer works from the section across the run, not from the whole model [2].",
       { x: img.x, y: img.y + img.h + 0.1, w: img.w, h: 0.5 }, "fig1 caption");
     panel(s, 8.25, 1.5, 4.48, 2.85, "practice card");
+    await iconCircle(s, 8.5, 1.68, 0.5, "FiTool", "", "practice");
     s.addText([
       { text: "Where practice stands", options: { bold: true, fontSize: 17, breakLine: true } },
       { text: " ", options: { fontSize: 6, breakLine: true } },
       { text: "Tools coordinate the model and check a design.", options: { breakLine: true } },
       { text: " ", options: { fontSize: 6, breakLine: true } },
       { text: "Choosing the topology and the parts, from a fixed catalog, is still done by hand, one section at a time [1].", options: {} },
-    ], { x: 8.5, y: 1.65, w: 4.0, h: 2.6, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "practice" });
+    ], { x: 9.15, y: 1.65, w: 3.4, h: 2.6, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "practice" });
     const why = [
-      ["Geometric judgment", "Engineers choose an assembly’s topology from experience."],
-      ["Rule explosion", "Code, load and material constraints interact across thousands of combinations."],
-      ["Catalog volatility", "Catalogs change faster than rule-based systems can be rewritten."],
+      ["Geometric judgment", "Engineers choose an assembly’s topology from experience.", "FiEye"],
+      ["Rule explosion", "Code, load and material constraints interact across thousands of combinations.", "FiGitBranch"],
+      ["Catalog volatility", "Catalogs change faster than rule-based systems can be rewritten.", "FiRefreshCw"],
     ];
     const cw = (12.13 - 2 * 0.2) / 3;
-    why.forEach(([h, t], i) => {
+    for (const [i, [h, t, icon]] of why.entries()) {
       const x = 0.6 + i * (cw + 0.2);
       panel(s, x, 4.65, cw, 1.6, "why " + h);
-      s.addText(`${i + 1}. ${h}`, { x: x + 0.25, y: 4.8, w: cw - 0.5, h: 0.42, fontSize: 17, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "why head " + h });
-      s.addText(t, { x: x + 0.25, y: 5.28, w: cw - 0.5, h: 0.9, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "why text " + h });
-    });
+      await iconCircle(s, x + 0.25, 4.8, 0.5, icon, "", "why " + h);
+      s.addText(`${i + 1}. ${h}`, { x: x + 0.9, y: 4.8, w: cw - 1.1, h: 0.5, fontSize: 17, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "why head " + h });
+      s.addText(t, { x: x + 0.25, y: 5.4, w: cw - 0.5, h: 0.8, fontSize: 14, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "why text " + h });
+    }
     refs(s, [1, 2, 3]);
     s.addNotes("Why is this still done by hand? Designers work from one section at each hanger, after coordination. Tools coordinate and check; they do not choose the layout or the parts. Three reasons: the topology comes from experience, the rules interact across thousands of combinations, and catalogs change faster than rule systems can be rewritten. (1:25)");
   }
