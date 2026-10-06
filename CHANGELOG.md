@@ -9,12 +9,22 @@ package version tracks code and documentation.
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
 ### Talk
-- Deck and script reframed: Experiment 1 is presented as a design check (the tier
-  fixes the count; load and congestion follow from the rules), Experiment 2 as the
-  independent test (gap distribution fitted on the duplex, clinic held out),
-  Experiment 3 as a use of the dataset. New slide 12: a live demo of the Generator
-  Studio (screenshot and QR code); new appendix slide with two more studio
-  sections. `scripts/screenshot_studio.js` captures the studio for the deck.
+- `docs/CrossMEP_CIBW78_talk.pptx` and its PDF (15 slides + 5 appendix, speaker notes on
+  every slide) and `docs/TALK.md` (the same talk as a script, with a pre-talk checklist and
+  questions and answers). Figures and every printed number regenerate from the released
+  data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`,
+  `scripts/screenshot_studio.js`, `docs/deck/build_deck.js`).
+- Experiments framed by what they show: Experiment 1 (slide 9) is a design check, since the
+  tier fixes the count and load and congestion follow from the rules; Experiment 2 (slide
+  10) is the independent test (gap distribution fitted on the duplex, clinic held out),
+  stated with its noise floor; Experiment 3 (slide 11) is a use of the dataset.
+- New slide 12, a live demo of the Generator Studio (parameters, section and 3D, QR code);
+  slides 13 (train / evaluate / report) and 14 (scope, next) rebuilt; appendix slides 16
+  (two more studio sections) and 18 (the realism check in detail).
+- "Every number traced" replaced by "every constant sourced or declared a design choice",
+  and "checked against two open buildings" narrowed to the pipe gaps that were checked.
+- Docs: the IFC measurement is described as recording gaps between flow-segment (bare pipe)
+  surfaces, replacing an unverified statement that the model carries no insulation geometry.
 
 ### Generator Studio
 - `docs/studio/index.html` (built by `scripts/build_studio.py`): set the generator's
@@ -64,11 +74,6 @@ package version tracks code and documentation.
   paired comparisons (stratified paired bootstrap, exact McNemar). Missing or
   unknown context ids are errors.
 
-### Talk
-- Slides 9, 10, 12 and 13 rebuilt on the new evidence (population medians, the
-  held-out building, train / evaluate / report, next steps); a new appendix slide
-  with the realism check in detail. 189 tests.
-
 ### Data revision 4.0
 - **Removed the double-counted clearance.** Revision 3.0 laid elements out with a
   25 mm routing envelope on each side *and* a 25 mm floor on the sampled gap, so
@@ -108,13 +113,6 @@ package version tracks code and documentation.
 - 36 tests (`tests/test_catalog.py`), including the DP against brute force and the
   bootstrap's coverage on synthetic clustered data. Edge case fixed: a bootstrap
   resample with no pipe is left out instead of turning the interval into NaN.
-
-### Talk material
-- `docs/CrossMEP_CIBW78_talk.pptx` (14 slides + 3 appendix, speaker notes) and `docs/TALK.md`:
-  a ten-minute talk on the dataset; figures and every printed number regenerate from the
-  released data (`scripts/make_figures.py`, `scripts/screenshot_gallery.js`, `docs/deck/build_deck.js`).
-- Docs: the IFC measurement is described as recording gaps between flow-segment (bare pipe)
-  surfaces, replacing an unverified statement that the model carries no insulation geometry.
 
 ### Code, verification and documentation (from the 3.5.0 overhaul, same branch, never tagged)
 - All splits of both revisions regenerate **byte-for-byte**; `RELEASE_CHECKSUMS.txt`
