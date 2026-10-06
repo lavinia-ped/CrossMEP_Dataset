@@ -1,6 +1,6 @@
 # CrossMEP talk: script to record
 
-Read-aloud text only, one block per slide, in the order of the slides. About 1,100 words: roughly 7 minutes 40 seconds at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
+Read-aloud text only, one block per slide, in the order of the slides. About 1,100 words: roughly 7 minutes 30 seconds at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
 
 **Recording tips**
 
@@ -83,12 +83,11 @@ choices.
 
 ## Slide 10, Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed (starts at 4:00)
 
-Three analyses. The first is a design check. One benchmark context per tier: C1 is a
-single element, the most common support in any building; C8 has eight services on three
-rows. Within a tier everything else varies, so the element count is the one controlled
-axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the
-closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves
-as designed.
+Three analyses. The first is a design check. Each tier adds one element: C1 is a single
+service, the most common support in any building; C8 has eight. Within a tier everything
+else varies, so the element count is the one controlled axis. Load at the support rises
+with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every
+step, from 130 to about 51 millimetres. The dataset behaves as designed.
 
 ## Slide 11, Spacing holds up on a clinic the generator never saw (starts at 4:35)
 

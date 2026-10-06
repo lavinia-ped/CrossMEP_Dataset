@@ -17,6 +17,8 @@ package version tracks code and documentation.
   sheet and the 3D view of one studio section each (`scripts/screenshot_contexts.js`; tier C5
   seed 8 section 11 and tier C8 seed 1 section 6), with slide 7's table and facts read from the
   captured record.
+- Stanford (CEE lockup) and Hilti logos on the title and closing slides; slide text no longer names
+  repository files (results, verification log, command line) so the deck stands alone online.
 - Aptos throughout (the PDF export substitutes Carlito where Aptos is not installed). Numbered
   references: [n] markers in the text and a dark-grey reference line at the foot of every slide
   that cites a source (the ISARC and CIB W78 papers, Korman et al. 2003, the standards, the

@@ -146,7 +146,7 @@ function recordLines(r) {
 // Extract src out of a PNG, crop it to its content (pixels that differ from the corner pixel), pad, and fit it in box.
 async function trimImage(slide, file, box, src, name, align = "center", pad = 24) {
   if (!sharp) return fitImage(slide, file, box, name);
-  const { data, info } = await sharp(file).extract({ left: src.x, top: src.y, width: src.w, height: src.h }).raw().toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharp(file).extract({ left: src.x, top: src.y, width: src.w, height: src.h }).flatten({ background: "#ffffff" }).raw().toBuffer({ resolveWithObject: true });
   const ch = info.channels, bg = [data[0], data[1], data[2]];
   let x0 = info.width, y0 = info.height, x1 = -1, y1 = -1;
   for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
@@ -156,7 +156,7 @@ async function trimImage(slide, file, box, src, name, align = "center", pad = 24
     }
   }
   x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(info.width - 1, x1 + pad); y1 = Math.min(info.height - 1, y1 + pad);
-  const buf = await sharp(file).extract({ left: src.x + x0, top: src.y + y0, width: x1 - x0 + 1, height: y1 - y0 + 1 }).png().toBuffer();
+  const buf = await sharp(file).extract({ left: src.x + x0, top: src.y + y0, width: x1 - x0 + 1, height: y1 - y0 + 1 }).flatten({ background: "#ffffff" }).png().toBuffer();
   const ar = (x1 - x0 + 1) / (y1 - y0 + 1);
   let W = box.w, H = W / ar;
   if (H > box.h) { H = box.h; W = H * ar; }
@@ -256,6 +256,15 @@ async function main() {
     slide.addText(text, { x: 0.6, y, w: 12.13, h, fontSize: 8, color: INK2, valign: "bottom", margin: 0, isTextBox: true, objectName: "references" });
   }
 
+  // affiliation logos on a white chip (dark slides): Stanford CEE lockup and Hilti
+  async function logos(slide, x, y) {
+    const W = 3.9, H = 1.3;
+    slide.addShape(pres.ShapeType.roundRect, { x, y, w: W, h: H, rectRadius: 0.08, fill: { color: THEME.colors.lt1 }, objectName: "logo chip" });
+    const sizes = await Promise.all(["logo_stanford_cee.png", "logo_hilti.jpg"].map((f) => sharp(path.join(FIG, f)).metadata()));
+    await trimImage(slide, path.join(FIG, "logo_stanford_cee.png"), { x: x + 0.2, y: y + 0.2, w: 2.2, h: H - 0.4 }, { x: 0, y: 0, w: sizes[0].width, h: sizes[0].height }, "logo stanford", "center", 8);
+    await trimImage(slide, path.join(FIG, "logo_hilti.jpg"), { x: x + 2.6, y: y + 0.42, w: 1.1, h: H - 0.84 }, { x: 0, y: 0, w: sizes[1].width, h: sizes[1].height }, "logo hilti", "center", 8);
+  }
+
   function panel(slide, x, y, w, h, name) {
     slide.addShape(pres.ShapeType.roundRect, { x, y, w, h, rectRadius: 0.07, fill: { color: C.background2 }, objectName: name });
   }
@@ -315,6 +324,7 @@ async function main() {
     ], { placeholder: "authors" });
     s.addImage({ path: path.join(FIG, "title_art.png"), x: 8.5, y: 1.6, w: 4.4, h: 2.75, objectName: "title art" });
     s.addText("a generated C8 context: eight services on three rows", { x: 8.5, y: 4.45, w: 4.4, h: 0.3, fontSize: 10, color: ICE, align: "right", margin: 0, isTextBox: true, objectName: "art caption" });
+    await logos(s, 9.0, 5.35);
     s.addNotes("I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable tray in a building hangs from a support that an engineer designs by hand. We want machines to do some of that, and the first thing missing was data: no public set of support-design problems existed. So we built one, CrossMEP, with David Gvadzabia, Torben Graeber and Martin Fischer. (0:00)");
   }
 
@@ -788,7 +798,7 @@ async function main() {
       s.addText([{ text: head, options: { bold: true, fontSize: 14, color: C.text1, breakLine: true } }, { text: body, options: { fontSize: 11, color: INK2 } }],
         { x: GX + 1.05, y, w: GW - 1.25, h: GH, valign: "middle", margin: 0, isTextBox: true, objectName: "ground text " + head });
     }
-    caption(s, "Every constant carries its source and status in the repository; the verification log says why each standard was chosen over its alternatives.", { x: 0.6, y: 5.95, w: 12.13, h: 0.3 }, "sources note", 11);
+    caption(s, "Every constant carries its source and its status, and why each standard was chosen over its alternatives is written down with it.", { x: 0.6, y: 5.95, w: 12.13, h: 0.3 }, "sources note", 11);
     refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.25, 0.72);
     s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (3:45)");
   }
@@ -813,9 +823,9 @@ async function main() {
       { name: `population median (${fmtInt(TR.settings.per_tier)} per tier)`, labels: gt, values: gt.map((t) => gp[t].median) }],
       two({ x: 6.78, y: 1.45, w: 5.95, h: 4.75, barDir: "col", dataLabelFormatCode: "0", valAxisLabelFormatCode: "0", valAxisMinVal: 0,
         title: "Tighter with the tier: median closest clear gap (mm)", objectName: "gap chart" }));
-    caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the element count; load and congestion follow from the rules. Within a tier, kinds, trades, surfaces and stacking all vary. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark, 125 contexts per tier; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}). Bootstrap intervals in RESULTS.md.`,
+    caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the element count; load and congestion follow from the rules. Within a tier, kinds, trades, surfaces and stacking all vary. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark, 125 contexts per tier; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}); intervals are bootstrapped over contexts.`,
       { x: 0.6, y: 6.3, w: 12.13, h: 0.55 }, "experiment 1 caption", 11);
-    s.addNotes("Three analyses. The first is a design check. One benchmark context per tier: C1 is a single element, the most common support in any building; C8 has eight services on three rows. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:00)");
+    s.addNotes("Three analyses. The first is a design check. Each tier adds one element: C1 is a single service, the most common support in any building; C8 has eight. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:00)");
   }
 
   // ========================================================================= 11 experiment 2
@@ -930,7 +940,7 @@ async function main() {
       "score(my_results, data)  # per tier, 95 % CI",
       "compare(mine, baseline, data)  # paired test",
     ], { x: 0.6, y: 1.55, w: 6.0, h: 2.05 }, 13, "code");
-    caption(s, "Loading, metrics and scoring need only the Python standard library; the generator needs NumPy. Command line: python -m crossmep generate | validate | evaluate.",
+    caption(s, "Loading, metrics and scoring need only the Python standard library; the generator needs NumPy.",
       { x: 0.6, y: 3.75, w: 6.0, h: 0.6 }, "code caption");
     // the four splits, on disjoint seeds
     s.addText("Four splits on disjoint seeds; the test seeds are never trained on", { x: 6.95, y: 1.55, w: 5.78, h: 0.3, fontSize: 12.5, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "splits heading" });
@@ -943,7 +953,7 @@ async function main() {
       s.addText([{ text: names[sp], options: { bold: true, color: C.text1, breakLine: true } }, { text: `seed ${v.seed}` + (sp === "benchmark" ? " · 125 per tier" : ""), options: { color: INK2 } }],
         { x: x + 0.12, y: 2.55, w: sw - 0.24, h: 0.8, fontSize: 10.5, valign: "top", margin: 0, isTextBox: true, objectName: "split label " + sp });
     });
-    caption(s, `${fmtInt(comp.contexts)} contexts, ${fmtInt(comp.elements)} elements; tiers assigned round-robin. Plain JSON with a JSON Schema, Croissant metadata and a datasheet.`, { x: 6.95, y: 3.55, w: 5.78, h: 0.55 }, "splits caption", 11);
+    caption(s, `${fmtInt(comp.contexts)} contexts, ${fmtInt(comp.elements)} elements; tiers assigned round-robin. Plain JSON files with a schema and a datasheet.`, { x: 6.95, y: 3.55, w: 5.78, h: 0.55 }, "splits caption", 11);
     const uses = [
       ["Train", "on the generator: unlimited seeds, a curriculum from C1 up to C8"],
       ["Evaluate", "on the benchmark: 125 held-out contexts per tier, the same for every method"],
@@ -982,7 +992,7 @@ async function main() {
     ], { x: x2 + 0.3, y: 2.2, w: cw - 0.6, h: 2.75 }, 14, "next bullets");
     s.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 5.3, w: 12.13, h: 1.35, rectRadius: 0.07, fill: { color: C.text2 }, objectName: "ask band" });
     s.addText([{ text: "If you coordinate services or design supports, ", options: { bold: true } },
-      { text: "open the gallery, filter for the scenes you know, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
+      { text: "open the studio, generate the sections you know from your projects, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
     s.addNotes("Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It is not for the structural design of real installations. Next: a public checker, so methods can be compared on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That is where I would value your eye. (7:20)");
@@ -999,6 +1009,7 @@ async function main() {
       { text: "Data CC BY 4.0, code MIT.  Not for the structural design of real installations.", options: { fontSize: 13 } },
     ], { placeholder: "body" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.6, y: 2.5, w: 2.3, h: 2.3, objectName: "qr closing" });
+    await logos(s, 9.0, 5.35);
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
     s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (7:50)");
