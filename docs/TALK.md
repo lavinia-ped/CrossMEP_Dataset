@@ -150,12 +150,12 @@ trade mix, labelled as choices."
 the support rises, the closest clear gap narrows; a caption says this is a design
 check and that everything else varies within a tier.
 
-**Say:** "Three analyses. The first is a design check. One benchmark context per tier: C1
-is a single element, the most common support in any building; C8 has eight
-services on three rows. Within a tier everything else varies, so the element
-count is the one controlled axis. Load at the support rises with the tier, from
-about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from
-130 to about 51 millimetres. The dataset behaves as designed."
+**Say:** "Three analyses. The first is a design check. Each tier adds one element: C1 is
+a single service, the most common support in any building; C8 has eight. Within
+a tier everything else varies, so the element count is the one controlled axis.
+Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and
+the closest gap narrows at every step, from 130 to about 51 millimetres. The
+dataset behaves as designed."
 
 **Numbers** (`verify/tier_trends.py`, revision 4.1): rank correlation of tier
 with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 kN,
