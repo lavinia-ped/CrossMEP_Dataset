@@ -914,23 +914,33 @@ async function main() {
   pres.addSection({ title: "Use" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("Set the parameters and the generator returns the designer’s brief", { placeholder: "title" });
+    s.addText("The Generator Studio turns a few parameters into the designer’s brief", { placeholder: "title" });
     const demo = path.join(FIG, "08_studio_demo.png");
-    const bar = await cropImage(s, demo, { x: 0.6, y: 1.4, w: 12.13, h: 0.85 }, { x: 30, y: 16, w: 2660, h: 176 }, "studio parameters", "top");
-    const row = bar.y + bar.h + 0.2;
-    const dwg = await cropImage(s, demo, { x: 0.6, y: row, w: 8.45, h: 3.4 }, { x: 330, y: 585, w: 1030, h: 400 }, "studio section", "top");
-    caption(s, "In: the parameters (tier C7, seed 0). Out: section A–A at the support, as the support designer receives it (scale 1:20), and the same run in 3D. Every section is a stored output of the released generator, with the Python call that reproduces it.",
-      { x: 0.6, y: dwg.y + dwg.h + 0.15, w: 8.45, h: 0.8 }, "studio caption", 12.5);
-    const x = 9.3, w = 12.73 - x;
-    const v3 = await cropImage(s, demo, { x, y: row, w, h: 2.6 }, { x: 1700, y: 400, w: 980, h: 700 }, "studio 3D", "top");
-    s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.35) / 2, y: v3.y + v3.h + 0.25, w: 1.35, h: 1.35, objectName: "qr studio" });
-    s.addText("Scan to open the studio", { x, y: v3.y + v3.h + 1.65, w, h: 0.3, fontSize: 12, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
+    const frame = (box, name) => s.addShape(pres.ShapeType.rect, { x: box.x - 0.05, y: box.y - 0.05, w: box.w + 0.1, h: box.h + 0.1, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: name });
+    // in: the parameters bar
+    s.addText("In: the parameters", { x: 0.6, y: 1.4, w: 6, h: 0.25, fontSize: 10, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "in label" });
+    const bar = await cropImage(s, demo, { x: 0.6, y: 1.7, w: 12.13, h: 0.75 }, { x: 30, y: 16, w: 2660, h: 176 }, "studio parameters", "top");
+    frame(bar, "parameters frame");
+    // out: the drawing sheet with the facts line, and the same run in 3D
+    const dwg = await trimImage(s, demo, { x: 0.6, y: 2.95, w: 7.55, h: 2.75 }, { x: 180, y: 560, w: 1300, h: 530 }, "studio section", "top", 14);
+    frame(dwg, "section frame");
+    const facts = await cropImage(s, demo, { x: 0.6, y: dwg.y + dwg.h + 0.17, w: 7.55, h: 0.36 }, { x: 30, y: 1455, w: 1400, h: 72 }, "studio facts", "top");
+    s.addText("Out: section A–A as the designer receives it, and what it carries", { x: 0.6, y: 2.65, w: 7.55, h: 0.25, fontSize: 10, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "out label" });
+    const x = 8.45, w = 12.73 - x;
+    const v3 = await trimImage(s, demo, { x, y: 2.95, w, h: 2.3 }, { x: 1720, y: 330, w: 950, h: 1000 }, "studio 3D", "top", 10);
+    frame(v3, "3d frame");
+    s.addText("Out: the same run in 3D, cut at the section", { x, y: 2.65, w, h: 0.25, fontSize: 10, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "out 3d label" });
+    panel(s, x, 5.4, w, 1.25, "studio link card");
+    s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + 0.12, y: 5.46, w: 1.13, h: 1.13, objectName: "qr studio" });
+    s.addText([{ text: "Scan to open the studio", options: { bold: true, color: C.text1, breakLine: true } },
+               { text: "every section is a stored output of the released generator, with the call that reproduces it", options: { color: INK2, fontSize: 10.5 } }],
+      { x: x + 1.35, y: 5.4, w: w - 1.5, h: 1.25, fontSize: 12.5, valign: "middle", margin: 0, isTextBox: true, objectName: "studio link" });
     s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (5:40)");
   }
   // ========================================================================= 14 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("Train on the generator, evaluate on the benchmark, report per tier", { placeholder: "title" });
+    s.addText("A method trains on the generator, is scored on the benchmark and reports per tier", { placeholder: "title" });
     // the protocol as a flow: generator -> train -> benchmark -> report
     const steps = [
       ["FiCpu", "Generator", "unlimited problems: a new seed is a new set; a curriculum from C1 up to C8"],
@@ -965,7 +975,7 @@ async function main() {
   // ========================================================================= 15 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("One section at one support today; a checker and real data come next", { placeholder: "title" });
+    s.addText("CrossMEP covers one section at one support today; a checker and real data come next", { placeholder: "title" });
     const cw = (12.13 - 0.25) / 2, x2 = 0.6 + cw + 0.25;
     const column = async (x, head, rows, numbered, name) => {
       panel(s, x, 1.5, cw, 3.55, name + " card");

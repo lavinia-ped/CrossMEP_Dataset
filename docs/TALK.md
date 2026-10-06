@@ -201,11 +201,11 @@ right, what the dataset asks of any catalog: two well-placed sizes reach 38
 percent, six sizes 76, fifteen every pipe. What the catalog should contain
 becomes a measurement."
 
-## 13. Set the parameters and the generator returns the designer's brief (5:40)
+## 13. The Generator Studio turns a few parameters into the designer's brief (5:40)
 
-**Show:** the Generator Studio (live; the slide is its screenshot): the
-parameters bar, the section drawn as an A4 support detail and the same run in
-3D; QR code to the hosted studio.
+**Show:** the Generator Studio (live; the slide is its screenshot): in, the
+parameters bar; out, the section drawn as an A4 support detail with its facts line,
+and the same run in 3D cut at the section; QR code to the hosted studio.
 
 **Say:** "Let me show it. This is the Generator Studio. I choose what crosses the hanger,
 a tier or an exact mix, and a seed. Out comes the section a designer receives,
@@ -217,7 +217,7 @@ the released generator. Scan the code to try it."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide: its
 screenshot is the fallback. (See "Before the talk" above.)
 
-## 14. Train on the generator, evaluate on the benchmark, report per tier (6:45)
+## 14. A method trains on the generator, is scored on the benchmark and reports per tier (6:45)
 
 **Show:** the protocol as a flow, generator → train (5,000; validation and
 test 500 each) → benchmark (1,000, 125 per tier, never trained on) → report per
@@ -231,7 +231,7 @@ constraint programming and benchmarking, and we ship the scoring. Train on the
 generator. Evaluate on the benchmark, the same contexts for every method. Report
 per tier, with intervals and paired tests."
 
-## 15. One section at one support today; a checker and real data come next (7:20)
+## 15. CrossMEP covers one section at one support today; a checker and real data come next (7:20)
 
 **Show:** scope as four icon rows, next steps as three numbered rows; the
 request to practitioners with the QR code.
