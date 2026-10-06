@@ -49,7 +49,7 @@ thousand of them. Each takes twenty minutes to two hours to design by hand,
 roughly a quarter of the whole MEP design effort. These are practitioner
 estimates."
 
-## 3. One cross-section in, verified support designs out (1:05)
+## 3. A designer turns one cross-section into verified support assemblies (1:05)
 
 **Show:** (from the ISARC 2026 talk) the problem as a diagram: in, one
 cross-section at a hanger (the structure with its anchor zones; the services
@@ -81,7 +81,7 @@ manual. Three reasons. The topology comes from experience. Code, load and
 material rules interact across thousands of combinations. And catalogs change
 faster than rule systems can be rewritten."
 
-## 5. One section in, verified supports out: learnable, given problems to learn from (2:10)
+## 5. Whatever the method, it needs problems to learn from and a fixed set to compare on (2:10)
 
 **Show:** a generic flow: the brief (section + catalog) → build the assembly
 step by step (rule table, search or a learned policy) → check every finished
