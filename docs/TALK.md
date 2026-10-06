@@ -28,12 +28,12 @@ the first with two more studio sections.
 **Show:** *CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections*;
 authors; a generated C8 context as title art.
 
-**Say:** "Next time you're in a hospital, look up. Above the ceiling, pipes, ducts and
-cable trays run in every direction, and not one of them floats. Each hangs from
-a support that an engineer designed by hand, one at a time. And until now, there
-was no public data to teach a machine to do that. I'm Lavinia Pedrollo, from
-Stanford, and with David Gvadzabia, Torben Graeber and Martin Fischer, we built
-that data: CrossMEP."
+**Say:** "Hello everyone, I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable
+tray in a building hangs from a support that an engineer designs by hand, from
+the section at that spot. We want to teach machines to do some of that work, and
+the first thing we found missing was data: there was no public set of support-
+design problems. So, with David Gvadzabia, Torben Graeber and Martin Fischer, we
+built one. It's called CrossMEP."
 
 ## 2. A hospital needs about 10,000 support assemblies, each designed by hand (0:30)
 

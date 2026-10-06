@@ -273,7 +273,7 @@ async function main() {
     ], { placeholder: "authors" });
     s.addImage({ path: path.join(FIG, "title_art.png"), x: 8.5, y: 1.6, w: 4.4, h: 2.75, objectName: "title art" });
     s.addText("a generated C8 context: eight services on three rows", { x: 8.5, y: 4.45, w: 4.4, h: 0.3, fontSize: 10, color: ICE, align: "right", margin: 0, isTextBox: true, objectName: "art caption" });
-    s.addNotes("Next time you're in a hospital, look up. Above the ceiling, pipes, ducts and cable trays run in every direction, and not one of them floats. Each hangs from a support that an engineer designed by hand, one at a time. And until now, there was no public data to teach a machine to do that. I'm Lavinia Pedrollo, from Stanford, and with David Gvadzabia, Torben Graeber and Martin Fischer, we built that data: CrossMEP. (0:00)");
+    s.addNotes("Hello everyone, I'm Lavinia Pedrollo, from Stanford. Every pipe, duct and cable tray in a building hangs from a support that an engineer designs by hand, from the section at that spot. We want to teach machines to do some of that work, and the first thing we found missing was data: there was no public set of support-design problems. So, with David Gvadzabia, Torben Graeber and Martin Fischer, we built one. It's called CrossMEP. (0:00)");
   }
 
   // ========================================================================= 2 the assemblies (from the ISARC 2026 talk)
