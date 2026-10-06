@@ -280,7 +280,7 @@ async function main() {
   pres.addSection({ title: "Motivation" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Every pipe, duct and tray hangs from a support designed by hand", { placeholder: "title" });
+    s.addText("Nowadays, every pipe, duct and tray hangs from a hand-designed support", { placeholder: "title" });
     tile(s, 0.6, 1.55, 3.9, 1.5, "≈ 10,000", "support assemblies in one 200,000 sq ft hospital");
     tile(s, 0.6, 3.2, 3.9, 1.5, "20 min – 2 h", "to design each one by hand, from the coordinated model");
     tile(s, 0.6, 4.85, 3.9, 1.5, "≈ ¼", "of all MEP design effort; on the order of $600K of engineering per project");
@@ -298,7 +298,7 @@ async function main() {
   // ========================================================================= 3 gap + at a glance
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("There was no public dataset of support-design problems", { placeholder: "title" });
+    s.addText("Learning to design supports needs many problems, and none were public", { placeholder: "title" });
     s.addText("Why it has to be synthetic", { x: 0.6, y: 1.5, w: 5.4, h: 0.4, fontSize: 16, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "why heading" });
     const reasons = [
       ["Scarcity", "FiLock", "Project models are proprietary; the few open ones are not organised around supports and often export no element sizes."],
@@ -332,7 +332,7 @@ async function main() {
   pres.addSection({ title: "The dataset" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("A context is the section at one hanger: the brief, not the answer", { placeholder: "title" });
+    s.addText("We generate what a designer receives: the section at one hanger", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "01_what_a_context_is.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.95 }, "context figure");
     caption(s, "Per element: kind, service and trade · bare size · insulation per side · load per metre × the span it was sized at = load at the support · position along and out from the surface. Per context: slab or wall, substrate, thickness. Absent by design: channel, rods, clamps, anchors — and any “correct” answer, since a feasible support depends on the catalog you build from.",
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "context caption");
@@ -342,7 +342,7 @@ async function main() {
   // ========================================================================= 5 generation
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("How a context is generated: rules, not free randomness", { placeholder: "title" });
+    s.addText("Sections follow trade practice and measured spacing, not random shapes", { placeholder: "title" });
     const steps = [
       ["Tier.", "Cn fixes the exact element count, n = 1 … 8."],
       ["Surface.", "Ceiling or wall (78 / 22 %); concrete slab or wall, 150–300 mm thick."],
@@ -366,7 +366,7 @@ async function main() {
   // ========================================================================= 6 sources
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Every constant is sourced or declared a choice; every load is computed", { placeholder: "title" });
+    s.addText("Sizes, spans and loads come from standards; the choices are declared", { placeholder: "title" });
     const hdr = (t) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12 } });
     const cell = (t, b) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, bold: !!b } });
     const rows = [
@@ -396,7 +396,7 @@ async function main() {
   // ========================================================================= 7 release
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText(`The release: ${fmtInt(comp.contexts)} contexts in four splits on disjoint seeds`, { placeholder: "title" });
+    s.addText(`${fmtInt(comp.contexts)} contexts in four splits; the test seeds are never trained on`, { placeholder: "title" });
     const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12, align: a || "right" } });
     const num = (t, b, a) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, bold: !!b, align: a || "right" } });
     const names = { train: "train", val: "validation", test: "test", benchmark: "benchmark" };
@@ -433,7 +433,7 @@ async function main() {
   // ========================================================================= 8 gallery
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Eight difficulty tiers: tier Cn holds exactly n elements", { placeholder: "title" });
+    s.addText("Difficulty is one number: tier Cn holds exactly n elements", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "02_tier_gallery.png"), { x: 0.6, y: 1.4, w: 12.13, h: 4.95 }, "tier gallery");
     caption(s, "One benchmark context per tier; dashed rings are insulation. Within a tier, kinds, trades, services, surfaces and stacking all vary, so element count is the one controlled difficulty axis. C1 is the most common support in any building; C8 is a congested rack.",
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "gallery caption");
@@ -444,7 +444,7 @@ async function main() {
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 1, a design check: difficulty grows with the tier", { placeholder: "title" });
+    s.addText("Higher tiers are heavier and, overall, tighter, as designed", { placeholder: "title" });
     const img = await cropImage(s, path.join(FIG, "03_tiers_stats.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2000, h: 715 }, "tier statistics", "top");
     const pg = TR.population.clear_gap_mm.per_tier;
     caption(s, `A check that the dataset behaves as designed: the tier fixes the element count; load and congestion follow from the rules. Boxes: benchmark, 125 contexts per tier (IQR, whiskers 1.5 IQR); diamonds: medians of ${fmtInt(TR.settings.per_tier)} generated contexts per tier. Load rises at every tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)}); the closest gap shrinks overall (${rho(TR.benchmark.clear_gap_mm.spearman)}) but widens at C6 (${mm(pg.C5.median)} → ${mm(pg.C6.median)} mm), where elements start to stack in two or three rows.`,
@@ -455,7 +455,7 @@ async function main() {
   // ========================================================================= 10 experiment 2
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 2, the real test: spacing in a building it never saw", { placeholder: "title" });
+    s.addText("Spacing holds up on a clinic the generator never saw", { placeholder: "title" });
     const img = await cropImage(s, path.join(FIG, "04_gaps_vs_buildings.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2120, h: 790 }, "gap distributions", "top");
     const g = SEC.gen_to_real, r = SEC.real_to_real;
     const gc = g.clinic_plumbing[LW];
@@ -467,7 +467,7 @@ async function main() {
   // ========================================================================= 11 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Experiment 3, a use: what must a clamp catalog cover?", { placeholder: "title" });
+    s.addText(`A two-size catalog attaches 1 pipe in ${Math.round(100 / CB.pct_pipes)}; the dataset shows what to cover`, { placeholder: "title" });
     const sizes = Object.keys(CAT.by_size);
     s.addChart(pres.ChartType.bar, [
       { name: "attachable", labels: sizes, values: sizes.map((k) => CAT.by_size[k].covered) },
@@ -499,7 +499,7 @@ async function main() {
   pres.addSection({ title: "Use" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("See it: set the parameters, get the support designer’s brief", { placeholder: "title" });
+    s.addText("Set the parameters and the generator returns the designer’s brief", { placeholder: "title" });
     const demo = path.join(FIG, "08_studio_demo.png");
     const bar = await cropImage(s, demo, { x: 0.6, y: 1.4, w: 12.13, h: 0.85 }, { x: 30, y: 16, w: 2660, h: 176 }, "studio parameters", "top");
     const row = bar.y + bar.h + 0.2;
@@ -515,7 +515,7 @@ async function main() {
   // ========================================================================= 13 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("Using CrossMEP: train, evaluate, report", { placeholder: "title" });
+    s.addText("Train on the generator, evaluate on the benchmark, report per tier", { placeholder: "title" });
     codeCard(s, [
       "import crossmep.tasks as cm",
       "data = cm.load(\"benchmark\")  # 1,000 contexts",
@@ -547,7 +547,7 @@ async function main() {
   // ========================================================================= 14 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("Scope, and what comes next", { placeholder: "title" });
+    s.addText("One section at one support today; a checker and real data come next", { placeholder: "title" });
     const cw = (12.13 - 0.25) / 2;
     panel(s, 0.6, 1.5, cw, 3.55, "scope card");
     s.addText("Scope", { x: 0.9, y: 1.65, w: cw - 0.6, h: 0.45, fontSize: 18, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "scope heading" });
@@ -576,7 +576,7 @@ async function main() {
   // ========================================================================= 15 closing
   {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
-    s.addText("CrossMEP: the brief, not the answer", { placeholder: "title" });
+    s.addText("Support design now has open problems to learn from", { placeholder: "title" });
     s.addText([
       { text: `${fmtInt(comp.contexts)} support-design problems  ·  every constant sourced or declared`, options: { breakLine: true } },
       { text: "pipe gaps checked on two open buildings  ·  open data and code", options: { breakLine: true } },
@@ -593,7 +593,7 @@ async function main() {
   pres.addSection({ title: "Appendix" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });   // backup for the live demo
-    s.addText("Appendix: two more sections from the Generator Studio", { placeholder: "title" });
+    s.addText("A wall with six pipes, and a slab with a duct, a tray and conduits", { placeholder: "title" });
     const cw = (12.13 - 0.25) / 2;
     const a = await cropImage(s, path.join(FIG, "09_studio_wall.png"), { x: 0.6, y: 1.45, w: cw, h: 4.7 }, { x: 690, y: 95, w: 1060, h: 1340 }, "studio wall sheet", "top");
     const b = await cropImage(s, path.join(FIG, "10_studio_mix.png"), { x: 0.6 + cw + 0.25, y: 1.45, w: cw, h: 4.7 }, { x: 590, y: 160, w: 1430, h: 1290 }, "studio mix sheet", "top");
@@ -604,7 +604,7 @@ async function main() {
 
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("Appendix: per-tier statistics, benchmark split", { placeholder: "title" });
+    s.addText(`Median load rises from ${loadC1.toFixed(2)} kN at C1 to ${loadC8.toFixed(2)} kN at C8 as the gap narrows`, { placeholder: "title" });
     const hdr = (t) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12, align: "center" } });
     const num = (t) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, align: "center" } });
     const rows = [[hdr("tier"), hdr("contexts"), hdr("median clear gap (mm)"), hdr("median load (kN)"), hdr("median width (mm)")]];
@@ -623,7 +623,7 @@ async function main() {
   }
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("Appendix: the realism check, in detail", { placeholder: "title" });
+    s.addText(`Against the clinic the generator is ${mm(SEC.gen_to_real.clinic_plumbing[LW].w1)} mm off; the small duplex is ${span(SEC.gen_to_real.duplex_mep[LW].w1, SEC.gen_to_real.duplex_plumbing[LW].w1).replace("\u2013", " to ")}`, { placeholder: "title" });
     const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "center" } });
     const cell = (t, a) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "center" } });
     const G = SEC.generated, M = SEC.measured;
@@ -659,7 +659,7 @@ async function main() {
   }
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("Appendix: the catalog stress test, with error bars", { placeholder: "title" });
+    s.addText("The diameter rule moves catalog coverage more than tier or split does", { placeholder: "title" });
     const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "center" } });
     const cell = (t, a, b) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "center", bold: !!b } });
     const ci = (v) => `${fmt1(v.pct)} (${fmt1(v.lo)}–${fmt1(v.hi)})`;
@@ -697,7 +697,7 @@ async function main() {
   }
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("Appendix: one record, as stored", { placeholder: "title" });
+    s.addText("A context is stored as plain JSON: elements, sizes, loads, positions", { placeholder: "title" });
     codeCard(s, recordLines(D.example_record), { x: 0.6, y: 1.55, w: 8.55, h: 2.8 }, 10.5, "record");
     bullets(s, [
       "Units: millimetres, kilonewtons, metres (span)",
