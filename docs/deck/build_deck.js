@@ -54,7 +54,7 @@ const THEME = {
   },
 };
 const INK2 = "52514E", MUTED = "898781", GRID = "E1E0D9", ICE = "CADCFC";
-const CODE_FONT = "Courier New";
+const CODE_FONT = "Aptos Mono";
 const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen"];
 
 // Optional trace of every drawing call (DECK_TRACE=<file>).
@@ -253,7 +253,7 @@ async function main() {
   };
   function refs(slide, ids, lead = "", y = 6.74, h = 0.26) {
     const text = (lead ? lead + "   " : "") + ids.map((n) => `[${n}] ${REFS[n]}`).join("   ");
-    slide.addText(text, { x: 0.6, y, w: 12.13, h, fontSize: 8, color: INK2, valign: "bottom", margin: 0, isTextBox: true, objectName: "references" });
+    slide.addText(text, { x: 0.6, y, w: 12.13, h, fontSize: 9, color: INK2, valign: "bottom", margin: 0, isTextBox: true, objectName: "references" });
   }
 
   // affiliation logos on a white chip (dark slides): Stanford CEE lockup and Hilti
@@ -559,7 +559,7 @@ async function main() {
   // ========================================================================= 6 gap + at a glance
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Real designs cover one corner of the design space; CrossMEP covers all of it", { placeholder: "title" });
+    s.addText("Real designs cover one corner of the design space and CrossMEP covers all of it", { placeholder: "title" });
     // the design space: element count across, kinds / surface up. Real designs: a few near-identical
     // sections in one corner. CrossMEP: a section for every tier, with kinds and surfaces varied.
     const plot = (x, y, w, h, head, sub, name) => {
@@ -641,7 +641,7 @@ async function main() {
   pres.addSection({ title: "The dataset" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("We generate what a designer receives: the section at one hanger", { placeholder: "title" });
+    s.addText("We generate what a designer receives, the section at one hanger", { placeholder: "title" });
     // the studio section captured by scripts/screenshot_contexts.js (tier C5, seed 8, section 11), with its stored record
     const ctx = JSON.parse(fs.readFileSync(path.join(FIG, "11_c5.json"), "utf8")).record;
     let gap = Infinity;   // closest clear gap between insulation surfaces, as crossmep.tasks.min_clear_gap (ceiling)
@@ -748,7 +748,7 @@ async function main() {
   // ========================================================================= 9 sources
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Sizes, spans and loads come from standards; the choices are declared", { placeholder: "title" });
+    s.addText("Sizes, spans and loads come from standards, and the choices are declared", { placeholder: "title" });
     // left: the five element kinds, each with its size standard and load basis; a glyph per kind
     const glyph = (kind, x, y) => {
       const g = { fill: { color: THEME.colors.lt2 }, line: { color: THEME.colors.dk2, width: 1 } };
@@ -798,8 +798,8 @@ async function main() {
       s.addText([{ text: head, options: { bold: true, fontSize: 14, color: C.text1, breakLine: true } }, { text: body, options: { fontSize: 11, color: INK2 } }],
         { x: GX + 1.05, y, w: GW - 1.25, h: GH, valign: "middle", margin: 0, isTextBox: true, objectName: "ground text " + head });
     }
-    caption(s, "Every constant carries its source and its status, and why each standard was chosen over its alternatives is written down with it.", { x: 0.6, y: 5.95, w: 12.13, h: 0.3 }, "sources note", 11);
-    refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.25, 0.72);
+    caption(s, "Every constant carries its source and its status, and why each standard was chosen over its alternatives is written down with it.", { x: 0.6, y: 5.88, w: 12.13, h: 0.3 }, "sources note", 11);
+    refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.22, 0.76);
     s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (3:45)");
   }
 
@@ -807,7 +807,7 @@ async function main() {
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Tier Cn holds exactly n elements; higher tiers are heavier and tighter, as designed", { placeholder: "title" });
+    s.addText("Tier Cn holds exactly n elements, and higher tiers are heavier and tighter as designed", { placeholder: "title" });
     // the design check: medians per tier, benchmark (125 per tier) and population (2,000 per tier)
     const tiers = D.tiers, lb = TR.benchmark.load_kN.per_tier, lp = TR.population.load_kN.per_tier;
     const gb = TR.benchmark.clear_gap_mm.per_tier, gp = TR.population.clear_gap_mm.per_tier, gt = tiers.slice(1);
@@ -881,7 +881,7 @@ async function main() {
   // ========================================================================= 12 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText(`A two-size catalog attaches 1 pipe in ${Math.round(100 / CB.pct_pipes)}; the dataset shows what to cover`, { placeholder: "title" });
+    s.addText(`A two-size catalog attaches one pipe in ${NUMBER_WORDS[Math.round(100 / CB.pct_pipes)]}, and the dataset shows what to cover`, { placeholder: "title" });
     const sizes = Object.keys(CAT.by_size);
     s.addChart(pres.ChartType.bar, [
       { name: "attachable", labels: sizes, values: sizes.map((k) => CAT.by_size[k].covered) },
@@ -975,7 +975,7 @@ async function main() {
   // ========================================================================= 15 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("CrossMEP covers one section at one support today; a checker and real data come next", { placeholder: "title" });
+    s.addText("CrossMEP covers one section at one support today, and a checker and real data come next", { placeholder: "title" });
     const cw = (12.13 - 0.25) / 2, x2 = 0.6 + cw + 0.25;
     const column = async (x, head, rows, numbered, name) => {
       panel(s, x, 1.5, cw, 3.55, name + " card");
@@ -1011,15 +1011,26 @@ async function main() {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
     s.addText("Support design now has open problems to learn from", { placeholder: "title" });
     s.addText([
-      { text: `${fmtInt(comp.contexts)} support-design problems  ·  every constant sourced or declared`, options: { breakLine: true } },
-      { text: "pipe gaps checked on two open buildings  ·  open data and code", options: { breakLine: true } },
-      { text: " ", options: { breakLine: true, fontSize: 8 } },
-      { text: "Data CC BY 4.0, code MIT.  Not for the structural design of real installations.", options: { fontSize: 13 } },
+      { text: "CrossMEP is the brief, not the answer: seven thousand support-design problems, open to anyone who wants to teach a machine to design supports.", options: { breakLine: true } },
+      { text: " ", options: { breakLine: true, fontSize: 6 } },
+      { text: "Data CC BY 4.0, code MIT.  Not for the structural design of real installations.", options: { fontSize: 12, color: ICE } },
     ], { placeholder: "body" });
-    s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.6, y: 2.5, w: 2.3, h: 2.3, objectName: "qr closing" });
-    await logos(s, 9.0, 5.35);
+    // four takeaways as icon tiles on the dark ground
+    const takeaways = [["FiDatabase", fmtInt(comp.contexts), "support-design problems in eight tiers"], ["FiBookOpen", "Sourced", "every constant sourced or declared"],
+                       ["FiCheckCircle", "Checked", "pipe gaps tested on two open buildings"], ["FiUnlock", "Open", "data, code and generator"]];
+    const tw = (8.2 - 3 * 0.15) / 4;
+    for (const [i, [icon, big, label]] of takeaways.entries()) {
+      const x = 0.7 + i * (tw + 0.15), y = 5.25;
+      s.addShape(pres.ShapeType.roundRect, { x, y, w: tw, h: 1.45, rectRadius: 0.07, fill: { color: "2B3946" }, objectName: "takeaway " + big });
+      const data = await iconData(icon, ICE);
+      if (data) s.addImage({ data, x: x + 0.18, y: y + 0.18, w: 0.34, h: 0.34, objectName: "takeaway icon " + big });
+      s.addText(big, { x: x + 0.62, y: y + 0.12, w: tw - 0.75, h: 0.45, fontSize: 17, bold: true, color: THEME.colors.lt1, valign: "middle", margin: 0, isTextBox: true, objectName: "takeaway value " + big });
+      s.addText(label, { x: x + 0.18, y: y + 0.65, w: tw - 0.36, h: 0.72, fontSize: 10.5, color: ICE, valign: "top", margin: 0, isTextBox: true, objectName: "takeaway label " + big });
+    }
+    s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.85, y: 1.75, w: 2.2, h: 2.2, objectName: "qr closing" });
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
-      { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
+      { x: 9.0, y: 4.05, w: 3.9, h: 0.75, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
+    await logos(s, 9.0, 5.35);
     s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (7:50)");
   }
 
