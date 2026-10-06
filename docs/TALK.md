@@ -135,8 +135,9 @@ seed, same file."
 
 ## 9. Sizes, spans and loads come from standards; the choices are declared (3:45)
 
-**Show:** sources table (pipes, insulation, trays, ducts, conduits) and layout
-conventions.
+**Show:** the five element kinds, each with a glyph, its size standard and its load
+basis, with the citation numbers; beside them the three kinds of ground, colour
+coded: standards, measured (the two open buildings) and declared choices.
 
 **Say:** "Where do the numbers come from? Sizes, weights and spans from standards: EN for
 pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
