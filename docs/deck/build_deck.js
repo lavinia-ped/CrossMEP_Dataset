@@ -739,29 +739,56 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("Sizes, spans and loads come from standards; the choices are declared", { placeholder: "title" });
-    const hdr = (t) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12 } });
-    const cell = (t, b) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, bold: !!b } });
-    const rows = [
-      [hdr("Element"), hdr("Sizes"), hdr("Load basis")],
-      [cell("Pipes DN15–100", true), cell("EN 10220 / EN 10255 medium series [4]"), cell("steel + water × ASME B31.1 water-service span (published points only) [8]")],
-      [cell("Insulation", true), cell("GEG Anlage 8 (heated) [11]; 30/50 mm condensation control (chilled)"), cell("—")],
-      [cell("Cable trays 150–600", true), cell("IEC 61537 systems [6], NEMA VE 1 widths [7]"), cell("full tray: 50 kg/m at 300 mm datum, × 2.0 m (NEMA VE 1 class span) [7]")],
-      [cell("Ducts", true), cell("EN 1505 rectangular; EN 1506 round [5]"), cell("manufacturer duct-weight table incl. flanges, × 2.4 m (SMACNA) [9]")],
-      [cell("Conduits Ø20–50", true), cell("IEC 61386-1 [6], parallel groups of 2–6"), cell("steel tube + 40 %-of-bore cable fill, × 2.0 m (IET / BS 7671) [10]")],
+    // left: the five element kinds, each with its size standard and load basis; a glyph per kind
+    const glyph = (kind, x, y) => {
+      const g = { fill: { color: THEME.colors.lt2 }, line: { color: THEME.colors.dk2, width: 1 } };
+      if (kind === "pipe") s.addShape(pres.ShapeType.ellipse, { x: x + 0.1, y: y + 0.1, w: 0.36, h: 0.36, ...g, objectName: "glyph pipe" });
+      if (kind === "insulation") {
+        s.addShape(pres.ShapeType.ellipse, { x: x + 0.04, y: y + 0.04, w: 0.48, h: 0.48, fill: { type: "none" }, line: { color: THEME.colors.dk2, width: 1, dashType: "dash" }, objectName: "glyph insulation ring" });
+        s.addShape(pres.ShapeType.ellipse, { x: x + 0.16, y: y + 0.16, w: 0.24, h: 0.24, ...g, objectName: "glyph insulation pipe" });
+      }
+      if (kind === "tray") { s.addShape(pres.ShapeType.rect, { x: x + 0.04, y: y + 0.3, w: 0.48, h: 0.05, fill: { color: THEME.colors.dk2 }, objectName: "glyph tray base" });
+        [x + 0.04, x + 0.47].forEach((rx, i) => s.addShape(pres.ShapeType.rect, { x: rx, y: y + 0.18, w: 0.05, h: 0.17, fill: { color: THEME.colors.dk2 }, objectName: "glyph tray side " + i })); }
+      if (kind === "duct") s.addShape(pres.ShapeType.rect, { x: x + 0.04, y: y + 0.12, w: 0.48, h: 0.32, ...g, objectName: "glyph duct" });
+      if (kind === "conduit") [0, 1, 2].forEach((i) => s.addShape(pres.ShapeType.ellipse, { x: x + 0.05 + i * 0.17, y: y + 0.2, w: 0.14, h: 0.14, ...g, objectName: "glyph conduit " + i }));
+    };
+    const kinds = [
+      ["pipe", "Pipes DN15–150", "EN 10220 / EN 10255 medium series [4]", "steel + water × ASME B31.1 water-service span [8]"],
+      ["insulation", "Insulation", "GEG Anlage 8, heated lines [11]; 30 / 50 mm condensation control, chilled", "adds to the size, not the load"],
+      ["tray", "Cable trays 150–600", "IEC 61537 systems [6] in NEMA VE 1 widths [7]", "50 kg/m full at 300 mm × 2.0 m, below the shortest NEMA class span [7]"],
+      ["duct", "Ducts", "EN 1505 rectangular, EN 1506 round [5]", "manufacturer weight table with flanges × 2.4 m (SMACNA) [9]"],
+      ["conduit", "Conduits Ø20–50", "IEC 61386-1 [6], parallel groups of 2–6", "steel tube + 40 % cable fill × 2.0 m (IET / BS 7671) [10]"],
     ];
-    s.addTable(rows, { x: 0.6, y: 1.55, w: 7.9, colW: [1.9, 2.8, 3.2], fontFace: THEME.bodyFontFace, fontSize: 12,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: [0.42, 0.78, 0.78, 0.6, 0.6, 0.6], valign: "middle", margin: 0.07, objectName: "sources table" });
-    s.addText("Layout conventions", { x: 8.85, y: 1.55, w: 3.9, h: 0.45, fontSize: 18, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "conventions heading" });
-    bullets(s, [
-      "Bulky services nearest the slab: ducts, then containment, then pipes",
-      "Trades run in banks: hot + cold pairs, flow + return, conduit groups",
-      "Electrical kept above wet services on walls (drip; BS 7671 528.3.2) [10]",
-      "Clear gaps drawn from a distribution measured on a built project [12]; 25 mm minimum",
-      "Within-row stagger calibrated to measured elevation spread",
-    ], { x: 8.85, y: 2.1, w: 3.9, h: 3.6 }, 13, "conventions");
-    panel(s, 0.6, 5.45, 12.13, 0.75, "sources note card");
-    s.addText("Three kinds of ground: standards (what each element is and weighs), measured open buildings (how close neighbours sit) and declared design choices (trade mix, surface mix, number of rows). Every constant carries its source and status in the repository, and the log says why each standard was chosen over its alternatives.",
-      { x: 0.9, y: 5.45, w: 11.5, h: 0.75, fontSize: 12.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "sources note" });
+    const KY = 1.5, KH = 0.78, KW = 7.45;
+    for (const [i, [kind, name, sizes, load]] of kinds.entries()) {
+      const y = KY + i * (KH + 0.1);
+      panel(s, 0.6, y, KW, KH, "kind " + name);
+      s.addShape(pres.ShapeType.roundRect, { x: 0.72, y: y + 0.11, w: 0.56, h: 0.56, rectRadius: 0.06, fill: { color: THEME.colors.lt1 }, line: { color: GRID, width: 0.75 }, objectName: "glyph card " + name });
+      glyph(kind, 0.72, y + 0.11);
+      s.addText(name, { x: 1.45, y: y + 0.05, w: 1.75, h: KH - 0.1, fontSize: 13, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "kind name " + name });
+      s.addText([{ text: "Sizes  ", options: { bold: true, color: C.accent1 } }, { text: sizes, options: { color: C.text1, breakLine: true } },
+                 { text: "Load  ", options: { bold: true, color: C.accent1 } }, { text: load, options: { color: C.text1 } }],
+        { x: 3.25, y: y + 0.05, w: KW - 2.85, h: KH - 0.1, fontSize: 10.5, valign: "middle", margin: 0, isTextBox: true, objectName: "kind text " + name });
+    }
+
+    // right: the three kinds of ground, colour coded
+    const GX = 8.3, GW = 12.73 - GX, GH = (KH * 5 + 0.4 - 0.3) / 3;
+    const grounds = [
+      ["FiBookOpen", C.accent1, "Standards", "what each element is and weighs: sizes, walls, spans, insulation [4]–[11]"],
+      ["FiCrosshair", THEME.colors.accent3, "Measured", "how close neighbours sit: clear gaps and row stagger from two open buildings [12]"],
+      ["FiEdit3", THEME.colors.accent2, "Declared", "our choices, labelled as such: trade mix, ceiling / wall 78 / 22 %, number of rows"],
+    ];
+    for (const [i, [icon, color, head, body]] of grounds.entries()) {
+      const y = KY + i * (GH + 0.15);
+      panel(s, GX, y, GW, GH, "ground " + head);
+      s.addShape(pres.ShapeType.roundRect, { x: GX + 0.08, y: y + 0.14, w: 0.08, h: GH - 0.28, rectRadius: 0.04, fill: { color }, objectName: "ground bar " + head });
+      s.addShape(pres.ShapeType.ellipse, { x: GX + 0.3, y: y + GH / 2 - 0.29, w: 0.58, h: 0.58, fill: { color }, objectName: "ground ring " + head });
+      const data = await iconData(icon, THEME.colors.lt1);
+      if (data) s.addImage({ data, x: GX + 0.3 + 0.13, y: y + GH / 2 - 0.16, w: 0.32, h: 0.32, objectName: "ground icon " + head });
+      s.addText([{ text: head, options: { bold: true, fontSize: 14, color: C.text1, breakLine: true } }, { text: body, options: { fontSize: 11, color: INK2 } }],
+        { x: GX + 1.05, y, w: GW - 1.25, h: GH, valign: "middle", margin: 0, isTextBox: true, objectName: "ground text " + head });
+    }
+    caption(s, "Every constant carries its source and status in the repository; the verification log says why each standard was chosen over its alternatives.", { x: 0.6, y: 5.95, w: 12.13, h: 0.3 }, "sources note", 11);
     refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.25, 0.72);
     s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (3:45)");
   }
