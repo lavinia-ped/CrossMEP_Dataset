@@ -564,7 +564,9 @@ async function main() {
     ], { x: 0.6, y: 1.55, w: 6.0, h: 2.05 }, 13, "code");
     caption(s, "Loading, metrics and scoring need only the Python standard library; the generator needs NumPy. Command line: python -m crossmep generate | validate | evaluate.",
       { x: 0.6, y: 3.75, w: 6.0, h: 0.6 }, "code caption");
-    const img = await cropImage(s, path.join(FIG, "07_gallery_screenshot.png"), { x: 6.95, y: 1.55, w: 5.78, h: 3.1 }, { x: 0, y: 890, w: 1370, h: 800 }, "gallery screenshot");
+    const galleryFile = path.join(FIG, "07_gallery_screenshot.png");
+    const galleryH = (await sharp(galleryFile).metadata()).height;          // the filter bar and the first cards sit at the bottom
+    const img = await cropImage(s, galleryFile, { x: 6.95, y: 1.55, w: 5.78, h: 3.1 }, { x: 0, y: Math.max(0, galleryH - 800), w: 1370, h: Math.min(800, galleryH) }, "gallery screenshot");
     caption(s, "Interactive gallery: filter the benchmark by tier, kind, trade and surface.", { x: img.x, y: img.y + img.h + 0.08, w: img.w, h: 0.3 }, "gallery screenshot caption");
     const uses = [
       ["Train", "on the generator: unlimited seeds, a curriculum from C1 up to C8"],
