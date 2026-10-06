@@ -326,8 +326,7 @@ it needs no server.
 
 `docs/CrossMEP_CIBW78_talk.pptx` (and its PDF) is a ten-minute talk on the
 dataset: 18 slides, three of them adapted from the ISARC 2026 talk (the hospital, one cross-section in and verified support designs out, why synthesis resists automation), one on what a method would look like, and one a live demo of the Generator Studio with its
-screenshot as the fallback, plus five appendix slides, with speaker notes on
-every slide; `docs/TALK.md` is the same talk as a script with the questions
+screenshot as the fallback, with speaker notes on every slide; `docs/TALK.md` is the same talk as a script with the questions
 practitioners ask; `docs/figures/` holds the figures. Everything regenerates from
 the released data: `python scripts/make_figures.py` (`pip install matplotlib
 "qrcode[pil]"`) writes the figures and the numbers the deck prints,

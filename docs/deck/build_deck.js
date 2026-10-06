@@ -5,7 +5,7 @@
             scripts/make_figures.py from the released data (with the QR codes of
             the repository and the hosted studio); the gallery screenshot from
             scripts/screenshot_gallery.js; the Generator Studio screenshots
-            (08_studio_demo, 09_studio_wall, 10_studio_mix) from
+            (08_studio_demo) from
             scripts/screenshot_studio.js.
    Output:  docs/CrossMEP_CIBW78_talk.pptx (speaker notes = docs/TALK.md)
 
@@ -718,7 +718,7 @@ async function main() {
     const v3 = await cropImage(s, demo, { x, y: row, w, h: 2.6 }, { x: 1700, y: 400, w: 980, h: 700 }, "studio 3D", "top");
     s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.35) / 2, y: v3.y + v3.h + 0.25, w: 1.35, h: 1.35, objectName: "qr studio" });
     s.addText("Scan to open the studio", { x, y: v3.y + v3.h + 1.65, w, h: 0.3, fontSize: 12, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
-    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 19 shows two more sections. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:05)");
+    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:05)");
   }
   // ========================================================================= 16 using it
   {
@@ -797,126 +797,6 @@ async function main() {
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
     s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (8:10)");
-  }
-
-  // ========================================================================= appendix
-  pres.addSection({ title: "Appendix" });
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });   // backup for the live demo
-    s.addText("A wall with six pipes, and a slab with a duct, a tray and conduits", { placeholder: "title" });
-    const cw = (12.13 - 0.25) / 2;
-    const a = await cropImage(s, path.join(FIG, "09_studio_wall.png"), { x: 0.6, y: 1.45, w: cw, h: 4.7 }, { x: 690, y: 95, w: 1060, h: 1340 }, "studio wall sheet", "top");
-    const b = await cropImage(s, path.join(FIG, "10_studio_mix.png"), { x: 0.6 + cw + 0.25, y: 1.45, w: cw, h: 4.7 }, { x: 590, y: 160, w: 1430, h: 1290 }, "studio mix sheet", "top");
-    caption(s, "Tier C6, seed 0, section 5: six pipes fixed to a wall; offsets from the wall face, the closest clear gap 25 mm.", { x: a.x, y: a.y + a.h + 0.08, w: a.w, h: 0.5 }, "wall caption");
-    caption(s, "Exact mix: 2 pipes, 1 tray, 1 duct, 2 conduits on a slab; levels below the soffit and the load at the support.", { x: b.x, y: b.y + b.h + 0.08, w: b.w, h: 0.5 }, "mix caption");
-    s.addNotes("Backup for the live demo. Left: a wall section, six pipes in two rows, each labelled with its size, trade, insulation, offset from the wall and load at the support. Right: an exact mix on a slab, with a duct, a tray, conduits and pipes, their levels below the soffit and the closest clear gap.");
-  }
-
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText(`Median load rises from ${loadC1.toFixed(2)} kN at C1 to ${loadC8.toFixed(2)} kN at C8 as the gap narrows`, { placeholder: "title" });
-    const hdr = (t) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 12, align: "center" } });
-    const num = (t) => ({ text: t, options: { fontSize: 12, color: THEME.colors.dk1, align: "center" } });
-    const rows = [[hdr("tier"), hdr("contexts"), hdr("median clear gap (mm)"), hdr("median load (kN)"), hdr("median width (mm)")]];
-    for (const t of D.tiers) {
-      const m = D.tier_medians[t];
-      rows.push([num(t), num("125"), num(m.clear_gap_mm == null ? "—" : String(Math.round(m.clear_gap_mm))), num(m.load_kN.toFixed(2)), num(String(Math.round(m.bundle_width_mm)))]);
-    }
-    s.addTable(rows, { x: 0.6, y: 1.55, w: 7.6, colW: [0.9, 1.2, 2.0, 1.7, 1.8], fontFace: THEME.bodyFontFace, fontSize: 12,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.42, valign: "middle", margin: 0.05, objectName: "tier table" });
-    const k = D.kind_totals_benchmark;
-    tile(s, 8.5, 1.55, 4.23, 1.2, "4,500 elements", `${fmtInt(k.pipe)} pipes · ${fmtInt(k.conduit)} conduits · ${k.cable_tray} trays · ${k.duct} ducts`, { bigSize: 24, labelSize: 11 });
-    const gcl = SEC.gen_to_real.clinic_plumbing[LW];
-    tile(s, 8.5, 2.95, 4.23, 1.2, `${mm(gcl.w1)} mm`, `Wasserstein-1, generated to measured pipe gaps of the clinic (95 % CI ${mm(gcl.lo)}\u2013${mm(gcl.hi)})`, { bigSize: 24, labelSize: 11 });
-    tile(s, 8.5, 4.35, 4.23, 1.2, `${rho(TR.benchmark.clear_gap_mm.spearman)} / ${rho(TR.benchmark.load_kN.spearman)}`, "rank correlation of tier with the closest gap / with the load", { bigSize: 24, labelSize: 11 });
-    s.addNotes("Backup: per-tier medians on the benchmark split, the distance to the held-out building, and the trend statistics behind experiment 1.");
-  }
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText(`Against the clinic the generator is ${mm(SEC.gen_to_real.clinic_plumbing[LW].w1)} mm off; the small duplex is ${span(SEC.gen_to_real.duplex_mep[LW].w1, SEC.gen_to_real.duplex_plumbing[LW].w1).replace("\u2013", " to ")}`, { placeholder: "title" });
-    const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "center" } });
-    const cell = (t, a) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "center" } });
-    const G = SEC.generated, M = SEC.measured;
-    const rowsA = [[hdr("pipe gaps", "left"), hdr("pairs"), hdr("sections"), hdr("median (mm)"), hdr("< 25 mm")],
-      [cell("generated (benchmark)", "left"), cell(fmtInt(G.pairs)), cell("\u2014"), cell(mm(G.median_mm)), cell(`${Math.round(100 * G.share_below_25mm)} %`)]];
-    for (const k of ["clinic_plumbing", "duplex_mep", "duplex_plumbing"]) {
-      rowsA.push([cell(MODEL[k], "left"), cell(fmtInt(M[k].pairs)), cell(fmtInt(M[k].sections)), cell(mm(M[k].median_mm)), cell(`${Math.round(100 * M[k].share_below_25mm)} %`)]);
-    }
-    s.addTable(rowsA, { x: 0.6, y: 1.5, w: 5.9, colW: [2.0, 0.9, 1.0, 1.1, 0.9], fontFace: THEME.bodyFontFace, fontSize: 11,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.34, valign: "middle", margin: 0.04, objectName: "samples table" });
-    const ci = (v) => `${mm(v.w1)} (${mm(v.lo)}\u2013${mm(v.hi)})`;
-    const rowsB = [[hdr("Wasserstein-1 (mm)", "left"), hdr("by length"), hdr("each pair once"), hdr("noise floor")]];
-    for (const k of ["clinic_plumbing", "duplex_mep", "duplex_plumbing"]) {
-      const v = SEC.gen_to_real[k];
-      rowsB.push([cell(`generated \u2194 ${SHORT[k]}`, "left"), cell(ci(v[LW])), cell(ci(v.unweighted)), cell(mm(v[LW].noise_floor.median))]);
-    }
-    for (const [pair, v] of Object.entries(SEC.real_to_real)) {
-      const [a, b] = pair.split("|");
-      rowsB.push([cell(`${SHORT[a]} \u2194 ${SHORT[b]}`, "left"), cell(ci(v[LW])), cell(ci(v.unweighted)), cell("\u2014")]);
-    }
-    s.addTable(rowsB, { x: 6.75, y: 1.5, w: 5.98, colW: [2.38, 1.25, 1.35, 1.0], fontFace: THEME.bodyFontFace, fontSize: 11,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.34, valign: "middle", margin: 0.04, objectName: "distances table" });
-    const sens = SEC.sensitivity.map((r) => r.models.clinic_plumbing.w1_weighted);
-    bullets(s, [
-      "Sections every 250 mm; runs within 400 mm of height form a row; gaps between bare pipe surfaces, below 600 mm",
-      `Robust: across ${SEC.sensitivity.length} settings of the cut (spacing, row band, axis tolerance, run length) generated \u2194 clinic stays at ${span(Math.min(...sens), Math.max(...sens))} mm`,
-      "Noise floor: the distance a perfect generator would still show at that sample size",
-      "The duplex samples are small, hence the wide intervals",
-    ], { x: 0.6, y: 3.45, w: 5.9, h: 3.2 }, 12.5, "realism bullets");
-    caption(s, "Intervals: 95 % bootstrap over contexts (generated) and pipe pairs (measured). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic, CC BY 4.0; derived measurements and attribution in verify/measured/.",
-      { x: 6.75, y: 4.3, w: 5.98, h: 0.8 }, "distances caption");
-    s.addNotes("Backup for questions on experiment 2: sample sizes, both weightings, the noise floor and the sensitivity of the result to the way the sections are cut.");
-  }
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("The diameter rule moves catalog coverage more than tier or split does", { placeholder: "title" });
-    const hdr = (t, a) => ({ text: t, options: { bold: true, color: THEME.colors.lt1, fill: { color: THEME.colors.dk2 }, fontSize: 11, align: a || "center" } });
-    const cell = (t, a, b) => ({ text: t, options: { fontSize: 11, color: THEME.colors.dk1, align: a || "center", bold: !!b } });
-    const ci = (v) => `${fmt1(v.pct)} (${fmt1(v.lo)}–${fmt1(v.hi)})`;
-    const tiers = Object.keys(CB.per_tier);
-    const popTiers = CAT.population ? CAT.population.per_tier : {};
-    const rowsT = [[hdr("tier"), hdr("pipes"), hdr("benchmark %  (95 % CI)"), hdr("population %  (95 % CI)")]];
-    for (const t of tiers) {
-      const v = CB.per_tier[t];
-      rowsT.push([cell(t), cell(String(v.pipes)), cell(ci(v)), cell(popTiers[t] ? ci(popTiers[t]) : "—")]);
-    }
-    s.addTable(rowsT, { x: 0.6, y: 1.5, w: 6.4, colW: [0.8, 0.9, 2.35, 2.35], fontFace: THEME.bodyFontFace, fontSize: 11,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "per tier catalog table" });
-    const rowsS = [[hdr("attach diameter rule", "left"), hdr("bins ±0 mm"), hdr("bins ±0.5 mm"), hdr("bins ±1 mm")]];
-    for (const rule of ["service", "bare", "insulated"]) {
-      const r = CAT.sensitivity.filter((x) => x.rule === rule);
-      rowsS.push([cell(rule === "service" ? "service (paper)" : rule, "left", rule === "service"), ...r.map((x) => cell(fmt1(x.pct_benchmark)))]);
-    }
-    s.addTable(rowsS, { x: 0.6, y: 4.85, w: 6.4, colW: [2.2, 1.4, 1.4, 1.4], fontFace: THEME.bodyFontFace, fontSize: 11,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "sensitivity table" });
-    caption(s, "% of benchmark pipes attachable when both bin edges are widened by the stated amount. DN100 (114.3 mm) lies 0.3 mm above the 108–114 mm bin, so the headline moves with the diameter rule and the edge tolerance.",
-      { x: 0.6, y: 6.25, w: 6.4, h: 0.55 }, "sensitivity caption");
-    const rowsP = [[hdr("split", "left"), hdr("pipes"), hdr("% attachable (95 % CI)")]];
-    for (const [name, v] of Object.entries(CAT.splits)) {
-      rowsP.push([cell(name, "left"), cell(fmtInt(v.pipes)), cell(ci({ pct: v.pct, lo: v.ci[0], hi: v.ci[1] }))]);
-    }
-    s.addTable(rowsP, { x: 7.3, y: 1.5, w: 5.43, colW: [1.4, 1.2, 2.83], fontFace: THEME.bodyFontFace, fontSize: 11,
-      border: { type: "solid", color: GRID, pt: 0.75 }, rowH: 0.33, valign: "middle", margin: 0.04, objectName: "split catalog table" });
-    bullets(s, [
-      `Intervals: cluster bootstrap over contexts (${fmtInt(CAT.settings.n_boot)} resamples), because the elements of one context are correlated`,
-      CAT.population ? `Population: ${fmtInt(CAT.population.contexts_per_tier)} freshly generated contexts per tier; overall ${fmt1(CAT.population.overall.pct)} % (95 % CI ${fmt1(CAT.population.overall.lo)}–${fmt1(CAT.population.overall.hi)})` : "",
-      "Only size and capacity are tested, so coverage is an upper bound on what can be installed",
-      "Best possible share with k sizes: exact optimum over the distinct attach diameters",
-    ].filter(Boolean), { x: 7.3, y: 3.4, w: 5.43, h: 3.3 }, 12, "stress method bullets");
-    s.addNotes("Backup for questions on experiment 3. Per tier, the benchmark has only 125 contexts, so its intervals are wide; the population estimate from two thousand generated contexts per tier shows the tiers are about equal. The headline depends on the attach-diameter rule and on bin-edge tolerance because one nominal size, DN100, sits 0.3 millimetres outside a bin. Only size and capacity are tested - clearance, insert orientation and anchors are not - so the coverage is an upper bound on what can be installed.");
-  }
-  {
-    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Appendix" });
-    s.addText("A context is stored as plain JSON: elements, sizes, loads, positions", { placeholder: "title" });
-    codeCard(s, recordLines(D.example_record), { x: 0.6, y: 1.55, w: 8.55, h: 2.8 }, 10.5, "record");
-    bullets(s, [
-      "Units: millimetres, kilonewtons, metres (span)",
-      "Widths are bare; insulation_mm is per side",
-      "load_kN = load_kN_per_m × span_m",
-      "along_mm, out_mm: position along and out from the surface",
-      "level: the generative row (metadata)",
-    ], { x: 9.45, y: 1.6, w: 3.28, h: 4.1 }, 13, "record notes");
-    s.addNotes("Backup: what one stored context looks like - plain JSON, one object per context.");
   }
 
   await pres.writeFile({ fileName: OUT });
