@@ -332,42 +332,80 @@ async function main() {
     s.addNotes("So what is the task? At ISARC we defined it like this. You're given a fixed catalog of components and the context: which services cross the hanger, and what they hang from. You must find a feasible assembly that carries them to the structure. Designers don't work from the whole model. They work from one section at each hanger, like this one. Today's tools coordinate and check; choosing the layout and the parts is still manual. That section is the unit of this work, and the unit of our dataset. (1:05)");
   }
 
-  // ========================================================================= 4 what a method would look like (unpublished work: kept generic)
+  // ========================================================================= 4 what a method would look like (unpublished work: the approach is a black box)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("One section in, verified supports out: learnable, given problems to learn from", { placeholder: "title" });
-    const Y = 1.75, H = 1.7;
-    const box = (x, w, head, body, name, style) => {
-      const fill = style === "dark" ? C.text2 : C.background2;
-      const line = style === "accent" ? { color: C.accent1, width: 1.5 } : style === "ok" ? { color: THEME.colors.accent6, width: 1.5 } : undefined;
-      s.addShape(pres.ShapeType.roundRect, { x, y: Y, w, h: H, rectRadius: 0.07, fill: { color: fill }, ...(line ? { line } : {}), objectName: "flow box " + name });
-      s.addText([{ text: head, options: { bold: true, fontSize: 15, color: style === "dark" ? THEME.colors.lt1 : C.text1, breakLine: true } },
-                 { text: body, options: { fontSize: 12.5, color: style === "dark" ? ICE : INK2 } }],
-        { x: x + 0.18, y: Y + 0.12, w: w - 0.36, h: H - 0.24, valign: "middle", align: "center", margin: 0, isTextBox: true, objectName: "flow text " + name });
-    };
-    const arrow = (x0, x1, name) => s.addShape(pres.ShapeType.line, { x: x0, y: Y + H / 2, w: x1 - x0, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "flow arrow " + name });
-    box(0.6, 2.35, "The brief", "the section at one hanger: structure, services and their loads, plus a catalog of parts with unit costs", "brief", "plain");
-    arrow(2.95, 3.45, "1");
-    box(3.45, 3.3, "Build the assembly step by step", "each step adds parts the rules allow; the step is chosen by a rule table, by search, or by a learned policy", "build", "accent");
-    arrow(6.75, 7.25, "2");
-    box(7.25, 2.95, "Check every finished design", "statics, anchors, connectors, buildability", "check", "ok");
-    arrow(10.2, 10.7, "3");
-    box(10.7, 2.03, "Verified designs", "up to ten, ranked by installed cost", "out", "dark");
-    s.addShape(pres.ShapeType.line, { x: 5.1, y: Y + H + 0.08, w: 3.6, h: 0, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash", beginArrowType: "triangle" }, objectName: "feedback line" });
-    s.addText("pass or fail, fed back to the next attempt", { x: 5.1, y: Y + H + 0.12, w: 3.6, h: 0.3, fontSize: 11, color: THEME.colors.accent6, align: "center", margin: 0, isTextBox: true, objectName: "feedback label" });
-    s.addText("What any such method needs before it can be built or compared", { x: 0.6, y: 4.3, w: 12.13, h: 0.4, fontSize: 17, bold: true, color: C.text1, margin: 0, isTextBox: true, objectName: "needs heading" });
-    const needs = [
-      ["Problems to learn from", "many sections at hangers, varied the way buildings vary"],
-      ["A fixed set to compare on", "the same problems for every method, by difficulty"],
-      ["Problems that look like practice", "sizes, spacing and loads an engineer would recognise"],
-    ];
-    const cw = (12.13 - 2 * 0.2) / 3;
-    needs.forEach(([h, t], i) => {
-      const x = 0.6 + i * (cw + 0.2);
-      panel(s, x, 4.85, cw, 1.45, "need " + h);
-      s.addText(`${i + 1}. ${h}`, { x: x + 0.25, y: 4.98, w: cw - 0.5, h: 0.42, fontSize: 16, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "need head " + h });
-      s.addText(t, { x: x + 0.25, y: 5.45, w: cw - 0.5, h: 0.75, fontSize: 14, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "need text " + h });
+    const Y = 1.7, H = 2.45, MID = Y + H / 2;
+    const text = (box, head, body, headColor, bodyColor, name, headSize = 14, bodySize = 11.5) =>
+      s.addText([{ text: head, options: { bold: true, fontSize: headSize, color: headColor, breakLine: true } },
+                 { text: body, options: { fontSize: bodySize, color: bodyColor } }],
+        { ...box, valign: "middle", align: "center", margin: 0.08, isTextBox: true, objectName: "text " + name });
+    const arrow = (x0, x1, y, name, opts = {}) =>
+      s.addShape(pres.ShapeType.line, { x: Math.min(x0, x1), y, w: Math.abs(x1 - x0), h: 0,
+        line: { color: INK2, width: 1.25, ...(x1 > x0 ? { endArrowType: "triangle" } : { beginArrowType: "triangle" }), ...opts }, objectName: "arrow " + name });
+    const label = (x, y, w, t, name, color = INK2) =>
+      s.addText(t, { x, y, w, h: 0.26, fontSize: 10.5, color, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "label " + name });
+
+    // inputs
+    const IX = 0.6, IW = 1.9;
+    s.addShape(pres.ShapeType.roundRect, { x: IX, y: Y, w: IW, h: 1.05, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box context" });
+    text({ x: IX, y: Y, w: IW, h: 1.05 }, "Context", "structure, services, loads", C.text1, INK2, "context");
+    s.addShape(pres.ShapeType.can, { x: IX + 0.1, y: Y + H - 1.15, w: IW - 0.2, h: 1.15, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box catalog" });
+    text({ x: IX, y: Y + H - 1.05, w: IW, h: 1.0 }, "Catalog", "parts, sizes, unit costs", C.text1, INK2, "catalog");
+
+    // rules
+    const RX = 3.0, RW = 2.0;
+    s.addShape(pres.ShapeType.roundRect, { x: RX, y: Y, w: RW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk2, width: 1.25 }, objectName: "box rules" });
+    text({ x: RX, y: Y, w: RW, h: H }, "Rules", "which actions are legal in a state; each action adds parts", C.text1, INK2, "rules");
+    arrow(IX + IW, RX, Y + 0.52, "context to rules");
+    arrow(IX + IW - 0.1, RX, Y + H - 0.55, "catalog to rules");
+
+    // the approach: a black box
+    const BX = 5.6, BW = 2.4;
+    s.addShape(pres.ShapeType.roundRect, { x: BX, y: Y, w: BW, h: H, rectRadius: 0.06, fill: { color: THEME.colors.dk1 }, objectName: "black box approach" });
+    text({ x: BX, y: Y, w: BW, h: H }, "Approach", "a black box that chooses the next action\n\nrule table · search · learned policy", THEME.colors.lt1, ICE, "approach", 16, 11.5);
+    arrow(RX + RW, BX, MID - 0.35, "legal actions");
+    label(RX + RW, MID - 0.66, BX - RX - RW, "legal actions", "legal actions");
+    arrow(BX, RX + RW, MID + 0.35, "chosen action");
+    label(RX + RW, MID + 0.4, BX - RX - RW, "chosen action", "chosen action");
+
+    // verifier and output
+    const VX = 8.6, VW = 2.0, OX = 11.05, OW = 1.68;
+    s.addShape(pres.ShapeType.roundRect, { x: VX, y: Y, w: VW, h: H, rectRadius: 0.06, fill: { color: "EAF5EE" }, line: { color: THEME.colors.accent6, width: 1.5 }, objectName: "box verifier" });
+    text({ x: VX, y: Y, w: VW, h: H }, "Verifier", "judges every finished design: statics, anchors, connectors, buildability", C.text1, INK2, "verifier");
+    arrow(BX + BW, VX, MID, "finished design");
+    label(BX + BW, MID - 0.31, VX - BX - BW, "finished design", "finished design");
+    s.addShape(pres.ShapeType.roundRect, { x: OX, y: Y, w: OW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk1, width: 1.5 }, objectName: "box output" });
+    text({ x: OX, y: Y, w: OW, h: H }, "Verified designs", "up to ten, ranked by installed cost", C.text1, INK2, "output");
+    arrow(VX + VW, OX, MID, "to output");
+
+    // feedback
+    const FY = Y + H + 0.3;
+    s.addShape(pres.ShapeType.line, { x: VX + VW / 2, y: Y + H, w: 0, h: 0.3, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash" }, objectName: "feedback down" });
+    s.addShape(pres.ShapeType.line, { x: BX + BW / 2, y: FY, w: VX + VW / 2 - BX - BW / 2, h: 0, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash" }, objectName: "feedback across" });
+    s.addShape(pres.ShapeType.line, { x: BX + BW / 2, y: Y + H, w: 0, h: 0.3, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash", beginArrowType: "triangle" }, objectName: "feedback up" });
+    label(BX + BW / 2 + 0.2, FY + 0.03, VX + VW / 2 - BX - BW / 2 - 0.4, "pass or fail, fed back", "feedback", THEME.colors.accent6);
+
+    // legend
+    const legend = [["Input", C.background2, INK2], ["Rules", C.background2, THEME.colors.dk2], ["Approach (black box)", THEME.colors.dk1, THEME.colors.dk1],
+                    ["Verifier", "EAF5EE", THEME.colors.accent6], ["Output", C.background2, THEME.colors.dk1]];
+    let lx = 0.6;
+    const LY = 5.05;
+    legend.forEach(([t, fill, line]) => {
+      s.addShape(pres.ShapeType.roundRect, { x: lx, y: LY + 0.04, w: 0.3, h: 0.2, rectRadius: 0.04, fill: { color: fill }, line: { color: line, width: 1 }, objectName: "legend swatch " + t });
+      s.addText(t, { x: lx + 0.38, y: LY, w: 2.2, h: 0.28, fontSize: 11.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "legend " + t });
+      lx += 0.38 + t.length * 0.085 + 0.55;
     });
+
+    // what any approach needs
+    s.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 5.55, w: 12.13, h: 1.0, rectRadius: 0.07, fill: { color: C.text2 }, objectName: "needs band" });
+    s.addText([
+      { text: "Whatever sits in the black box, it needs ", options: { color: THEME.colors.lt1 } },
+      { text: "problems to learn from", options: { bold: true, color: THEME.colors.lt1 } }, { text: ", ", options: { color: THEME.colors.lt1 } },
+      { text: "a fixed set to compare on", options: { bold: true, color: THEME.colors.lt1 } }, { text: " and ", options: { color: THEME.colors.lt1 } },
+      { text: "problems that look like practice", options: { bold: true, color: THEME.colors.lt1 } }, { text: ".", options: { color: THEME.colors.lt1 } },
+    ], { x: 0.9, y: 5.55, w: 11.5, h: 1.0, fontSize: 16, valign: "middle", margin: 0, isTextBox: true, objectName: "needs text" });
     s.addNotes("What would a method look like? One section in, verified supports out. Build the assembly step by step from a catalog, each step allowed by the rules and chosen by a rule table, by search, or by a learned policy; then check every finished design: statics, anchors, buildability. That is learnable. But anything that learns needs problems to learn from, a fixed set to compare on, and problems that look like practice. (1:40)");
   }
 
