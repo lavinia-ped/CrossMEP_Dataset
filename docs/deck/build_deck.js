@@ -297,26 +297,95 @@ async function main() {
     tile(s, 0.6 + tw + 0.2, 5.35, tw, 1.3, "20 min – 2 h", "of engineering for each assembly, designed one by one", { bigSize: 28 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.35, tw, 1.3, "≈ ¼", "of MEP design effort; on the order of $600K per project", { bigSize: 28 });
     caption(s, "Approximate practitioner estimates.", { x: 0.6, y: 6.7, w: 6.0, h: 0.25 }, "estimates note");
-    s.addNotes("Here's what that looks like. In this hospital, every red mark is a place where pipes, ducts or cable trays hang from the structure. A modular support system groups several services onto one prefabricated frame, installed as a single unit: a structural support assembly. A hospital of two hundred thousand square feet needs about ten thousand of them. Each takes twenty minutes to two hours to design by hand, roughly a quarter of the whole MEP design effort. These are practitioner estimates. (0:30)");
+    s.addNotes("Here is the scale of it. In this hospital, every red mark is a place where pipes, ducts or cable trays hang from the structure. A modular support system groups several services onto one prefabricated frame: a structural support assembly. A hospital of two hundred thousand square feet needs about ten thousand of them. Each takes twenty minutes to two hours to design by hand, roughly a quarter of the whole MEP design effort. These are practitioner estimates. (0:30)");
   }
 
-  // ========================================================================= 3 the synthesis problem (from the ISARC 2026 talk)
+  // ========================================================================= 3 the problem: one cross-section in, verified support designs out (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Synthesizing an assembly from a catalog and a section has resisted automation", { placeholder: "title" });
-    panel(s, 0.6, 1.5, 5.7, 2.85, "problem card");
-    s.addText([
-      { text: "The synthesis problem", options: { bold: true, fontSize: 17, breakLine: true } },
-      { text: " ", options: { fontSize: 6, breakLine: true } },
-      { text: "Given ", options: { bold: true } }, { text: "a fixed catalog of components and the MEP context: the services crossing the hanger and the surface they hang from.", options: { breakLine: true } },
-      { text: " ", options: { fontSize: 6, breakLine: true } },
-      { text: "Find ", options: { bold: true } }, { text: "a feasible assembly that carries the services to the structure.", options: { breakLine: true } },
-      { text: " ", options: { fontSize: 6, breakLine: true } },
-      { text: "Tools coordinate the model and check a design; choosing the topology and the parts is still done by hand.", options: { italic: true } },
-    ], { x: 0.85, y: 1.65, w: 5.2, h: 2.6, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "problem" });
-    const img = fitImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: 6.55, y: 1.5, w: 6.18, h: 2.3 }, "route to section");
+    s.addText("One cross-section in, verified support designs out", { placeholder: "title" });
+    const PY = 2.0, PH = 3.0, PW = 5.3, LX = 0.6, RX = 7.43;
+    const head = (x, t, name) => s.addText(t, { x, y: 1.45, w: PW, h: 0.3, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "head " + name });
+    const frame = (x, y, name, line = { color: GRID, width: 1 }) =>
+      s.addShape(pres.ShapeType.roundRect, { x, y, w: PW, h: PH, rectRadius: 0.06, fill: { color: THEME.colors.lt1 }, line, objectName: "frame " + name });
+    const ceiling = (x, name) => {
+      const cx = x + 0.2, cy = PY + 0.2, cw = PW - 0.4, ch = 0.42;
+      s.addShape(pres.ShapeType.rect, { x: cx, y: cy, w: cw, h: ch, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.75 }, objectName: "ceiling " + name });
+      for (let hx = cx; hx + 0.3 <= cx + cw + 1e-6; hx += 0.3)
+        s.addShape(pres.ShapeType.line, { x: hx, y: cy, w: 0.3, h: ch, flipV: true, line: { color: MUTED, width: 0.5 }, objectName: `hatch ${name} ${hx.toFixed(1)}` });
+      s.addText("Concrete ceiling", { x: cx + cw / 2 - 0.85, y: cy + 0.07, w: 1.7, h: ch - 0.14, fontSize: 11, color: C.text1, fill: { color: THEME.colors.lt1 },
+        align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "ceiling label " + name });
+      return { x: cx, y: cy, w: cw, h: ch };
+    };
+    // the same services in both panels; on the right they sit on the trapeze (dy)
+    const services = (x, name, dy = 0) => {
+      const g = { fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 1 } };
+      const yb = PY + 2.25 + dy;
+      s.addShape(pres.ShapeType.rect, { x: x + 0.45, y: yb - 0.95, w: 1.55, h: 0.95, ...g, objectName: "duct " + name });
+      s.addText("Duct", { x: x + 0.45, y: yb - 0.95, w: 1.55, h: 0.95, fontSize: 12, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "duct label " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 2.35, y: yb - 0.7, w: 0.7, h: 0.7, ...g, objectName: "pipe a " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 3.2, y: yb - 0.45, w: 0.45, h: 0.45, ...g, objectName: "pipe b " + name });
+      s.addShape(pres.ShapeType.rect, { x: x + 3.7, y: yb - 0.3, w: 1.0, h: 0.3, ...g, objectName: "tray " + name });
+      return yb;
+    };
+
+    // in: the context
+    head(LX, "In: one cross-section = a context", "in");
+    frame(LX, PY, "in");
+    ceiling(LX, "in");
+    const ybL = services(LX, "in");
+    s.addText("Pipes", { x: LX + 2.35, y: ybL + 0.08, w: 1.3, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "pipes label" });
+    s.addText("Cable tray", { x: LX + 3.6, y: ybL + 0.08, w: 1.2, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "tray label" });
+    caption(s, "Structure: ceiling, floor or wall, with anchor zones\nServices: trade, position, size and weight per metre", { x: LX, y: PY + PH + 0.1, w: PW, h: 0.55 }, "in caption", 12);
+
+    // design
+    s.addShape(pres.ShapeType.line, { x: LX + PW + 0.2, y: PY + PH / 2, w: RX - LX - PW - 0.4, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "design arrow" });
+    s.addText("design", { x: LX + PW, y: PY + PH / 2 - 0.4, w: RX - LX - PW, h: 0.3, fontSize: 11.5, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "design label" });
+
+    // out: the assemblies, a stack of verified designs
+    head(RX, "Out: verified support designs = assemblies", "out");
+    [0.2, 0.1].forEach((o, i) => frame(RX + o, PY - o, "out back " + i));
+    frame(RX, PY, "out", { color: INK2, width: 0.75 });
+    const cl = ceiling(RX, "out");
+    const ybR = services(RX, "out", -0.15);
+    const bar = { x: RX + 0.3, y: ybR, w: PW - 0.6, h: 0.09 };
+    [bar.x + 0.08, bar.x + bar.w - 0.2].forEach((rx, i) => {
+      s.addShape(pres.ShapeType.rect, { x: rx - 0.02, y: cl.y + cl.h - 0.12, w: 0.16, h: 0.16, fill: { color: THEME.colors.dk2 }, objectName: "anchor " + i });
+      s.addShape(pres.ShapeType.rect, { x: rx + 0.04, y: cl.y + cl.h, w: 0.04, h: bar.y - cl.y - cl.h, fill: { color: THEME.colors.dk2 }, objectName: "rod " + i });
+    });
+    s.addShape(pres.ShapeType.rect, { ...bar, fill: { color: THEME.colors.dk2 }, objectName: "trapeze bar" });
+    s.addText("Rod trapeze", { x: RX + 0.25, y: PY + PH - 0.5, w: 2.5, h: 0.35, fontSize: 13, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "assembly name" });
+    s.addText("✓ verified", { x: RX + PW - 2.0, y: PY + PH - 0.5, w: 1.75, h: 0.35, fontSize: 13, bold: true, color: THEME.colors.accent6, align: "right", valign: "middle", margin: 0, isTextBox: true, objectName: "verified" });
+    caption(s, "Up to ten designs, ranked by installed cost\nEach checked: statics, anchors, connectors, buildability", { x: RX, y: PY + PH + 0.1, w: PW, h: 0.55 }, "out caption", 12);
+
+    // the two words the talk relies on
+    const BY = 5.75, BH = 0.85, BW = (12.13 - 0.2) / 2;
+    const gloss = (x, head, body, name) => {
+      panel(s, x, BY, BW, BH, "gloss " + name);
+      s.addText([{ text: head, options: { bold: true, color: C.accent1 } }, { text: body, options: { color: C.text1 } }],
+        { x: x + 0.25, y: BY, w: BW - 0.5, h: BH, fontSize: 13, valign: "middle", margin: 0, isTextBox: true, objectName: "gloss text " + name });
+    };
+    gloss(0.6, "Context, the brief: ", "the section at one hanger, its structure and services. This is what CrossMEP contains.", "context");
+    gloss(0.6 + BW + 0.2, "Assembly, the answer: ", "catalog parts that carry the services to the structure. Not in CrossMEP: a method produces it.", "assembly");
+    caption(s, "The synthesis problem as defined at ISARC 2026.", { x: 0.6, y: 6.68, w: 6, h: 0.25 }, "isarc note");
+    s.addNotes("What exactly is designed, and from what? At ISARC we defined the task like this. In: one cross-section at a hanger. The structure it hangs from, with its anchor zones, and the services crossing it, each with trade, position, size and weight per metre. We call that a context: the brief. Out: assemblies of catalog parts that carry those services to the structure, each checked for statics, anchors, connectors and buildability, up to ten, ranked by cost. The assembly is the answer. Keep the two apart: CrossMEP is contexts. It contains no assemblies. (1:05)");
+  }
+
+  // ========================================================================= 4 the synthesis problem (from the ISARC 2026 talk)
+  {
+    const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
+    s.addText("Synthesizing the assembly from a catalog and a context has resisted automation", { placeholder: "title" });
+    const img = fitImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: 0.6, y: 1.5, w: 7.4, h: 2.75 }, "route to section");
     caption(s, "Design starts after coordination: at each hanger the designer works from the section across the run, not from the whole model.",
       { x: img.x, y: img.y + img.h + 0.1, w: img.w, h: 0.5 }, "fig1 caption");
+    panel(s, 8.25, 1.5, 4.48, 2.85, "practice card");
+    s.addText([
+      { text: "Where practice stands", options: { bold: true, fontSize: 17, breakLine: true } },
+      { text: " ", options: { fontSize: 6, breakLine: true } },
+      { text: "Tools coordinate the model and check a design.", options: { breakLine: true } },
+      { text: " ", options: { fontSize: 6, breakLine: true } },
+      { text: "Choosing the topology and the parts, from a fixed catalog, is still done by hand, one section at a time.", options: {} },
+    ], { x: 8.5, y: 1.65, w: 4.0, h: 2.6, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "practice" });
     const why = [
       ["Geometric judgment", "Engineers choose an assembly’s topology from experience."],
       ["Rule explosion", "Code, load and material constraints interact across thousands of combinations."],
@@ -329,10 +398,10 @@ async function main() {
       s.addText(`${i + 1}. ${h}`, { x: x + 0.25, y: 4.8, w: cw - 0.5, h: 0.42, fontSize: 17, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "why head " + h });
       s.addText(t, { x: x + 0.25, y: 5.28, w: cw - 0.5, h: 0.9, fontSize: 15, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "why text " + h });
     });
-    s.addNotes("So what is the task? At ISARC we defined it like this. You're given a fixed catalog of components and the context: which services cross the hanger, and what they hang from. You must find a feasible assembly that carries them to the structure. Designers don't work from the whole model. They work from one section at each hanger, like this one. Today's tools coordinate and check; choosing the layout and the parts is still manual. That section is the unit of this work, and the unit of our dataset. (1:05)");
+    s.addNotes("Why has this resisted automation? Designers don't work from the whole model: after coordination they work from one section at each hanger, like this one. Today's tools coordinate and check; choosing the layout and the parts is still manual. Three reasons. The topology comes from experience. Code, load and material rules interact across thousands of combinations. And catalogs change faster than rule systems can be rewritten. (1:40)");
   }
 
-  // ========================================================================= 4 what a method would look like (unpublished work: the approach is a black box)
+  // ========================================================================= 5 what a method would look like (unpublished work: the approach is a black box)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("One section in, verified supports out: learnable, given problems to learn from", { placeholder: "title" });
@@ -406,10 +475,10 @@ async function main() {
       { text: "a fixed set to compare on", options: { bold: true, color: THEME.colors.lt1 } }, { text: " and ", options: { color: THEME.colors.lt1 } },
       { text: "problems that look like practice", options: { bold: true, color: THEME.colors.lt1 } }, { text: ".", options: { color: THEME.colors.lt1 } },
     ], { x: 0.9, y: 5.55, w: 11.5, h: 1.0, fontSize: 16, valign: "middle", margin: 0, isTextBox: true, objectName: "needs text" });
-    s.addNotes("What would a method look like? On the left, the brief: the context, and a catalog of parts with prices. The rules say which actions are legal; each action adds parts. In the middle, a black box chooses the next action: a rule table, a search, or a learned policy. A verifier judges every finished design, statics, anchors, buildability, and feeds pass or fail back. Out come verified designs, ranked by cost. Whatever sits in that black box, it needs problems to learn from, a fixed set to compare on, and problems that look like practice. (1:40)");
+    s.addNotes("What would a method look like? On the left, the context and a catalog of parts with prices. The rules say which actions are legal; each action adds parts. In the middle, a black box chooses the next action: a rule table, a search, or a learned policy. A verifier judges every finished design, statics, anchors, buildability, and feeds pass or fail back. Whatever sits in that black box, it needs problems to learn from, a fixed set to compare on, and problems that look like practice. (2:10)");
   }
 
-  // ========================================================================= 3 gap + at a glance
+  // ========================================================================= 6 gap + at a glance
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("Real designs cover one corner of the design space; CrossMEP covers all of it", { placeholder: "title" });
@@ -447,10 +516,10 @@ async function main() {
       const r = Math.floor(i / 3), c = i % 3;
       tile(s, 6.35 + c * (tw + 0.2), 2.05 + r * (th + 0.2), tw, th, big, label, { bigSize: 26, labelSize: 11.5 });
     });
-    s.addNotes("The real designs we had were few, and they sat in one corner of the design space: one kind of project, one trade mix. A method tuned to them measures fit to that project. So we generate. CrossMEP covers the space by construction, and without limit: a new seed is a new set of problems, uniform over the tiers, or shaped to whatever mix you ask for. The seven thousand contexts in eight tiers are the release, not the ceiling: deliberately unlabeled, every constant sourced or declared, and all of it open. (2:20)");
+    s.addNotes("The real designs we had were few, and they sat in one corner of the design space: one kind of project, one trade mix. A method tuned to them measures fit to that project. So we generate. CrossMEP covers the space by construction, and without limit: a new seed is a new set of problems, uniform over the tiers, or shaped to whatever mix you ask for. The seven thousand contexts in eight tiers are the release, not the ceiling: deliberately unlabeled, every constant sourced or declared, and all of it open. (2:45)");
   }
 
-  // ========================================================================= 4 anatomy
+  // ========================================================================= 7 anatomy
   pres.addSection({ title: "The dataset" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
@@ -458,10 +527,10 @@ async function main() {
     const img = fitImage(s, path.join(FIG, "01_what_a_context_is.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.95 }, "context figure");
     caption(s, "Per element: kind, service and trade · bare size · insulation per side · load per metre × the span it was sized at = load at the support · position along and out from the surface. Per context: slab or wall, substrate, thickness. Absent by design: channel, rods, clamps, anchors — and any “correct” answer, since a feasible support depends on the catalog you build from.",
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "context caption");
-    s.addNotes("Here's one context: a two-dimensional section at one support location. Each element has its kind, service and trade, its size, its insulation, and its load, which is weight per metre times the span it was sized at, plus its position. Add the surface, a slab or a wall, and that's all. What you won't find is the support: no channel, no rods, no anchors, and no correct answer, because a feasible support depends on the catalog you build from. The context is the brief. The assembly is the answer. (3:00)");
+    s.addNotes("Here's one context: a two-dimensional section at one support location. Each element has its kind, service and trade, its size, its insulation, and its load, which is weight per metre times the span it was sized at, plus its position. Add the surface, a slab or a wall, and that's all. What you won't find is the support: no channel, no rods, no anchors, and no correct answer, because a feasible support depends on the catalog you build from. (3:25)");
   }
 
-  // ========================================================================= 5 generation
+  // ========================================================================= 8 generation
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("Sections follow trade practice and measured spacing, not random shapes", { placeholder: "title" });
@@ -482,10 +551,10 @@ async function main() {
     const img = fitImage(s, path.join(FIG, "05_generation_example.png"), { x: 6.9, y: 1.5, w: 5.83, h: 4.3 }, "generation example");
     caption(s, "One generated benchmark context, three rows by priority; the gap marked is one draw from the measured distribution. Every context is seeded: the same seed gives the same file, byte for byte.",
       { x: 6.9, y: img.y + img.h + 0.12, w: 5.83, h: 0.75 }, "generation caption");
-    s.addNotes("How do we make a context? Not by free randomness, but by rules an engineer would recognize. The tier fixes how many elements there are. We pick the surface and fill it the way trades really run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps between neighbors are drawn from gaps measured on a built project, never below twenty-five millimeters. On walls, electrical stays above water. Every context is checked, and the same seed gives the same file, byte for byte. (3:35)");
+    s.addNotes("How do we make a context? By rules an engineer would recognize, not free randomness. The tier fixes how many elements there are. We pick the surface and fill it the way trades really run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps between neighbors are drawn from gaps measured on a built project, never below twenty-five millimeters. On walls, electrical stays above water. Every context is checked; same seed, same file, byte for byte. (3:55)");
   }
 
-  // ========================================================================= 6 sources
+  // ========================================================================= 9 sources
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("Sizes, spans and loads come from standards; the choices are declared", { placeholder: "title" });
@@ -512,10 +581,10 @@ async function main() {
     panel(s, 0.6, 5.75, 12.13, 0.85, "sources note card");
     s.addText("Three kinds of ground: standards (what each element is and weighs), measured open buildings (how close neighbours sit) and declared design choices (trade mix, surface mix, number of rows). Every constant carries its source and status in the repository, and the log says why each standard was chosen over its alternatives.",
       { x: 0.9, y: 5.8, w: 11.5, h: 0.75, fontSize: 13, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "sources note" });
-    s.addNotes("Where do the numbers come from? Three places. Sizes, weights and spans come from standards: European steel pipe and duct standards, IEC for conduits and trays, ASME for spans, the German GEG for insulation. How close neighbors sit comes from measured open buildings. And a few things are simply our choices, like the trade mix, and we label them that way. (4:15)");
+    s.addNotes("Where do the numbers come from? Three places. Sizes, weights and spans come from standards: European steel pipe and duct standards, IEC for conduits and trays, ASME for spans, the German GEG for insulation. How close neighbors sit comes from measured open buildings. And a few things are simply our choices, like the trade mix, and we label them that way. (4:30)");
   }
 
-  // ========================================================================= 7 release
+  // ========================================================================= 10 release
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText(`${fmtInt(comp.contexts)} contexts in four splits; the test seeds are never trained on`, { placeholder: "title" });
@@ -549,20 +618,20 @@ async function main() {
       chartStyle({ x: 6.55, y: 4.1, w: 6.18, h: 2.6, barDir: "col", barGapWidthPct: 80, dataLabelFormatCode: "#,##0",
         dataLabelFontSize: 9, valAxisLabelFormatCode: "#,##0", valAxisMinVal: 0, valAxisMaxVal: 4000, valAxisMajorUnit: 1000,
         title: "Pipes by nominal size, all splits", objectName: "dn chart" }));
-    s.addNotes("The release has four splits on disjoint seeds, so a method is never tested on what it trained on: five thousand contexts for training, five hundred each for validation and test, and a benchmark of one thousand, a hundred and twenty-five per tier. Everything is plain JSON with a schema and a datasheet. (4:40)");
+    s.addNotes("The release has four splits on disjoint seeds, so a method is never tested on what it trained on: five thousand contexts for training, five hundred each for validation and test, and a benchmark of one thousand, a hundred and twenty-five per tier. Everything is plain JSON with a schema and a datasheet. (4:55)");
   }
 
-  // ========================================================================= 8 gallery
+  // ========================================================================= 11 gallery
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("Difficulty is one number: tier Cn holds exactly n elements", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "02_tier_gallery.png"), { x: 0.6, y: 1.4, w: 12.13, h: 4.95 }, "tier gallery");
     caption(s, "One benchmark context per tier; dashed rings are insulation. Within a tier, kinds, trades, services, surfaces and stacking all vary, so element count is the one controlled difficulty axis. C1 is the most common support in any building; C8 is a congested rack.",
       { x: 0.6, y: img.y + img.h + 0.1, w: 12.13, h: 0.55 }, "gallery caption");
-    s.addNotes("Here's one benchmark context per tier. C1 is a single element, the most common support in any building. By C8 you have eight services on three rows. Within a tier everything else varies: kinds, trades, surfaces, stacking. So the element count is the one controlled axis of difficulty. And notice the walls: the section rotates, and electrical sits above water. (5:00)");
+    s.addNotes("Here's one benchmark context per tier. C1 is a single element, the most common support in any building. By C8 you have eight services on three rows. Within a tier everything else varies, so the element count is the one controlled axis of difficulty. And notice the walls: the section rotates, and electrical sits above water. (5:20)");
   }
 
-  // ========================================================================= 9 experiment 1
+  // ========================================================================= 12 experiment 1
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
@@ -571,10 +640,10 @@ async function main() {
     const pg = TR.population.clear_gap_mm.per_tier;
     caption(s, `A check that the dataset behaves as designed: the tier fixes the element count; load and congestion follow from the rules. Boxes: benchmark, 125 contexts per tier (IQR, whiskers 1.5 IQR); diamonds: medians of ${fmtInt(TR.settings.per_tier)} generated contexts per tier. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)}; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}; ${mm(pg.C2.median)} → ${mm(pg.C8.median)} mm in the population).`,
       { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 1 caption", 12.5);
-    s.addNotes(`Now three analyses. The first is a design check, not a discovery: does difficulty grow with the tier? The count is fixed by construction, and load and congestion follow from the rules, so this shows the dataset behaves as designed. The load at the support rises with the tier, from about ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. The closest gap narrows at every step, from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimeters. So: report methods tier by tier. (5:25)`);
+    s.addNotes(`Now three analyses. The first is a design check, not a discovery: the count is fixed by construction, and load and congestion follow from the rules, so this shows the dataset behaves as designed. The load at the support rises with the tier, from about ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. The closest gap narrows at every step, from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimeters. (5:40)`);
   }
 
-  // ========================================================================= 10 experiment 2
+  // ========================================================================= 13 experiment 2
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
     s.addText("Spacing holds up on a clinic the generator never saw", { placeholder: "title" });
@@ -583,10 +652,10 @@ async function main() {
     const gc = g.clinic_plumbing[LW];
     caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Clear gaps between side-by-side pipes, on sections every 250 mm. Clinic (${SEC.measured.clinic_plumbing.pairs} pipe pairs): ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}), more than the ${mm(gc.noise_floor.median)} mm a perfect generator would show, and about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic, CC BY 4.0.`,
       { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 2 caption", 12.5);
-    s.addNotes(`The second analysis is the one the generator could fail. Is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We kept a second open building aside, a medical-dental clinic, cut it into sections every 250 millimeters, the way a context is defined, and measured the gaps between pipes running side by side. On the right, the distances. Generator to clinic: ${mm(gc.w1)} millimeters. That is above the ${mm(gc.noise_floor.median)} a perfect generator would show, so not a perfect match, but about as close as the duplex's own two models are to each other. A fixed 25-millimeter gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:55)`);
+    s.addNotes(`The second analysis is the one the generator could fail. Is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We kept a second open building aside, a medical-dental clinic, cut it into sections every 250 millimeters, and measured the gaps between pipes running side by side. Generator to clinic: ${mm(gc.w1)} millimeters. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimeter gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (6:05)`);
   }
 
-  // ========================================================================= 11 experiment 3
+  // ========================================================================= 14 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
     s.addText(`A two-size catalog attaches 1 pipe in ${Math.round(100 / CB.pct_pipes)}; the dataset shows what to cover`, { placeholder: "title" });
@@ -617,7 +686,7 @@ async function main() {
     s.addNotes(`The third analysis is a use of the dataset, not a test of it: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, with an interval of ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Load is never the limit, and trays, ducts and conduits aren't covered at all. On the right is what the dataset asks of any catalog: two well-placed sizes could attach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} sizes every pipe. So 'what should the catalog contain' becomes a measurement. (6:45)`);
   }
 
-  // ========================================================================= 12 demo
+  // ========================================================================= 15 demo
   pres.addSection({ title: "Use" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
@@ -632,9 +701,9 @@ async function main() {
     const v3 = await cropImage(s, demo, { x, y: row, w, h: 2.6 }, { x: 1700, y: 400, w: 980, h: 700 }, "studio 3D", "top");
     s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.35) / 2, y: v3.y + v3.h + 0.25, w: 1.35, h: 1.35, objectName: "qr studio" });
     s.addText("Scan to open the studio", { x, y: v3.y + v3.h + 1.65, w, h: 0.3, fontSize: 12, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
-    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a support designer receives, drawn the way an engineer would issue it: every service at true size, its level below the slab, its load, the closest clear gap, and the same run in 3D. Every section is a stored output of the released generator, with the Python call that reproduces it. Scan the code to try it yourself. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 18 shows two more sections. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (7:20)");
+    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a support designer receives, drawn the way an engineer would issue it: every service at true size, its level below the slab, its load, the closest clear gap, and the same run in 3D. Every section is a stored output of the released generator, with the call that reproduces it. Scan the code to try it yourself. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 19 shows two more sections. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (7:25)");
   }
-  // ========================================================================= 13 using it
+  // ========================================================================= 16 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("Train on the generator, evaluate on the benchmark, report per tier", { placeholder: "title" });
@@ -665,10 +734,10 @@ async function main() {
       s.addText(head, { x: x + 0.25, y: 5.32, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
       s.addText(text, { x: x + 0.25, y: 5.75, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
     });
-    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Because there are no labels, the same files serve reinforcement learning, constraint programming, and benchmarking people. We ship the scoring too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every method. Report per tier, with 95 percent intervals and paired tests. (8:30)");
+    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. With no labels, the same files serve reinforcement learning, constraint programming, and benchmarking. We ship the scoring too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every method. Report per tier, with 95 percent intervals and paired tests. (8:35)");
   }
 
-  // ========================================================================= 14 scope & next
+  // ========================================================================= 17 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
     s.addText("One section at one support today; a checker and real data come next", { placeholder: "title" });
@@ -694,10 +763,10 @@ async function main() {
       { text: "open the gallery, filter for the scenes you know, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
-    s.addNotes("A word on scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It's not for structural design of real installations. Next: a public checker, with best-known costs, so we can compare methods on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That's where I'd value your eye. (9:00)");
+    s.addNotes("A word on scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It's not for structural design of real installations. Next: a public checker, so we can compare methods on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That's where I'd value your eye. (9:00)");
   }
 
-  // ========================================================================= 15 closing
+  // ========================================================================= 18 closing
   {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
     s.addText("Support design now has open problems to learn from", { placeholder: "title" });
