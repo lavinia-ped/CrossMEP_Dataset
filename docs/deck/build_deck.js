@@ -674,22 +674,29 @@ async function main() {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
     s.addText("Sections follow trade practice and measured spacing, not random shapes", { placeholder: "title" });
     const steps = [
-      ["Tier.", "Cn fixes the exact element count, n = 1 … 8."],
-      ["Surface.", "Ceiling or wall (78 / 22 %); concrete slab or wall, 150–300 mm thick."],
-      ["Services.", "Grouped as trades run [3]: hot + cold pairs, flow + return, chilled banks, sprinkler mains, 1–2 trays, ducts, conduit groups of 2–6."],
-      ["Rows.", "Bulky first: ducts nearest the surface, then trays and conduits, then pipes."],
-      ["Spacing.", "Gaps drawn from gaps measured on a built project [12] (at least 25 mm); stagger within rows; electrical above wet on walls [10]."],
-      ["Check.", "Every pair at least 25 mm clear; rows centred; sizes, insulation, loads and positions recorded."],
+      ["FiHash", "Tier", "Cn fixes the exact element count, n = 1 … 8"],
+      ["FiLayers", "Surface", "ceiling or wall (78 / 22 %); concrete, 150–300 mm thick"],
+      ["FiGitMerge", "Services", "grouped as trades run [3]: hot + cold, flow + return, conduit groups, 1–2 trays, ducts"],
+      ["FiAlignCenter", "Rows", "bulky first: ducts nearest the slab, then trays and conduits, then pipes"],
+      ["FiMove", "Spacing", "gaps drawn from a built project [12], at least 25 mm; electrical above wet on walls [10]"],
+      ["FiCheckCircle", "Check", "every pair 25 mm clear, rows centred, everything recorded; same seed, same file"],
     ];
-    steps.forEach(([head, text], i) => {
-      const y = 1.55 + i * 0.86;
-      s.addShape(pres.ShapeType.ellipse, { x: 0.6, y: y + 0.04, w: 0.44, h: 0.44, fill: { color: C.accent1 }, objectName: "step circle " + (i + 1) });
-      s.addText(String(i + 1), { x: 0.6, y: y + 0.04, w: 0.44, h: 0.44, fontSize: 14, bold: true, color: C.background1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "step number " + (i + 1) });
-      s.addText([{ text: head + " ", options: { bold: true } }, { text }], { x: 1.25, y: y - 0.1, w: 5.45, h: 0.72, fontSize: 13, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "step " + (i + 1) });
-    });
-    const img = fitImage(s, path.join(FIG, "05_generation_example.png"), { x: 6.9, y: 1.5, w: 5.83, h: 4.3 }, "generation example");
-    caption(s, "One generated benchmark context, three rows by priority; the gap marked is one draw from the measured distribution. Every context is seeded: the same seed gives the same file, byte for byte.",
-      { x: 6.9, y: img.y + img.h + 0.12, w: 5.83, h: 0.75 }, "generation caption");
+    const SY = 1.55, SH = 0.72, SG = 0.14;
+    s.addShape(pres.ShapeType.line, { x: 0.82, y: SY + 0.22, w: 0, h: (SH + SG) * 5, line: { color: GRID, width: 2 }, objectName: "step spine" });
+    for (const [i, [icon, head, text]] of steps.entries()) {
+      const y = SY + i * (SH + SG);
+      panel(s, 1.2, y, 5.5, SH, "step card " + (i + 1));
+      s.addShape(pres.ShapeType.ellipse, { x: 0.6, y: y + SH / 2 - 0.22, w: 0.44, h: 0.44, fill: { color: C.accent1 }, line: { color: THEME.colors.lt1, width: 1.5 }, objectName: "step circle " + (i + 1) });
+      s.addText(String(i + 1), { x: 0.6, y: y + SH / 2 - 0.22, w: 0.44, h: 0.44, fontSize: 13, bold: true, color: C.background1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "step number " + (i + 1) });
+      const data = await iconData(icon, THEME.colors.dk2);
+      if (data) s.addImage({ data, x: 1.38, y: y + SH / 2 - 0.17, w: 0.34, h: 0.34, objectName: "step icon " + head });
+      s.addText([{ text: head, options: { bold: true, color: C.text1, breakLine: true } }, { text, options: { color: INK2, fontSize: 11.5 } }],
+        { x: 1.9, y, w: 4.65, h: SH, fontSize: 13, valign: "middle", margin: 0, isTextBox: true, objectName: "step " + (i + 1) });
+    }
+    const img = fitImage(s, path.join(FIG, "05_generation_example.png"), { x: 6.95, y: 1.5, w: 5.78, h: 4.1 }, "generation example");
+    s.addShape(pres.ShapeType.rect, { x: img.x, y: img.y, w: img.w, h: img.h, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: "example frame" });
+    caption(s, "One generated benchmark context, three rows by priority; the gap marked is one draw from the measured distribution.",
+      { x: 6.95, y: img.y + img.h + 0.1, w: 5.78, h: 0.45 }, "generation caption", 11.5);
     refs(s, [3, 10, 12]);
     s.addNotes("How is a context made? By rules an engineer would recognize. The tier fixes the element count. We pick the surface and fill it the way trades run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps are drawn from gaps measured on a built project, never below twenty-five millimetres. On walls, electrical stays above water. Same seed, same file. (3:15)");
   }
