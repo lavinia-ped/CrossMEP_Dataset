@@ -9,6 +9,18 @@ Timing: 15 slides in about 9.5 minutes (slide 12 is a live demo of the Generator
 Studio, with its screenshot as the fallback); five appendix slides for questions,
 the first with two more studio sections.
 
+**Before the talk.**
+1. The QR codes on slides 14 and 15 and the closing link open
+   github.com/lavinia-ped/CrossMEP_Dataset. The repository must be public and its
+   default branch must hold this release; scan both codes from a phone that is
+   not signed in to GitHub.
+2. Slide 12's QR code opens the hosted Generator Studio: set its link sharing to
+   public and check it from a phone that is not signed in.
+3. Open the studio once with internet on the presenting laptop: the 3D view and
+   the fonts load from CDNs (the drawing works offline).
+4. Rehearse once with a timer; the marks in the headings assume about 145 words
+   a minute and 30 s for the demo.
+
 ---
 
 ## 1. Title (0:00)
@@ -21,7 +33,7 @@ Facility Engineering. This is CrossMEP, joint work with David Gvadzabia, Torben
 Graeber and Martin Fischer: a dataset of the problems a support designer solves,
 made for training and testing methods that design MEP supports."
 
-## 2. Every pipe, duct and tray hangs from a support designed by hand (0:15)
+## 2. Every pipe, duct and tray hangs from a support designed by hand (0:20)
 
 **Show:** three figures (≈ 10,000 assemblies per hospital; 20 min – 2 h each; ≈ ¼
 of MEP design effort), the route-to-section figure from the paper.
@@ -44,10 +56,11 @@ our dataset."
 were public. Project models are proprietary, the open ones are not organised
 around supports, and any one project covers one narrow slice. So we built
 CrossMEP: 7,000 contexts with about 31,500 elements, stratified into eight tiers,
-deliberately unlabeled, with every constant traced to its source, checked
-against open IFC buildings, and released openly with the generator."
+deliberately unlabeled, with every constant traced to its source or declared a
+design choice, pipe gaps checked against open IFC buildings, and released openly
+with the generator."
 
-## 4. A context is the section at one hanger: the brief, not the answer (1:40)
+## 4. A context is the section at one hanger: the brief, not the answer (1:25)
 
 **Show:** one C5 context with its table of fields.
 
@@ -60,7 +73,7 @@ rods, no anchors, and no 'correct answer', because a feasible support depends on
 the catalog you build from. The context is the brief; the assembly is the
 answer."
 
-## 5. How a context is generated: rules, not free randomness (2:30)
+## 5. How a context is generated: rules, not free randomness (2:10)
 
 **Show:** six steps (tier, surface, services, rows, spacing, check) beside a
 generated C7 context with its three rows and one sampled gap marked.
@@ -75,12 +88,13 @@ small stagger within rows; on walls, electrical stays above water. Finally every
 context is checked — every pair at least 25 millimetres clear — and it is
 seeded: the same seed gives the same file, byte for byte."
 
-## 6. Every number has a source, and every load is computed from it (3:20)
+## 6. Every constant is sourced or declared a choice; every load is computed (2:55)
 
 **Show:** sources table (pipes, insulation, trays, ducts, conduits) and layout
 conventions.
 
-**Say:** "Every number in a context has a source. Pipe sizes and walls from EN
+**Say:** "Every number in a context comes from a cited source or a declared
+design choice. Pipe sizes and walls from EN
 10220 and 10255, filled with water, at ASME B31.1 water-service spans.
 Insulation from the German GEG for heated lines and a condensation-control
 schedule for chilled water. Trays at IEC 61537 widths, loaded full. Ducts at the
@@ -90,7 +104,7 @@ code, and every constant is documented with its source and status. Things that
 are choices — the trade mix, the tier composition — are labelled as design
 choices, not presented as measurements."
 
-## 7. The release: 7,000 contexts in four splits on disjoint seeds (4:05)
+## 7. The release: 7,000 contexts in four splits on disjoint seeds (3:40)
 
 **Show:** splits table; elements by kind; pipes by nominal size.
 
@@ -102,7 +116,7 @@ project. Four in five contexts hang from a ceiling, one in five from a wall, and
 electrical containment is the largest trade by count. Everything is plain JSON
 with a schema, metadata and a datasheet."
 
-## 8. Eight difficulty tiers: tier Cn holds exactly n elements (4:45)
+## 8. Eight difficulty tiers: tier Cn holds exactly n elements (4:15)
 
 **Show:** one benchmark context per tier, C1 to C8, ceilings and walls.
 
@@ -113,7 +127,7 @@ trades, surfaces and stacking — so the element count is the one controlled
 difficulty axis. Note the walls: the section rotates, and electrical sits above
 water."
 
-## 9. Experiment 1, a design check: difficulty grows with the tier (5:20)
+## 9. Experiment 1, a design check: difficulty grows with the tier (4:45)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
 median of 2,000 freshly generated contexts per tier as diamonds; C6–C8 shaded
@@ -131,7 +145,7 @@ by tier."
 +0.56, with the closest gap -0.36; population median gap
 C5 70 mm, C6 75 mm; elements per row (median) 5 at C5, 3 at C6.
 
-## 10. Experiment 2, the real test: spacing in a building it never saw (6:00)
+## 10. Experiment 2, the real test: spacing in a building it never saw (5:20)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
@@ -142,10 +156,12 @@ spacing realistic in a building it never saw? The gap distribution was fitted on
 a residential duplex from buildingSMART. We held out a second open building, a
 medical-dental clinic, which is a real building, cut it into sections every 250
 millimetres, the way a context is defined, and measured the gap between pipes
-running side by side. On the left, the clinic: the generated gaps follow the
-measured ones. On the right, the distances: generated to clinic 28 millimetres,
-about as close as the duplex's own two models are to each other. A fixed modular
-gap would be about 190 millimetres off."
+running side by side. On the left, the clinic: the generated gaps are close to
+the measured ones, though not identical. On the right, the distances: generated
+to clinic 28 millimetres. That is above the 8 a perfect generator would show, so
+not a perfect match, but about as close as the duplex's own two models are to
+each other. A fixed gap at the 25 millimetre minimum would be about 190
+millimetres off."
 
 **Numbers** (`verify/compare_sections.py`, pairs weighted by shared length):
 generated ↔ clinic 28 mm (95 % CI 16–44; noise floor 8); duplex MEP ↔ duplex
@@ -153,7 +169,7 @@ Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85;
 797 measured pipe pairs on the clinic, 74 and 41 on the duplex. Across 11 settings
 of the cut, generated ↔ clinic stays at 27–36 mm.
 
-## 11. Experiment 3, a use: what must a clamp catalog cover? (6:50)
+## 11. Experiment 3, a use: what must a clamp catalog cover? (6:05)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (43 % with two,
@@ -168,7 +184,7 @@ right is what the dataset asks of any catalog: two well-placed sizes attach 43
 per cent, six 80, twelve every pipe. So 'what should the catalog contain' becomes
 a measurement."
 
-## 12. See it: set the parameters, get the support designer's brief (7:30)
+## 12. See it: set the parameters, get the support designer's brief (6:40)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
@@ -183,12 +199,9 @@ the released generator, with the Python call that reproduces it."
 
 **Do (about 30 s):** switch to the studio; click C3, then *Generate another*
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
-appendix slide 16 shows two more sections. Before the talk: open the studio once
-with internet (the 3D view and the fonts load from CDNs; the drawing works
-offline), and set the hosted copy's link sharing to public so the QR code opens
-for the audience.
+appendix slide 16 shows two more sections. (See "Before the talk" above.)
 
-## 13. Using CrossMEP: train, evaluate, report (8:10)
+## 13. Using CrossMEP: train, evaluate, report (7:45)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
@@ -201,7 +214,7 @@ scoring: train on the generator, from C1 up to C8; evaluate on the benchmark,
 the same 125 contexts per tier for every method; report per tier with 95 per
 cent intervals and paired tests."
 
-## 14. Scope, and what comes next (8:45)
+## 14. Scope, and what comes next (8:20)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -215,10 +228,11 @@ catalog as an input, so a method is tested on catalogs it has never seen; and a
 real test set from commercial projects, with supports designed by engineers —
 which is where we would value your eye."
 
-## 15. CrossMEP: the brief, not the answer (9:15)
+## 15. CrossMEP: the brief, not the answer (9:10)
 
 **Say:** "CrossMEP is the brief, not the answer: 7,000 support-design problems,
-every number traced to its source, checked against two open buildings, and open.
+every constant traced to its source or declared a design choice, pipe gaps
+checked against two open buildings, and open.
 The QR code takes you to the data, the code, the gallery and the studio.
 Thank you."
 
@@ -267,12 +281,19 @@ meets at a random hanger. The result barely moves with these settings
 paper compared with gaps measured in June 2026 by grouping parallel runs. We have
 since measured on sections — the definition of a context — and added a second,
 real building. The section-based numbers are on the slide; the repository keeps
-both and explains the difference (`verify/VERIFICATION.md`).
+both and explains the difference (`verify/VERIFICATION.md`). The June sample
+also cannot be reproduced exactly: re-running the documented grouping procedure
+gives a different sample, so the section measurement is now the verification of
+record.
 
-**"Why is the duplex further away than the clinic?"** It is a small residential
-model (74 and 41 pipe pairs) with its own habits: a quarter of its pipe gaps
-are below 25 mm and many sit near 470 mm. It is as far from the clinic as from the
-generator, so it is the duplex that is unusual, and its intervals are wide.
+**"Why is the duplex further away than the clinic?"** Partly the duplex, partly
+the generator. The duplex is a small residential model (74 and 41 pipe pairs, so
+its intervals are wide); a quarter of its pipe gaps are below 25 mm and many sit
+near 470 mm. The generator draws no gap below its 25 mm minimum, and it applies
+the fitted gap between insulation surfaces, so its bare-pipe gaps run wider.
+With two real buildings we cannot say which one is typical; what the slide shows
+is that the generator is as close to a building it never saw as the duplex's two
+models are to each other.
 
 **"A quarter of the duplex's gaps are under 25 mm. Why does the generator never
 produce them?"** The generator treats 25 mm as a design minimum, so it reproduces
@@ -333,12 +354,13 @@ tray on a wall), and a generator for your own mix.
 cuts any IFC model into sections and measures the gaps; `verify/compare_sections.py`
 gives the same distances and intervals for your building.
 
-**"What catalog is that? Is it a manufacturer's range?"** It is the two-size clamp
-family the paper describes as the safe-to-share catalog of the companion SSA
-codebase (48–54 mm up to 2.5 kN; 108–114 mm up to 4.0 kN), reflecting real
-configurations. It is deliberately small: a stress test, not a full range. The
-conclusion does not depend on it: the right-hand chart asks the same question of
-any catalog, namely how many sizes, and where, this dataset needs.
+**"What catalog is that? Is it a manufacturer's range?"** It is the
+illustrative two-size family printed in the paper (48–54 mm up to 2.5 kN;
+108–114 mm up to 4.0 kN); no product catalog ships with the dataset. It is
+deliberately small: a stress test, not a full range. The conclusion does not
+depend on it: the right-hand chart asks the same question of any catalog, namely
+how many sizes, and where, this dataset needs, and `verify/catalog_stress.py
+--bins` runs it on yours.
 
 **"How certain is 11.6 %?"** The 95 % interval over contexts is 10.1–13.0
 (cluster bootstrap: the elements of one context are correlated); over 16,000

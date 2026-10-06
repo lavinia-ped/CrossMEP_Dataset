@@ -28,7 +28,7 @@ What is computed (gaps < 600 mm, the range used throughout the paper)
   and weights drawn from it): median and 95th percentile.
 * Real-to-real distances between the measured models, with intervals: how far
   real models are from each other.
-* Baseline: a fixed 25 mm modular gap.
+* Baseline: a fixed 25 mm gap (the published minimum).
 * ``--sensitivity``: the same distances with the section-cut parameters changed one
   at a time, re-measured from the shipped segment tables (no IfcOpenShell needed).
 
