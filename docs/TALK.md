@@ -105,12 +105,12 @@ is checked, and it's seeded: the same seed gives the same file, byte for byte."
 **Show:** sources table (pipes, insulation, trays, ducts, conduits) and layout
 conventions.
 
-**Say:** "Where do the numbers come from? Each comes from a cited source or is declared a
-design choice. Pipes follow the European steel pipe standards, filled with
-water, at ASME B31.1 spans. Insulation follows the German GEG, and a
-condensation schedule for chilled water. Trays and conduits follow IEC
-standards, ducts European sizes with a manufacturer's weight table. Loads are
-computed in code, and pure choices, like the trade mix, are labeled as choices."
+**Say:** "Where do the numbers come from? Three places. Sizes, weights and spans come
+from standards: European steel pipe and duct standards, IEC for conduits and
+trays, ASME for spans, the German GEG for insulation. How close neighbors sit
+comes from measured open buildings. And a few things are simply our choices,
+like the trade mix, and we label them that way. Loads are computed in code from
+all of this."
 
 ## 8. 7,000 contexts in four splits; the test seeds are never trained on (4:05)
 
@@ -119,11 +119,9 @@ computed in code, and pure choices, like the trade mix, are labeled as choices."
 **Say:** "The release has four splits on disjoint seeds, so a method is never tested on
 what it trained on: five thousand contexts for training, five hundred each for
 validation and test, and a benchmark of one thousand, a hundred and twenty-five
-per tier. Mostly pipes, then conduits, trays and ducts. Four in five hang from a
-ceiling, one in five from a wall. Everything is plain JSON with a schema and a
-datasheet."
+per tier. Everything is plain JSON with a schema and a datasheet."
 
-## 9. Difficulty is one number: tier Cn holds exactly n elements (4:35)
+## 9. Difficulty is one number: tier Cn holds exactly n elements (4:25)
 
 **Show:** one benchmark context per tier, C1 to C8, ceilings and walls.
 
@@ -133,13 +131,13 @@ tier everything else varies: kinds, trades, surfaces, stacking. So the element
 count is the one controlled axis of difficulty. And notice the walls: the
 section rotates, and electrical sits above water."
 
-## 10. Higher tiers are heavier and, overall, tighter, as designed (5:00)
+## 10. Higher tiers are heavier and, overall, tighter, as designed (4:50)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
 median of 2,000 freshly generated contexts per tier as diamonds; C6–C8 shaded
 ("two or three rows").
 
-**Say:** "Now three experiments. The first is a design check, not a discovery: does
+**Say:** "Now three analyses. The first is a design check, not a discovery: does
 difficulty grow with the tier? The count is fixed by construction, and load and
 congestion follow from the rules, so this shows the dataset behaves as designed.
 The load at the support rises at every step, from 0.1 to 1.7 kilonewtons. The
@@ -151,13 +149,13 @@ tier."
 +0.56, with the closest gap -0.36; population median gap
 C5 70 mm, C6 75 mm; elements per row (median) 5 at C5, 3 at C6.
 
-## 11. Spacing holds up on a clinic the generator never saw (5:35)
+## 11. Spacing holds up on a clinic the generator never saw (5:25)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
 generator and three real models, and between the real models themselves.
 
-**Say:** "The second experiment is the one the generator could fail. Is the spacing
+**Say:** "The second analysis is the one the generator could fail. Is the spacing
 realistic in a building it has never seen? The gap distribution was fitted on a
 residential duplex. We kept a second open building aside, a medical-dental
 clinic, cut it into sections every 250 millimeters, the way a context is
@@ -174,14 +172,14 @@ Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85;
 797 measured pipe pairs on the clinic, 74 and 41 on the duplex. Across 11 settings
 of the cut, generated ↔ clinic stays at 27–36 mm.
 
-## 12. A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (6:25)
+## 12. A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (6:15)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (43 % with two,
 80 % with six, 100 % with twelve); 11.6 % (95 % CI 10.1–13.0); 0 of 1,971 trays,
 ducts and conduits.
 
-**Say:** "The third experiment is a use of the dataset, not a test of it: what must a
+**Say:** "The third analysis is a use of the dataset, not a test of it: what must a
 catalog of clamps cover? Our paper's two-size catalog attaches 11.6 percent of
 the pipes, with an interval of 10 to 13, all one size, DN40. Load is never the
 limit, and trays, ducts and conduits aren't covered at all. On the right is what
@@ -189,7 +187,7 @@ the dataset asks of any catalog: two well-placed sizes could attach 43 percent,
 six sizes 80, twelve sizes every pipe. So 'what should the catalog contain'
 becomes a measurement."
 
-## 13. Set the parameters and the generator returns the designer's brief (7:05)
+## 13. Set the parameters and the generator returns the designer's brief (6:55)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): the
 parameters bar, the section drawn as an A4 support detail and the same run in
@@ -206,7 +204,7 @@ call that reproduces it. Scan the code to try it yourself."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
 appendix slide 17 shows two more sections. (See "Before the talk" above.)
 
-## 14. Train on the generator, evaluate on the benchmark, report per tier (8:15)
+## 14. Train on the generator, evaluate on the benchmark, report per tier (8:05)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
@@ -218,7 +216,7 @@ too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the
 same 125 contexts per tier for every method. Report per tier, with 95 percent
 intervals and paired tests."
 
-## 15. One section at one support today; a checker and real data come next (8:45)
+## 15. One section at one support today; a checker and real data come next (8:35)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -231,7 +229,7 @@ methods on the answer; the catalog as an input; and a real test set from
 commercial projects, with supports designed by engineers. That's where I'd value
 your eye."
 
-## 16. Support design now has open problems to learn from (9:25)
+## 16. Support design now has open problems to learn from (9:15)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
 problems, every constant sourced or declared a design choice, pipe spacing
@@ -247,6 +245,24 @@ diameter rule and bin tolerance); one stored record in JSON.
 ---
 
 ## Questions a construction audience may ask
+
+**"Are these really experiments?"** No, and the talk calls them analyses: a
+design check, a test against a building the generator never saw, and a use of the
+dataset. For a dataset the question is not whether a method wins but whether the
+problems are grounded and well behaved.
+
+**"What is the generator actually grounded on?"** Three things. Standards, for
+what each element is and weighs: pipe sizes and walls (EN 10220, EN 10255),
+insulation (GEG Anlage 8, a chilled-water schedule), duct sizes (EN 1505, 1506)
+with a manufacturer weight table, conduit sizes (IEC 61386-1), trays (a
+manufacturer series), spans (ASME B31.1 for water pipes; practice values for
+trays, ducts and conduits). Measured open buildings, for how close neighbours
+sit: pipe gaps and stagger from a buildingSMART duplex, checked on a clinic.
+And declared choices, for what is not measured: the trade mix, the surface mix,
+the number of rows and the tier composition. Each constant carries its status in
+`VERIFICATION_LOG.md`. What is not validated against any data is the
+composition (which services appear together); that rests on coordination
+practice.
 
 **"Isn't Experiment 1 circular? The generator makes higher tiers heavier."**
 Yes, and the slide says so: it is a design check that the dataset behaves as

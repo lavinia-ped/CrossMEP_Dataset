@@ -67,40 +67,38 @@ file, byte for byte.
 
 ## Slide 7, Sizes, spans and loads come from standards; the choices are declared (starts at 3:35)
 
-Where do the numbers come from? Each comes from a cited source or is declared a design
-choice. Pipes follow the European steel pipe standards, filled with water, at ASME B31.1
-spans. Insulation follows the German GEG, and a condensation schedule for chilled water.
-Trays and conduits follow IEC standards, ducts European sizes with a manufacturer's weight
-table. Loads are computed in code, and pure choices, like the trade mix, are labeled as
-choices.
+Where do the numbers come from? Three places. Sizes, weights and spans come from
+standards: European steel pipe and duct standards, IEC for conduits and trays, ASME for
+spans, the German GEG for insulation. How close neighbors sit comes from measured open
+buildings. And a few things are simply our choices, like the trade mix, and we label them
+that way. Loads are computed in code from all of this.
 
 ## Slide 8, 7,000 contexts in four splits; the test seeds are never trained on (starts at 4:05)
 
 The release has four splits on disjoint seeds, so a method is never tested on what it
 trained on: five thousand contexts for training, five hundred each for validation and
-test, and a benchmark of one thousand, a hundred and twenty-five per tier. Mostly pipes,
-then conduits, trays and ducts. Four in five hang from a ceiling, one in five from a wall.
-Everything is plain JSON with a schema and a datasheet.
+test, and a benchmark of one thousand, a hundred and twenty-five per tier. Everything is
+plain JSON with a schema and a datasheet.
 
-## Slide 9, Difficulty is one number: tier Cn holds exactly n elements (starts at 4:35)
+## Slide 9, Difficulty is one number: tier Cn holds exactly n elements (starts at 4:25)
 
 Here's one benchmark context per tier. C1 is a single element, the most common support in
 any building. By C8 you have eight services on three rows. Within a tier everything else
 varies: kinds, trades, surfaces, stacking. So the element count is the one controlled axis
 of difficulty. And notice the walls: the section rotates, and electrical sits above water.
 
-## Slide 10, Higher tiers are heavier and, overall, tighter, as designed (starts at 5:00)
+## Slide 10, Higher tiers are heavier and, overall, tighter, as designed (starts at 4:50)
 
-Now three experiments. The first is a design check, not a discovery: does difficulty grow
+Now three analyses. The first is a design check, not a discovery: does difficulty grow
 with the tier? The count is fixed by construction, and load and congestion follow from the
 rules, so this shows the dataset behaves as designed. The load at the support rises at
 every step, from 0.1 to 1.7 kilonewtons. The closest gap shrinks from 120 to about 62
 millimeters, but widens again at C6, where elements start stacking in two or three rows.
 So: report methods tier by tier.
 
-## Slide 11, Spacing holds up on a clinic the generator never saw (starts at 5:35)
+## Slide 11, Spacing holds up on a clinic the generator never saw (starts at 5:25)
 
-The second experiment is the one the generator could fail. Is the spacing realistic in a
+The second analysis is the one the generator could fail. Is the spacing realistic in a
 building it has never seen? The gap distribution was fitted on a residential duplex. We
 kept a second open building aside, a medical-dental clinic, cut it into sections every 250
 millimeters, the way a context is defined, and measured the gaps between pipes running
@@ -110,16 +108,16 @@ above the 8 a perfect generator would show, so not a perfect match, but about as
 the duplex's own two models are to each other. A fixed 25-millimeter gap would be about
 190 off.
 
-## Slide 12, A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (starts at 6:25)
+## Slide 12, A two-size catalog attaches 1 pipe in 9; the dataset shows what to cover (starts at 6:15)
 
-The third experiment is a use of the dataset, not a test of it: what must a catalog of
+The third analysis is a use of the dataset, not a test of it: what must a catalog of
 clamps cover? Our paper's two-size catalog attaches 11.6 percent of the pipes, with an
 interval of 10 to 13, all one size, DN40. Load is never the limit, and trays, ducts and
 conduits aren't covered at all. On the right is what the dataset asks of any catalog: two
 well-placed sizes could attach 43 percent, six sizes 80, twelve sizes every pipe. So 'what
 should the catalog contain' becomes a measurement.
 
-## Slide 13, Set the parameters and the generator returns the designer's brief (starts at 7:05)
+## Slide 13, Set the parameters and the generator returns the designer's brief (starts at 6:55)
 
 Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or
 an exact mix, and a seed. Out comes the section a support designer receives, drawn the way
@@ -128,7 +126,7 @@ load, the closest clear gap, and the same run in 3D. Every section is a stored o
 the released generator, with the Python call that reproduces it. Scan the code to try it
 yourself.
 
-## Slide 14, Train on the generator, evaluate on the benchmark, report per tier (starts at 8:15)
+## Slide 14, Train on the generator, evaluate on the benchmark, report per tier (starts at 8:05)
 
 Using it takes a few lines: load a split, filter by composition, or generate your own mix.
 Because there are no labels, the same files serve reinforcement learning, constraint
@@ -136,7 +134,7 @@ programming, and benchmarking people. We ship the scoring too. Train on the gene
 from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every
 method. Report per tier, with 95 percent intervals and paired tests.
 
-## Slide 15, One section at one support today; a checker and real data come next (starts at 8:45)
+## Slide 15, One section at one support today; a checker and real data come next (starts at 8:35)
 
 A word on scope. CrossMEP is one section at one support. Routing and branches are outside
 it, but the span is recorded, so a method can vary it. Pipe spacing was checked on two
@@ -146,7 +144,7 @@ best-known costs, so we can compare methods on the answer; the catalog as an inp
 real test set from commercial projects, with supports designed by engineers. That's where
 I'd value your eye.
 
-## Slide 16, Support design now has open problems to learn from (starts at 9:25)
+## Slide 16, Support design now has open problems to learn from (starts at 9:15)
 
 To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems,
 every constant sourced or declared a design choice, pipe spacing checked on two open
