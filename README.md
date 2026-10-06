@@ -298,13 +298,15 @@ it needs no server.
 
 ## Presenting the dataset
 
-`docs/CrossMEP_CIBW78_talk.pptx` is a ten-minute talk on the dataset (14 slides
-plus four appendix slides, speaker notes on every slide); `docs/TALK.md` is the
-same talk as a script with the questions practitioners ask; `docs/figures/` holds
-the figures. Everything regenerates from the released data:
-`python scripts/make_figures.py` (`pip install matplotlib "qrcode[pil]"`) writes
-the figures and the numbers the deck prints, `scripts/screenshot_gallery.js`
-(Playwright) captures the gallery, and `node docs/deck/build_deck.js` (`npm install
+`docs/CrossMEP_CIBW78_talk.pptx` (and its PDF) is a ten-minute talk on the
+dataset: 15 slides, one of them a live demo of the Generator Studio with its
+screenshot as the fallback, plus five appendix slides, with speaker notes on
+every slide; `docs/TALK.md` is the same talk as a script with the questions
+practitioners ask; `docs/figures/` holds the figures. Everything regenerates from
+the released data: `python scripts/make_figures.py` (`pip install matplotlib
+"qrcode[pil]"`) writes the figures and the numbers the deck prints,
+`scripts/screenshot_gallery.js` and `scripts/screenshot_studio.js` (Playwright)
+capture the gallery and the studio, and `node docs/deck/build_deck.js` (`npm install
 pptxgenjs react-icons react react-dom sharp jszip`) builds the deck;
 `docs/deck/preview.py` renders a trace of the build for layout checks where
 LibreOffice is unavailable.
@@ -318,12 +320,12 @@ data/v3.0/           the paper release (four splits + its gallery), frozen
 schema/              JSON Schemas (draft 2020-12) for revisions 3.x and 4.x
 verify/              IFC section-cut measurement, measured records of two open buildings,
                      distribution comparisons, tier trends, catalog stress test
-scripts/             figures and gallery screenshot for the talk
+scripts/             figures, gallery and studio screenshots for the talk; the studio build
 docs/                talk script, slide deck, figures, Generator Studio (docs/studio/)
-tests/               189 checks: derivations, geometry, generation over seeds, byte-exact
+tests/               196 checks: derivations, geometry, generation over seeds, byte-exact
                      regeneration of both revisions, schema, paper numbers, metrics, the catalog
                      stress test, the section-cut measurement (recomputed from the shipped
-                     segment tables), interval formulas and the evaluation harness, CLI, shims
+                     segment tables), interval formulas and the evaluation harness, the studio data, CLI, shims
 ```
 
 ## Versions and relation to the paper

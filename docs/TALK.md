@@ -5,7 +5,9 @@ speaker notes). Audience: CIB W78, a mix of BIM and IT researchers and MEP and
 construction practitioners. Every number on the slides comes from the released
 data through `scripts/make_figures.py`.
 
-Timing: 14 slides in about 9.5 minutes; four appendix slides for questions.
+Timing: 15 slides in about 9.5 minutes (slide 12 is a live demo of the Generator
+Studio, with its screenshot as the fallback); five appendix slides for questions,
+the first with two more studio sections.
 
 ---
 
@@ -111,41 +113,39 @@ trades, surfaces and stacking — so the element count is the one controlled
 difficulty axis. Note the walls: the section rotates, and electrical sits above
 water."
 
-## 9. Experiment 1: higher tiers are heavier and, on average, tighter (5:20)
+## 9. Experiment 1, a design check: difficulty grows with the tier (5:20)
 
 **Show:** per-tier boxes of the closest gap and the load (benchmark), with the
 median of 2,000 freshly generated contexts per tier as diamonds; C6–C8 shaded
 ("two or three rows").
 
-**Say:** "First experiment: are the tiers ordered by difficulty? The count is
-exact by construction, so we look at congestion and load. The boxes are the
-benchmark; the diamonds are medians over 2,000 freshly generated contexts per
-tier — the generator itself, not sampling noise. Load at the support rises at
-every step, from 0.1 to 1.7 kilonewtons. Congestion rises overall — the closest
-gap falls from 120 to about 62 millimetres — but at C6 the generator starts
-stacking in two or three rows, so each row holds fewer elements and the gap
-widens again. So the tier fixes the count; congestion and load follow on
-average, and methods should be compared tier by tier."
+**Say:** "The first experiment is a design check, not a discovery: does
+difficulty grow with the tier, as intended? The count is fixed by construction;
+load and congestion follow from the rules, so this shows the dataset behaves as
+designed. Load at the support rises at every step, from 0.1 to 1.7 kilonewtons.
+The closest gap falls from 120 to about 62 millimetres, but widens again at C6,
+where the generator starts stacking in two or three rows. So report methods tier
+by tier."
 
 **Numbers** (`verify/tier_trends.py`): rank correlation of tier with load
 +0.56, with the closest gap -0.36; population median gap
 C5 70 mm, C6 75 mm; elements per row (median) 5 at C5, 3 at C6.
 
-## 10. Experiment 2: generated spacing matches a building it never saw (6:15)
+## 10. Experiment 2, the real test: spacing in a building it never saw (6:00)
 
 **Show:** left, gaps between side-by-side pipes measured on the clinic vs
 generated; right, Wasserstein-1 distances with 95 % intervals between the
 generator and three real models, and between the real models themselves.
 
-**Say:** "Second experiment: is the spacing realistic? We took two open buildings
-from buildingSMART — a residential duplex and a medical-dental clinic, which is a
-real building — and cut sections every 250 millimetres, the way a context is
-defined, measuring the gap between pipes running side by side. On the left, the
-clinic, which the generator never saw: the generated gaps follow the measured
-ones closely. On the right, the distances. Generated to clinic: 28 millimetres,
-about as close as the duplex's own two models are to each other. The small
-duplex is as far from the generator as it is from the clinic. A fixed modular gap
-would be about 190 millimetres off."
+**Say:** "The second experiment is the one the generator could fail: is the
+spacing realistic in a building it never saw? The gap distribution was fitted on
+a residential duplex from buildingSMART. We held out a second open building, a
+medical-dental clinic, which is a real building, cut it into sections every 250
+millimetres, the way a context is defined, and measured the gap between pipes
+running side by side. On the left, the clinic: the generated gaps follow the
+measured ones. On the right, the distances: generated to clinic 28 millimetres,
+about as close as the duplex's own two models are to each other. A fixed modular
+gap would be about 190 millimetres off."
 
 **Numbers** (`verify/compare_sections.py`, pairs weighted by shared length):
 generated ↔ clinic 28 mm (95 % CI 16–44; noise floor 8); duplex MEP ↔ duplex
@@ -153,39 +153,55 @@ Plumbing 26; generated ↔ duplex 70 / 85; clinic ↔ duplex 71 / 85;
 797 measured pipe pairs on the clinic, 74 and 41 on the duplex. Across 11 settings
 of the cut, generated ↔ clinic stays at 27–36 mm.
 
-## 11. Experiment 3: a two-size clamp catalog attaches 1 pipe in 9 (7:05)
+## 11. Experiment 3, a use: what must a clamp catalog cover? (6:50)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (43 % with two,
 80 % with six, 100 % with twelve); 11.6 % (95 % CI 10.1–13.0); 0 of 1,971 trays,
 ducts and conduits.
 
-**Say:** "The third experiment connects the dataset to the task it serves: what
-must a catalog of clamps cover? Take the two-size catalog from the paper as an
-illustration. It attaches 11.6 per cent of the pipes — 293 of 2,529, interval 10
-to 13 — and every one is a single size, DN40. Load never binds: the heaviest pipe
-is 0.88 kilonewtons against a 2.5 kilonewton clamp. Trays, ducts and conduits are
-not covered at all. On the right is what the dataset asks of any catalog: two
-sizes placed where the pipes are would attach 43 per cent, six sizes 80, and
-twelve sizes every pipe. So 'what should the catalog contain' becomes a
-measurement."
+**Say:** "The third is a use of the dataset, not a test of it: what must a
+catalog of clamps cover? Take the paper's two-size catalog as an illustration. It
+attaches 11.6 per cent of the pipes, interval 10 to 13, all of one size, DN40;
+load never binds, and trays, ducts and conduits are not covered at all. On the
+right is what the dataset asks of any catalog: two well-placed sizes attach 43
+per cent, six 80, twelve every pipe. So 'what should the catalog contain' becomes
+a measurement."
 
-## 12. Using CrossMEP: train, evaluate, report (7:50)
+## 12. See it: set the parameters, get the support designer's brief (7:30)
+
+**Show:** the Generator Studio (live; the slide is its screenshot): the
+parameters bar, the section drawn as an A4 support detail and the same run in
+3D; QR code to the hosted studio.
+
+**Say:** "Here is what that means in practice. In the studio I choose what
+crosses the hanger: a tier, or an exact mix, and the seed. Out comes the section
+a support designer receives, drawn the way an engineer would issue it: every
+service at true size, its level below the slab, its load at the support, the
+closest clear gap; and the same run in 3D. Every section is a stored output of
+the released generator, with the Python call that reproduces it."
+
+**Do (about 30 s):** switch to the studio; click C3, then *Generate another*
+twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide;
+appendix slide 16 shows two more sections. Before the talk: open the studio once
+with internet (the 3D view and the fonts load from CDNs; the drawing works
+offline), and set the hosted copy's link sharing to public so the QR code opens
+for the audience.
+
+## 13. Using CrossMEP: train, evaluate, report (8:10)
 
 **Show:** six lines of Python, including `score` and `compare`; the interactive
 gallery; train, evaluate, report.
 
-**Say:** "Using it takes a few lines. Load a split — only the Python standard
-library is needed — filter by composition, or generate your own mix with the
-same rules; there is an interactive gallery for inspection. Because there are no
-labels, the same files serve reinforcement learning, constraint-programming
-baselines and human benchmarking, and we ship the scoring too: train on the
-generator with as many seeds as you like, from C1 up to C8; evaluate on the
-benchmark, the same 125 contexts per tier for every method; and report per tier
-with 95 per cent intervals and paired tests, so two methods can be compared
-fairly."
+**Say:** "Using it takes a few lines: load a split with the Python standard
+library, filter by composition, or generate your own mix with the same rules.
+Because there are no labels, the same files serve reinforcement learning,
+constraint-programming baselines and human benchmarking, and we ship the
+scoring: train on the generator, from C1 up to C8; evaluate on the benchmark,
+the same 125 contexts per tier for every method; report per tier with 95 per
+cent intervals and paired tests."
 
-## 13. Scope, and what comes next (8:40)
+## 14. Scope, and what comes next (8:45)
 
 **Show:** scope; next steps; the request to practitioners with the QR code.
 
@@ -199,13 +215,15 @@ catalog as an input, so a method is tested on catalogs it has never seen; and a
 real test set from commercial projects, with supports designed by engineers —
 which is where we would value your eye."
 
-## 14. CrossMEP: the brief, not the answer (9:10)
+## 15. CrossMEP: the brief, not the answer (9:15)
 
 **Say:** "CrossMEP is the brief, not the answer: 7,000 support-design problems,
 every number traced to its source, checked against two open buildings, and open.
-The QR code takes you to the data, the code and the gallery. Thank you."
+The QR code takes you to the data, the code, the gallery and the studio.
+Thank you."
 
-**Appendix slides:** per-tier statistics of the benchmark split; the realism
+**Appendix slides:** two more sections from the Generator Studio (the demo
+fallback); per-tier statistics of the benchmark split; the realism
 check in detail (samples, both weightings, noise floors, sensitivity to the cut);
 the catalog stress test with error bars (per tier, per split, sensitivity to the
 diameter rule and bin tolerance); one stored record in JSON.
@@ -213,6 +231,22 @@ diameter rule and bin tolerance); one stored record in JSON.
 ---
 
 ## Questions a construction audience may ask
+
+**"Isn't Experiment 1 circular? The generator makes higher tiers heavier."**
+Yes, and the slide says so: it is a design check that the dataset behaves as
+intended, which a benchmark needs before anyone reports per tier. The test the
+generator could fail is Experiment 2.
+
+**"Was the generator tuned to the clinic?"** No. The gap distribution was fitted
+in June 2026 on the duplex; the clinic was measured afterwards and never used for
+fitting. Against the duplex the generator is 70–85 mm away, about as far as the
+clinic is from the duplex.
+
+**"Where do the numbers come from?"** Sizes, spans, weights and insulation from
+published standards (each constant cites its source in the code and the
+datasheet); the spacing from the buildingSMART sample buildings (CC BY 4.0). The
+clamp catalog of Experiment 3 is the illustrative two-size family printed in the
+paper.
 
 **"Why 25 mm as the minimum gap? We use more."** It is the published pipe-rack
 minimum and it is a *floor*, not a typical value: the sampled gaps have a

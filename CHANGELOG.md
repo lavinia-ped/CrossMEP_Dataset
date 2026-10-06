@@ -8,6 +8,14 @@ package version tracks code and documentation.
 
 ## 4.0.0 — 2026-10-05 (not yet tagged)
 
+### Talk
+- Deck and script reframed: Experiment 1 is presented as a design check (the tier
+  fixes the count; load and congestion follow from the rules), Experiment 2 as the
+  independent test (gap distribution fitted on the duplex, clinic held out),
+  Experiment 3 as a use of the dataset. New slide 12: a live demo of the Generator
+  Studio (screenshot and QR code); new appendix slide with two more studio
+  sections. `scripts/screenshot_studio.js` captures the studio for the deck.
+
 ### Generator Studio
 - `docs/studio/index.html` (built by `scripts/build_studio.py`): set the generator's
   parameters (tier or exact composition, surface, seed) and browse its real outputs
