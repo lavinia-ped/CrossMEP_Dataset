@@ -106,7 +106,7 @@ Trays, ducts and conduits are not covered at all. On the right, what the dataset
 any catalog: two well-placed sizes reach 38 percent, six sizes 76, fifteen every pipe.
 What the catalog should contain becomes a measurement.
 
-## Slide 13, Set the parameters and the generator returns the designer's brief (starts at 5:40)
+## Slide 13, The Generator Studio turns a few parameters into the designer's brief (starts at 5:40)
 
 Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or
 an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer
@@ -114,7 +114,7 @@ would issue it: every service at true size, its level, its load, the closest gap
 run in 3D. Every section is a stored output of the released generator. Scan the code to
 try it.
 
-## Slide 14, Train on the generator, evaluate on the benchmark, report per tier (starts at 6:45)
+## Slide 14, A method trains on the generator, is scored on the benchmark and reports per tier (starts at 6:45)
 
 Using it takes a few lines: load a split, filter by composition, or generate your own mix.
 Four splits on disjoint seeds: five thousand to train, five hundred each for validation
@@ -123,7 +123,7 @@ files serve reinforcement learning, constraint programming and benchmarking, and
 the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for
 every method. Report per tier, with intervals and paired tests.
 
-## Slide 15, One section at one support today; a checker and real data come next (starts at 7:20)
+## Slide 15, CrossMEP covers one section at one support today; a checker and real data come next (starts at 7:20)
 
 Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open
 buildings; the rest rests on practice and standards, and the trade mix is a design choice.
