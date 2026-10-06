@@ -26,7 +26,7 @@ import argparse
 import json
 import os
 import sys
-from typing import Dict, List, Sequence
+from typing import Optional, Dict, List, Sequence
 
 import numpy as np
 
@@ -104,11 +104,12 @@ def trends(vals: Dict[str, Dict[str, np.ndarray]], n_boot: int, seed: int) -> Di
     return out
 
 
-def population(per_tier: int, seed: int) -> List[Dict]:
+def population(per_tier: int, seed: int, version: Optional[str] = None) -> List[Dict]:
     from crossmep.generate import generate_dataset
+    from crossmep.model import CURRENT_REVISION
     ctxs: List[Dict] = []
     for i, t in enumerate(TIERS):
-        ctxs += [c.to_dict() for c in generate_dataset(per_tier, seed=seed + i, tier=t)]
+        ctxs += [c.to_dict() for c in generate_dataset(per_tier, seed=seed + i, tier=t, revision=version or CURRENT_REVISION)]
     return ctxs
 
 

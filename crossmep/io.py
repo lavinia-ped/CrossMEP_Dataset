@@ -3,7 +3,7 @@
 A dataset file is a JSON object with exactly these keys, in this order::
 
     dataset      "CrossMEP"
-    version      data revision ("4.0" current; "3.0" = the paper release)
+    version      data revision ("4.1" current; "4.0"; "3.0" = the paper release)
     split        train | val | test | benchmark | custom | adhoc
     seed         integer seed of the generator stream
     n_contexts   number of contexts
@@ -26,7 +26,7 @@ from .model import CURRENT_REVISION, MEPContext, revision_for
 
 DATASET_NAME = "CrossMEP"
 DATA_VERSION = CURRENT_REVISION.version
-DATA_VERSIONS = ("4.0", "3.0")
+DATA_VERSIONS = ("4.1", "4.0", "3.0")
 UNITS = "mm, kN"
 RELEASE_SPLITS = ("train", "val", "test", "benchmark")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

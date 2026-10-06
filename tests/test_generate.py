@@ -55,7 +55,7 @@ def test_determinism_and_seed_sensitivity():
 def test_revisions_share_elements_and_rows():
     """Revision 3.0 and 4.0 consume the random stream identically: same
     elements, loads, levels and standoffs; only along-positions differ."""
-    v4 = G.generate_dataset(120, seed=5)
+    v4 = G.generate_dataset(120, seed=5, revision="4.0")
     v3 = G.generate_dataset(120, seed=5, revision="3.0")
     for a, b in zip(v4, v3):
         assert [(e.label, e.service, e.level, e.position_out_mm) for e in a.elements] == \
@@ -151,3 +151,54 @@ def test_generate_split_names():
     assert set(G.CANONICAL_SPLITS) == {"train", "val", "test", "benchmark"}
     with pytest.raises(KeyError):
         G.generate_split("nope")
+
+
+# --------------------------------------------------------------------------- composition 4.1
+
+def _mixed_share(ctxs, n):
+    sel = [c for c in ctxs if len(c.elements) == n]
+    return np.mean([len({e.kind for e in c.elements}) > 1 for c in sel])
+
+
+def test_4_1_rows_follow_the_count_probabilities():
+    d = G.generate_dataset(4000, seed=31)
+    for c in d:
+        n = len(c.elements)
+        assert 1 <= c.n_levels <= 3
+        if n <= 5 or c.surface.kind == "wall":
+            assert c.n_levels <= 2
+    share2 = {n: np.mean([c.n_levels >= 2 for c in d if len(c.elements) == n and c.surface.kind == "ceiling"])
+              for n in range(2, 9)}
+    for n, p in G.P_SECOND_ROW_4_1.items():
+        assert share2[n] <= p + 0.05, (n, share2[n], p)              # a group is never split across rows
+        if n >= 5:
+            assert share2[n] >= p - 0.08, (n, share2[n], p)
+    assert np.mean([c.n_levels == 3 for c in d if len(c.elements) > 5 and c.surface.kind == "ceiling"]) < 0.1
+
+
+def test_4_1_duct_pairs_are_equal_ducts():
+    pairs = 0
+    for c in G.generate_dataset(2000, seed=32):
+        ducts = [e for e in c.elements if e.kind == "duct"]
+        if len(ducts) >= 2:
+            pairs += any(a.label == b.label for a in ducts for b in ducts if a is not b)
+    assert pairs > 50
+
+
+def test_4_1_mixes_kinds_less_than_4_0():
+    a = G.generate_dataset(3000, seed=33, revision="4.1")
+    b = G.generate_dataset(3000, seed=33, revision="4.0")
+    for n in (3, 4, 6, 8):
+        assert _mixed_share(a, n) < _mixed_share(b, n)
+
+
+def test_4_1_reaches_dn150_and_4_0_does_not():
+    labels = lambda ctxs: {e.label for c in ctxs for e in c.elements if e.kind == "pipe"}
+    assert {"DN125", "DN150"} <= labels(G.generate_dataset(2000, seed=34, revision="4.1"))
+    assert not ({"DN125", "DN150"} & labels(G.generate_dataset(2000, seed=34, revision="4.0")))
+
+
+def test_4_1_is_the_current_revision_and_custom_uses_it():
+    from crossmep.model import CURRENT_REVISION, REV_4_1
+    assert CURRENT_REVISION is REV_4_1 and G.generate_dataset(3, seed=1)[0].revision is REV_4_1
+    assert G.generate_custom(2, pipes=2, seed=1)[0].revision is REV_4_1

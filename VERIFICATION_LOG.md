@@ -1,12 +1,13 @@
-# CrossMEP Verification Log (release 4.0.0; data revisions 4.0 and 3.0)
+# CrossMEP Verification Log (release 4.1.0; data revisions 4.1, 4.0 and 3.0)
 
 Every numeric constant in the generator, with value, source and status, keyed to
 its name in `crossmep/library.py` (physical constants) and `crossmep/layout.py`
 (layout). Loads are **derived in code** from the primitives listed in sections
 2, 4 and 5; `tests/test_library.py` pins every derived value to the frozen table
 of the data release, so a change to a primitive cannot alter the data unnoticed.
-The element library is identical in revisions 3.0 and 4.0; they differ only in
-layout arithmetic (section 6, "Gap semantics").
+The element library is identical in revisions 3.0 and 4.0, which differ only in
+layout arithmetic (section 6, "Gap semantics"); revision 4.1 adds DN125 and
+DN150 and changes four composition parameters (section 6, "Composition 4.1").
 
 Statuses: **VERIFIED** (checked against a primary or authoritative source,
 June 2026 audit), **PRACTICE-CITED** (grounded in practice documents, not a
@@ -17,20 +18,20 @@ not source-traceable to a single document).
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| `DN_OD_MM` | 21.3, 26.9, 33.7, 42.4, 48.3, 60.3, 76.1, 88.9, 114.3 mm (DN15–100) | EN 10255:2004 (OD range 21.3–165.1 mm confirmed); EN 10220:2002 dimension series; cross-checked vs ANSI sch40 chart (½″ = 21.3 mm) | VERIFIED |
+| `DN_OD_MM` | 21.3, 26.9, 33.7, 42.4, 48.3, 60.3, 76.1, 88.9, 114.3 mm (DN15–100); 139.7, 165.1 mm (DN125, DN150; revision 4.1) | EN 10255:2004 (OD range 21.3–165.1 mm confirmed); EN 10220:2002 dimension series; cross-checked vs ANSI sch40 chart (½″ = 21.3 mm) | VERIFIED |
 | EN 10220 / EN 10255 editions | 2002 / 2004 | current editions listed by national standards bodies; BS EN 10255:2004 replaced BS 1387:1985 | VERIFIED |
 
 ## 2. Pipe loads (`pipe_load_kN` = load per metre × span, rounded to 0.01 kN)
 
 | Constant | Value | Source | Status |
 |---|---|---|---|
-| `EN10255_MEDIUM_WALL_MM` | DN15/20: 2.6; DN25–40: 3.2; DN50/65: 3.6; DN80: 4.0; DN100: 4.5 mm | EN 10255:2004 medium series | VERIFIED |
+| `EN10255_MEDIUM_WALL_MM` | DN15/20: 2.6; DN25–40: 3.2; DN50/65: 3.6; DN80: 4.0; DN100: 4.5; DN125/150: 5.0 mm | EN 10255:2004 medium series; DN125 / DN150 walls as republished in merchant and mill tables, whose published empty masses (16.6 / 19.8 kg/m) the derivation reproduces (16.6 / 19.7) | VERIFIED |
 | `STEEL_DENSITY_KG_M3`, `WATER_DENSITY_KG_M3`, `G_M_S2` | 7,850 kg/m³; 1,000 kg/m³; 9.81 m/s² | standard values; loads are insensitive to 9.81 vs 9.80665 at the released precision | VERIFIED |
 | `pipe_mass_kg_m` | 1.40 (DN15) … 20.89 (DN100) kg/m water-filled; DN50 = 7.25 | steel annulus π(OD−t)·t·ρ + water at the bore; DN50 7.25 vs 7.6 kg/m from ANSI sch40 charts (different wall series, consistent) | VERIFIED (derived) |
-| `ASME_B311_WATER_SPAN_M` | NPS 1 / 2 / 3 / 4 = 2.1 / 3.0 / 3.7 / 4.3 m (7 / 10 / 12 / 14 ft) | ASME B31.1 Table 121.5 water-service points; the same four values appear in the ASHRAE Handbook, *HVAC Systems and Equipment*, "Pipes, Tubes, and Fittings", table of suggested hanger spacing for standard steel pipe (water), and in MSS SP-69/SP-58. Two independent normative republications agree; the ASME table itself is paywalled (verbatim check outstanding). B31.1-2022 superseded by B31.1-2024, MSS SP-58-2018 by SP-58-2025; values stable across editions | VERIFIED (two concordant sources) |
-| `support_span_m` floor rule | DN15–40 → 2.1; DN50/65 → 3.0; DN80 → 3.7; DN100 → 4.3 m | each DN takes the span of the largest published size not exceeding it; sizes below NPS 1 take 2.1 m. **No interpolated values** (an earlier log entry mentioning interpolated DN32/40/65 spans described a v1 rule and was wrong for the released data). Recorded per element as `span_m` in revision 4.0 | VERIFIED (rule stated) |
+| `ASME_B311_WATER_SPAN_M` | NPS 1 / 2 / 3 / 4 / 6 = 2.1 / 3.0 / 3.7 / 4.3 / 5.2 m (7 / 10 / 12 / 14 / 17 ft) | ASME B31.1 Table 121.5 water-service points; the same four values appear in the ASHRAE Handbook, *HVAC Systems and Equipment*, "Pipes, Tubes, and Fittings", table of suggested hanger spacing for standard steel pipe (water), and in MSS SP-69/SP-58. Two independent normative republications agree; the ASME table itself is paywalled (verbatim check outstanding). B31.1-2022 superseded by B31.1-2024, MSS SP-58-2018 by SP-58-2025; values stable across editions | VERIFIED (two concordant sources) |
+| `support_span_m` floor rule | DN15–40 → 2.1; DN50/65 → 3.0; DN80 → 3.7; DN100/125 → 4.3; DN150 → 5.2 m | each DN takes the span of the largest published size not exceeding it; sizes below NPS 1 take 2.1 m. **No interpolated values** (an earlier log entry mentioning interpolated DN32/40/65 spans described a v1 rule and was wrong for the released data). Recorded per element as `span_m` in revision 4.0 | VERIFIED (rule stated) |
 | `pipe_load_kN_per_m` | 0.0137 (DN15) … 0.2049 (DN100) kN/m | mass × g; recorded per element as `load_kN_per_m` (4 decimals) in revision 4.0; `round(load_kN_per_m × span_m, 2) == load_kN` for every library element (tested) | VERIFIED (derived) |
-| `DN_LOAD_KN` | 0.03, 0.04, 0.06, 0.08, 0.10, 0.21, 0.30, 0.49, 0.88 kN | derived; e.g. DN50: 7.25 kg/m × 3.0 m × 9.81 = 0.213 kN | VERIFIED (derived, test-pinned) |
+| `DN_LOAD_KN` | 0.03, 0.04, 0.06, 0.08, 0.10, 0.21, 0.30, 0.49, 0.88 kN; DN125 1.26, DN150 1.97 kN (4.1) | derived; e.g. DN50: 7.25 kg/m × 3.0 m × 9.81 = 0.213 kN | VERIFIED (derived, test-pinned) |
 
 ## 3. Insulation (`insulation_mm`, per side)
 
@@ -79,7 +80,8 @@ not source-traceable to a single document).
 | Stagger (`generate.stagger_for`) | half-normal, scale **0 / 75 / 120 mm** for 1 / ≤ 5 / > 5 elements, cap 2.5 σ, drawn per element | calibrated to measured in-bundle elevation spread (Duplex MEP median 79 mm, p75 282); generated in-row spread on the benchmark: median 93 mm, p75 149. *Correction:* the v3.0 log listed 55/75/120. Per-element draw is a simplification (a bank on one trapeze is co-planar) | VERIFIED (calibrated) / DEFAULT (per-element) |
 | `VPRIORITY` tiering order | duct → tray/conduit → pipe (bulky nearest the surface) | coordination practice (MaRS BIM 2025; trade-forum documentation 2024); prefabricated rack practice. The criteria behind it (spatial clearance, functional constraints such as gravity flow, installation access) are the MEP-coordination design criteria of Korman, Fischer & Tatum (2003), *J. Constr. Eng. Manage.* 129(6), 627–634, which does not prescribe this order | PRACTICE-CITED (criteria peer-reviewed) |
 | Wall drip rule | electrical containment above wet services within a row | **BS 7671 Reg. 528.3.2**: a wiring system routed below services liable to cause condensation (water, steam, gas) shall be protected from their effects; placing containment above the wet services is the layout that satisfies the regulation without added protection. Enforced on walls; **0 violations in 2,096 ceiling and 817 wall wet/electrical pairs** on the benchmark, and over 600 unseen contexts in tests | VERIFIED (BS 7671 rule) + VERIFIED (compliance) |
-| Surface mix, trade mix, option weights, DN bands, thickness choices | `generate.py` design parameters | not surveyed; disclosed in DATASHEET. **Compared, not fitted** (`verify/compare_composition.py`, October 2026): on the clinic (Plumbing + HVAC merged), conditional on the element count, the generated pipe/duct split is within TV 0.10 of the measured one for 3–8 elements (0.20 for pairs: ducts pair with pipes more often than drawn); the generator mixes kinds in one bundle and stacks rows more often than the clinic (e.g. 6 elements: mixed 47 % vs 24 %, stacked 100 % vs 38 %); 70 % of clinic hanger locations carry one element, 96 % three or fewer. DN mix differs by building (clinic 30 % ≥ DN100, duplex 87 % DN25; real-to-real TV 0.87 > generated-to-either 0.41 / 0.67). Electrical share and surface mix not testable (the open electrical models hold fixtures only; no architecture model used) | DEFAULT (composition compared on two open buildings) |
+| **Composition 4.1** (`P_SECOND_ROW_4_1`, `P_THIRD_ROW_4_1`, `P_SAME_KIND_4_1`, `OPTIONS_MULTI_4_1` / `WEIGHTS_MULTI_4_1`, `TRADE_DN_BAND_4_1`) | second row with probability 0.12 / 0.12 / 0.20 / 0.35 / 0.40 / 0.40 / 0.30 for 2–8 elements, third row 0.05 above five; next group repeats the previous kind with probability 0.5; option weights pipe bank 0.44, tray group 0.16, duct 0.08, duct pair 0.08, conduit group 0.16, single pipe 0.08; DN bands domestic 15–50, heating 20–100, chilled and sprinkler 25–150 | design parameters chosen after the composition comparison on revision 4.0 (next row): the clinic's stacked share by count (10–40 %), its mixed-kind share (3–27 %), its duct share in pairs (27 %) and its DN100+ mains. Not fitted: round values, one pass; the 4.1 comparison is in sample (TV ≤ 0.13 by count, mixing and stacking within about ten points, `RESULTS.md`) | DEFAULT (informed by measurement, disclosed) |
+| Surface mix, trade mix, option weights, DN bands, thickness choices (3.0 / 4.0) | `generate.py` design parameters | not surveyed; disclosed in DATASHEET. **Compared, not fitted** (`verify/compare_composition.py`, October 2026): on the clinic (Plumbing + HVAC merged), conditional on the element count, the generated pipe/duct split is within TV 0.10 of the measured one for 3–8 elements (0.20 for pairs: ducts pair with pipes more often than drawn); the generator mixes kinds in one bundle and stacks rows more often than the clinic (e.g. 6 elements: mixed 47 % vs 24 %, stacked 100 % vs 38 %); 70 % of clinic hanger locations carry one element, 96 % three or fewer. DN mix differs by building (clinic 30 % ≥ DN100, duplex 87 % DN25; real-to-real TV 0.87 > generated-to-either 0.41 / 0.67). Electrical share and surface mix not testable (the open electrical models hold fixtures only; no architecture model used) | DEFAULT (composition compared on two open buildings) |
 
 ## 7. Verification data (`verify/`)
 
@@ -87,18 +89,20 @@ not source-traceable to a single document).
 |---|---|---|---|
 | Duplex MEP measurements (June 2026) | 427 segments; 103 clear gaps (99 < 600 mm): median 108, IQR 24–238 mm (< 600); 28–271 (all) | shipped sample `measured_gaps.json`; the generator's gap lognormal is fitted to it | SHIPPED; NOT REPRODUCIBLE with the documented June procedure (re-run October 2026: 131 gaps, median −24 mm; `measure_ifc.py --legacy`) |
 | Duplex Plumbing measurements (June 2026) | 231 sized segments; 61 gaps (59 < 600): median 53, IQR 18–183 (< 600); 19–202 (all) | `measured_gaps_plumbing.json` | SHIPPED |
-| Wasserstein-1 against the June samples, revision 4.0 | insulation surface: → MEP **40.7**, → Plumbing 89.3, → pooled 58.9 mm; bare surface: 67.7 / 117.4 / 86.3 mm | `python verify/compare_gaps.py`, test-pinned (the paper's §5.2) | VERIFIED (computed) |
+| Wasserstein-1 against the June samples, revision 4.1 | insulation surface: → MEP 42.3, → Plumbing 90.9, → pooled 60.4 mm; bare surface: 71.8 / 121.4 / 90.3 mm | `python verify/compare_gaps.py`, test-pinned; same gap draw as 4.0, wider DN bands add insulation | VERIFIED (computed) |
+| Wasserstein-1 against the June samples, revision 4.0 | insulation surface: → MEP **40.7**, → Plumbing 89.3, → pooled 58.9 mm; bare surface: 67.7 / 117.4 / 86.3 mm | `python verify/compare_gaps.py --version 4.0`, test-pinned (the paper's §5.2) | VERIFIED (computed) |
 | Wasserstein-1 against the June samples, revision 3.0 | envelope draw (the paper's definition): 40.7 / 89.3 / 58.9; insulation surface: 88.5 / 137.6 / 106.9; bare: 109.9 / 159.6 / 128.4 mm | `python verify/compare_gaps.py --version 3.0`, test-pinned | VERIFIED (computed) |
 | Baselines against the June samples | fixed 25 mm gap → MEP 138.5 mm; MEP ↔ Plumbing (real-to-real) 49.9 mm | same | VERIFIED (computed) |
 | Section-cut measurement (October 2026) | sections every 250 mm, rows within 400 mm of height, bare surfaces; Duplex MEP 74 pipe pairs, Duplex Plumbing 41, Medical-Dental Clinic Plumbing 797 | `verify/measure_ifc.py` on the CC BY 4.0 buildingSMART files (SHA-256 in `verify/measured/README.md`); records recomputed from the shipped segment tables in `tests/test_sections.py` | VERIFIED (measured) |
 | Composition on sections (October 2026) | Clinic Plumbing + HVAC merged: 12,529 hanger locations, 2,430 physical bundles; Duplex MEP: 393 / 121. Bundles with another row within 1.5 m count as stacked (the other storey does not) | `python verify/compare_composition.py`, test-pinned (`tests/test_composition.py`); the Clinic and Duplex Electrical models contain no `IfcFlowSegment` (SHA-256 in `verify/measured/README.md`); the Duplex Plumbing model re-exports 161 of the MEP model's pipe boxes and is not merged | VERIFIED (measured) |
-| Wasserstein-1 on sections, revision 4.0 (pipe-pipe, by length) | → Clinic **28.3** (16.0–43.7); → Duplex MEP 70.4; → Duplex Plumbing 85.3; Clinic ↔ Duplex 71.0 / 85.0; Duplex MEP ↔ Plumbing 25.6; revision 3.0 → Clinic 65.1 mm | `python verify/compare_sections.py --sensitivity`, test-pinned; stable across 11 cut settings (27–36 mm) | VERIFIED (computed) |
+| Wasserstein-1 on sections, revision 4.1 (pipe-pipe, by length) | → Clinic **32.5** (16.9–47.5); → Duplex MEP 75.7; → Duplex Plumbing 88.1; 1,690 generated pairs in 575 contexts | `python verify/compare_sections.py --sensitivity`, test-pinned; 31–41 mm across 11 cut settings; the clinic stays held out for spacing (composition, not the gap draw, changed in 4.1) | VERIFIED (computed) |
+| Wasserstein-1 on sections, revision 4.0 (pipe-pipe, by length) | → Clinic **28.3** (16.0–43.7); → Duplex MEP 70.4; → Duplex Plumbing 85.3; Clinic ↔ Duplex 71.0 / 85.0; Duplex MEP ↔ Plumbing 25.6; revision 3.0 → Clinic 65.1 mm | `python verify/compare_sections.py --sensitivity --version 4.0`, test-pinned; stable across 11 cut settings (27–36 mm) | VERIFIED (computed) |
 
 ## 8. Reproducibility
 
 | Item | Value | Status |
 |---|---|---|
-| Byte-exact regeneration of all eight files (both revisions) | SHA-256 in `RELEASE_CHECKSUMS.txt`; `tests/test_release.py`; CI on Python 3.9–3.13 × NumPy 1.26 / 2.0 / latest | VERIFIED |
+| Byte-exact regeneration of all twelve files (three revisions) | SHA-256 in `RELEASE_CHECKSUMS.txt`; `tests/test_release.py`; CI on Python 3.9–3.13 × NumPy 1.26 / 2.0 / latest | VERIFIED |
 | `total_load_kN` | `round(math.fsum(loads), 2)` — exactly rounded; plain `sum()` differs on Python ≤ 3.11 for 28 contexts | VERIFIED (fixed 3.5.0) |
 | File format | compact JSON, ASCII-escaped, no trailing newline | VERIFIED |
 | Random stream | NumPy `Generator` (PCG64) from the split seed; draw order frozen and identical across revisions (two quirks marked `# stream:`) | VERIFIED |
@@ -107,8 +111,8 @@ not source-traceable to a single document).
 - Verbatim reproduction of ASME B31.1 Table 121.5 / MSS SP-58 Table 4 (paywalled; library check). The four values are already confirmed by the ASHRAE Handbook table (section 2).
 - Refitting the gap distribution to the section-cut measurements (a data revision; the released files keep the June 2026 fit).
 - Per-group (co-planar bank) stagger with re-calibration against the measured elevation spread.
-- Candidates for a data revision 4.1 (each changes released numbers, so none is applied here): per-DN pipe spans from the BS EN 806-4:2010 support-spacing table instead of the four ASME points (finer, but not yet checked against the primary text); tray span 2.44 m (the NEMA VE 1 8-ft class); first-row standoff and gap floor from the DIN 4140 minimum clearances between insulated pipes and to building parts (the table values are not yet verified).
-- Composition is now *compared* on the open models (section 6, `verify/compare_composition.py`) but not fitted. What the comparison suggests for a data revision 4.1: fewer stacked rows for 6–8 elements (`rows_for`), less kind mixing within a bundle, a higher duct share in pairs, and a wider DN band at the top (DN100 and above appear in the clinic). The electrical share and the surface mix remain untestable on these models (their electrical models carry fixtures only; no architecture model is used).
+- Candidates for a later revision (each changes released numbers): per-DN pipe spans from the BS EN 806-4:2010 support-spacing table instead of the five ASME points (finer, but not yet checked against the primary text); tray span 2.44 m (the NEMA VE 1 8-ft class); first-row standoff and gap floor from the DIN 4140 minimum clearances between insulated pipes and to building parts (the table values are not yet verified).
+- Composition was compared on the open models on revision 4.0 and four parameters were adjusted in 4.1 (section 6); that comparison is now in sample. An out-of-sample composition check needs a third open building with pipes and ducts modelled. The electrical share and the surface mix remain untestable on these models (their electrical models carry fixtures only; no architecture model is used).
 
 ## 10. Why these standards
 

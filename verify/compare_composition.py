@@ -30,7 +30,7 @@ are uniform by construction, so composition is compared *conditional on the
 count*: for n = 2 ... 8 the kind shares, the mixed-kind share and the stacked
 share, measured against generated; bundle sizes themselves are reported for
 information.  Pipe sizes are compared as the share of each DN of the generator's
-series (nearest series size; real sizes above DN100 form a separate bin).
+series (nearest series size; real sizes above the series form a separate bin).
 
 What cannot be tested here: the electrical share (no containment runs in the open
 models beyond six duplex conduits) and the mounting surface (no architecture model
@@ -68,7 +68,7 @@ BUILDINGS = (("clinic", "Clinic (Plumbing + HVAC)", ("clinic_plumbing", "clinic_
              ("duplex", "Duplex (MEP)", ("duplex_mep",)))
 KINDS = ("pipe", "duct", "electrical")        # measured kinds; generated trays and conduits are 'electrical'
 COUNTS = tuple(range(1, 9))                   # bundle sizes reported; 8 = eight or more
-DN_BINS = tuple(str(d) for d in DN_SERIES) + (">100",)
+DN_BINS = tuple(str(d) for d in DN_SERIES) + (f">{DN_SERIES[-1]}",)
 SIZE_RE = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*mm")
 
 # columns of the per-bundle count table: per count k, [locations, mixed, stacked, pipe, duct, electrical]
@@ -106,7 +106,7 @@ def dn_bin(size: Optional[str]) -> Optional[str]:
         return None
     d = float(m.group(1))
     if d > DN_SERIES[-1] * 1.1:
-        return ">100"
+        return DN_BINS[-1]
     return str(min(DN_SERIES, key=lambda s: abs(s - d)))
 
 

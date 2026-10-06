@@ -318,19 +318,17 @@ def fig_tier_stats(bench, trends):
     _box(a, gaps, tiers[1:], BLUE, "minimum clear gap between elements (mm)",
          f"Tighter overall: median gap {g2:.0f} mm (C2) to {g8:.0f} mm (C8)", "{:.0f}")
     _box(b, loads, tiers, BLUE, "total load at the support (kN)",
-         f"Heavier at every step: {l1:.2f} kN (C1) to {l8:.2f} kN (C8)", "{:.2f}")
+         f"Heavier with the tier: median load {l1:.2f} kN (C1) to {l8:.2f} kN (C8)", "{:.2f}")
     a.plot(range(1, 8), [pop["clear_gap_mm"]["per_tier"][t]["median"] for t in tiers[1:]], ls="none", marker="D",
            ms=4.5, color=ORANGE, zorder=5, label="median of 2,000 generated contexts per tier")
     b.plot(range(1, 9), [pop["load_kN"]["per_tier"][t]["median"] for t in tiers], ls="none", marker="D",
            ms=4.5, color=ORANGE, zorder=5, label="median of 2,000 generated contexts per tier")
-    a.axvspan(4.5, 7.5, color=GRID, alpha=0.45, zorder=0, lw=0)
-    a.text(6.0, 432, "from C6: two or three rows", ha="center", va="top", fontsize=7.5, color=INK2)
     a.set_ylim(0, 450)
     b.set_ylim(0, 6.5)
     a.legend(loc="upper right", bbox_to_anchor=(1.0, 0.91), fontsize=7.5)
     fig.text(0.01, 0.045, "Boxes: benchmark split, 125 contexts per tier (interquartile range, median line, whiskers 1.5 IQR).",
              fontsize=7, color=MUTED)
-    fig.text(0.01, 0.012, "From C6 the generator stacks elements in two or three rows, so the elements per row drop and the closest gap widens again.",
+    fig.text(0.01, 0.012, "Diamonds: medians of 2,000 freshly generated contexts per tier; they narrow and rise at every step (data revision 4.1).",
              fontsize=7, color=MUTED)
     fig.tight_layout(rect=(0, 0.075, 1, 1))
     fig.savefig(os.path.join(OUT, "03_tiers_stats.png"), dpi=200)
@@ -395,8 +393,21 @@ def fig_gaps_vs_buildings(bench, sec):
 
 # --- figure 5: how a context is laid out ------------------------------------------
 
-def fig_generation_example(bench, context_id="mep_150"):
-    ctx = next(c for c in bench if c["context_id"] == context_id)
+def _three_row_example(bench):
+    """The first benchmark context laid out in three rows with ducts nearest the
+    slab, containment in the middle and at least two pipes in the outer row."""
+    for c in bench:
+        if c["n_levels"] != 3 or c["surface"]["kind"] != "ceiling":
+            continue
+        kinds = {lvl: {e["kind"] for e in c["elements"] if e["level"] == lvl} for lvl in range(3)}
+        pipes = [e for e in c["elements"] if e["level"] == 2 and e["kind"] == "pipe"]
+        if kinds[0] == {"duct"} and kinds[1] <= {"cable_tray", "conduit"} and kinds[2] == {"pipe"} and len(pipes) >= 2:
+            return c
+    raise RuntimeError("no three-row duct / containment / pipe context in the benchmark")
+
+
+def fig_generation_example(bench, context_id=None):
+    ctx = next(c for c in bench if c["context_id"] == context_id) if context_id else _three_row_example(bench)
     x0, x1, y0, y1 = content_bbox(ctx)
     label_room = 0.62 * (x1 - x0)
     gx0, gx1, gy0, gy1 = x0 - 40, x1 + label_room, y0 - 150, SLAB_MM + 2

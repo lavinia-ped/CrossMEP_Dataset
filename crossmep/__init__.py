@@ -17,7 +17,7 @@ that consumers of the JSON files never pay for it.
 """
 from __future__ import annotations
 
-__version__ = "4.0.0"
+__version__ = "4.1.0"
 
 from .model import (CLEARANCE_MM, CURRENT_REVISION, MIN_CLEAR_GAP_MM, REV_3_0, REV_4_0,  # noqa: F401
                     ContextValidationError, Element, MEPContext, MountingSurface, Revision,

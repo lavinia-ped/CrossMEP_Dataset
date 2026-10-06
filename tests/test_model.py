@@ -5,7 +5,7 @@ from dataclasses import replace
 import pytest
 
 from crossmep import library as lib
-from crossmep.model import (MIN_CLEAR_GAP_MM, REV_3_0, REV_4_0, ContextValidationError, Element,
+from crossmep.model import (MIN_CLEAR_GAP_MM, REV_3_0, REV_4_0, REV_4_1, ContextValidationError, Element,
                             MEPContext, MountingSurface, depth_out, is_valid, pair_clearance,
                             revision_for, span_along, validate_context)
 
@@ -91,7 +91,7 @@ def test_round_trip_both_revisions(benchmark, benchmark_v3):
 
 
 def test_revision_lookup():
-    assert revision_for("4.0") is REV_4_0 and revision_for("4.1") is REV_4_0
+    assert revision_for("4.0") is REV_4_0 and revision_for("4.1") is REV_4_1 and revision_for("4.2") is REV_4_1
     assert revision_for("3.0") is REV_3_0
     with pytest.raises(ValueError):
         revision_for("2.0")

@@ -481,12 +481,12 @@ async function main() {
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Higher tiers are heavier and, overall, tighter, as designed", { placeholder: "title" });
+    s.addText("Higher tiers are heavier and tighter, as designed", { placeholder: "title" });
     const img = await cropImage(s, path.join(FIG, "03_tiers_stats.png"), { x: 0.6, y: 1.45, w: 12.13, h: 4.7 }, { x: 0, y: 0, w: 2000, h: 715 }, "tier statistics", "top");
     const pg = TR.population.clear_gap_mm.per_tier;
-    caption(s, `A check that the dataset behaves as designed: the tier fixes the element count; load and congestion follow from the rules. Boxes: benchmark, 125 contexts per tier (IQR, whiskers 1.5 IQR); diamonds: medians of ${fmtInt(TR.settings.per_tier)} generated contexts per tier. Load rises at every tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)}); the closest gap shrinks overall (${rho(TR.benchmark.clear_gap_mm.spearman)}) but widens at C6 (${mm(pg.C5.median)} → ${mm(pg.C6.median)} mm), where elements start to stack in two or three rows.`,
+    caption(s, `A check that the dataset behaves as designed: the tier fixes the element count; load and congestion follow from the rules. Boxes: benchmark, 125 contexts per tier (IQR, whiskers 1.5 IQR); diamonds: medians of ${fmtInt(TR.settings.per_tier)} generated contexts per tier. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)}; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}; ${mm(pg.C2.median)} → ${mm(pg.C8.median)} mm in the population).`,
       { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 1 caption", 12.5);
-    s.addNotes(`Now three analyses. The first is a design check, not a discovery: does difficulty grow with the tier? The count is fixed by construction, and load and congestion follow from the rules, so this shows the dataset behaves as designed. The load at the support rises at every step, from ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. The closest gap shrinks from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimeters, but widens again at C6, where elements start stacking in two or three rows. So: report methods tier by tier. (4:50)`);
+    s.addNotes(`Now three analyses. The first is a design check, not a discovery: does difficulty grow with the tier? The count is fixed by construction, and load and congestion follow from the rules, so this shows the dataset behaves as designed. The load at the support rises with the tier, from about ${loadC1.toFixed(1)} to ${loadC8.toFixed(1)} kilonewtons. The closest gap narrows at every step, from ${Math.round(gapC2)} to about ${Math.round(gapC8)} millimeters. So: report methods tier by tier. (4:50)`);
   }
 
   // ========================================================================= 10 experiment 2
@@ -498,7 +498,7 @@ async function main() {
     const gc = g.clinic_plumbing[LW];
     caption(s, `The gap distribution was fitted on the duplex; the clinic was held out. Clear gaps between side-by-side pipes, on sections every 250 mm. Clinic (${SEC.measured.clinic_plumbing.pairs} pipe pairs): ${mm(gc.w1)} mm from the generated gaps (95 % CI ${mm(gc.lo)}–${mm(gc.hi)}), more than the ${mm(gc.noise_floor.median)} mm a perfect generator would show, and about as close as the duplex’s own two models are to each other (${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm). Models: buildingSMART Duplex Apartment and Medical-Dental Clinic, CC BY 4.0.`,
       { x: 0.6, y: img.y + img.h + 0.12, w: 12.13, h: 0.8 }, "experiment 2 caption", 12.5);
-    s.addNotes(`The second analysis is the one the generator could fail. Is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We kept a second open building aside, a medical-dental clinic, cut it into sections every 250 millimeters, the way a context is defined, and measured the gaps between pipes running side by side. On the left, the clinic: generated gaps are close to measured ones, though not identical. On the right, the distances. Generator to clinic: ${mm(gc.w1)} millimeters. That is above the ${mm(gc.noise_floor.median)} a perfect generator would show, so not a perfect match, but about as close as the duplex's own two models are to each other. A fixed 25-millimeter gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:25)`);
+    s.addNotes(`The second analysis is the one the generator could fail. Is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We kept a second open building aside, a medical-dental clinic, cut it into sections every 250 millimeters, the way a context is defined, and measured the gaps between pipes running side by side. On the left, the clinic: generated gaps are close to measured ones, though not identical. On the right, the distances. Generator to clinic: ${mm(gc.w1)} millimeters. That is above the ${mm(gc.noise_floor.median)} a perfect generator would show, so not a perfect match, but about as close as the duplex's own two models are to each other. A fixed 25-millimeter gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:20)`);
   }
 
   // ========================================================================= 11 experiment 3
@@ -529,7 +529,7 @@ async function main() {
       `with two sizes placed where the pipes are; ${Math.round(k6)} % with six, and every pipe with ${curve.length}`, { labelSize: 11 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
       `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
-    s.addNotes(`The third analysis is a use of the dataset, not a test of it: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, with an interval of ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Load is never the limit, and trays, ducts and conduits aren't covered at all. On the right is what the dataset asks of any catalog: two well-placed sizes could attach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} sizes every pipe. So 'what should the catalog contain' becomes a measurement. (6:15)`);
+    s.addNotes(`The third analysis is a use of the dataset, not a test of it: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, with an interval of ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Load is never the limit, and trays, ducts and conduits aren't covered at all. On the right is what the dataset asks of any catalog: two well-placed sizes could attach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} sizes every pipe. So 'what should the catalog contain' becomes a measurement. (6:10)`);
   }
 
   // ========================================================================= 12 demo
@@ -547,7 +547,7 @@ async function main() {
     const v3 = await cropImage(s, demo, { x, y: row, w, h: 2.6 }, { x: 1700, y: 400, w: 980, h: 700 }, "studio 3D", "top");
     s.addImage({ path: path.join(FIG, "qr_studio.png"), x: x + (w - 1.35) / 2, y: v3.y + v3.h + 0.25, w: 1.35, h: 1.35, objectName: "qr studio" });
     s.addText("Scan to open the studio", { x, y: v3.y + v3.h + 1.65, w, h: 0.3, fontSize: 12, color: INK2, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "studio link" });
-    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a support designer receives, drawn the way an engineer would issue it: every service at true size, its level below the slab, its load, the closest clear gap, and the same run in 3D. Every section is a stored output of the released generator, with the Python call that reproduces it. Scan the code to try it yourself. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 17 shows two more sections. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:55)");
+    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a support designer receives, drawn the way an engineer would issue it: every service at true size, its level below the slab, its load, the closest clear gap, and the same run in 3D. Every section is a stored output of the released generator, with the Python call that reproduces it. Scan the code to try it yourself. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide; slide 17 shows two more sections. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:50)");
   }
   // ========================================================================= 13 using it
   {
@@ -578,7 +578,7 @@ async function main() {
       s.addText(head, { x: x + 0.25, y: 5.32, w: uw - 0.5, h: 0.4, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "use head " + head });
       s.addText(text, { x: x + 0.25, y: 5.75, w: uw - 0.5, h: 0.7, fontSize: 12.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "use text " + head });
     });
-    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Because there are no labels, the same files serve reinforcement learning, constraint programming, and benchmarking people. We ship the scoring too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every method. Report per tier, with 95 percent intervals and paired tests. (8:05)");
+    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Because there are no labels, the same files serve reinforcement learning, constraint programming, and benchmarking people. We ship the scoring too. Train on the generator, from C1 up to C8. Evaluate on the benchmark, the same 125 contexts per tier for every method. Report per tier, with 95 percent intervals and paired tests. (8:00)");
   }
 
   // ========================================================================= 14 scope & next
@@ -607,7 +607,7 @@ async function main() {
       { text: "open the gallery, filter for the scenes you know, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
-    s.addNotes("A word on scope. CrossMEP is one section at one support. Routing and branches are outside it, but the span is recorded, so a method can vary it. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It's not for structural design of real installations. Next: a public checker, with best-known costs, so we can compare methods on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That's where I'd value your eye. (8:35)");
+    s.addNotes("A word on scope. CrossMEP is one section at one support. Routing and branches are outside it, but the span is recorded, so a method can vary it. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It's not for structural design of real installations. Next: a public checker, with best-known costs, so we can compare methods on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That's where I'd value your eye. (8:30)");
   }
 
   // ========================================================================= 15 closing
@@ -623,7 +623,7 @@ async function main() {
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 9.6, y: 2.5, w: 2.3, h: 2.3, objectName: "qr closing" });
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.3, y: 4.9, w: 3.4, h: 0.8, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
-    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared a design choice, pipe spacing checked on two open buildings, and all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (9:15)");
+    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared a design choice, pipe spacing checked on two open buildings, and all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (9:10)");
   }
 
   // ========================================================================= appendix

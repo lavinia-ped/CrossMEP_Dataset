@@ -27,7 +27,14 @@ def cc(root):
 
 
 @pytest.fixture(scope="module")
-def report(cc, benchmark):
+def report(cc, benchmark_v40):
+    """Revision 4.0: the composition the comparison was first run on (out of sample)."""
+    return cc.compare(benchmark_v40, n_boot=100, seed=0)
+
+
+@pytest.fixture(scope="module")
+def report_41(cc, benchmark):
+    """Revision 4.1: composition adjusted after that comparison (in sample)."""
     return cc.compare(benchmark, n_boot=100, seed=0)
 
 
@@ -70,7 +77,8 @@ def test_stacking_needs_across_overlap(mi):
 # --------------------------------------------------------------------------- statistics
 
 def test_dn_bins(cc):
-    assert cc.dn_bin("80 mmø") == "80" and cc.dn_bin("27 mmø") == "25" and cc.dn_bin("150 mmø") == ">100"
+    assert cc.dn_bin("80 mmø") == "80" and cc.dn_bin("27 mmø") == "25" and cc.dn_bin("150 mmø") == "150"
+    assert cc.dn_bin("200 mmø") == ">150"
     assert cc.dn_bin("Size") is None and cc.dn_bin(None) is None and cc.dn_bin("200ø") is None
 
 
@@ -141,7 +149,28 @@ def test_intervals_contain_the_point_estimates(report):
             assert d["kind_tv_ci"][0] - 1e-9 <= d["kind_tv"] <= d["kind_tv_ci"][1] + 1e-9
 
 
-def test_comparison_is_deterministic(cc, benchmark, report):
-    again = cc.compare(benchmark, n_boot=100, seed=0)
+def test_comparison_is_deterministic(cc, benchmark_v40, report):
+    again = cc.compare(benchmark_v40, n_boot=100, seed=0)
     assert again["measured"]["clinic"]["dn_tv_ci"] == report["measured"]["clinic"]["dn_tv_ci"]
     assert np.isfinite(again["measured"]["duplex"]["dn_tv"])
+
+
+# --------------------------------------------------------------------------- revision 4.1 (in sample)
+
+def test_revision_4_1_reference_pinned(report_41):
+    m = report_41["measured"]
+    assert (m["clinic"]["locations"], m["clinic"]["physical_bundles"]) == (12529, 2430)      # measured side unchanged
+    assert (m["clinic"]["generated_contexts"], m["duplex"]["generated_contexts"]) == (526, 786)
+
+
+def test_revision_4_1_is_closer_to_the_clinic_in_composition(report, report_41):
+    """What the adjustment was for: kind shares, mixing and stacking by count move
+    towards the clinic for every count; in sample, so a design check, not a test."""
+    old, new = report["measured"]["clinic"]["distance_by_count"], report_41["measured"]["clinic"]["distance_by_count"]
+    for k in range(2, 9):
+        d = new[str(k)]
+        assert d["kind_tv"] <= 0.15
+        assert abs(d["stacked_diff"]) <= 0.15
+    assert sum(abs(new[str(k)]["mixed_diff"]) for k in range(2, 9)) < sum(abs(old[str(k)]["mixed_diff"]) for k in range(2, 9))
+    assert sum(abs(new[str(k)]["stacked_diff"]) for k in range(2, 9)) < sum(abs(old[str(k)]["stacked_diff"]) for k in range(2, 9))
+    assert report_41["measured"]["clinic"]["dn_tv"] <= report["measured"]["clinic"]["dn_tv"] + 0.01

@@ -36,7 +36,13 @@ def cs(root):
 
 
 @pytest.fixture(scope="module")
-def report(cs, benchmark):
+def report(cs, benchmark_v40):
+    """Revision 4.0: the geometry whose numbers the talk and README report."""
+    return cs.compare(benchmark_v40, n_boot=200, seed=0, n_floor=200)
+
+
+@pytest.fixture(scope="module")
+def report_41(cs, benchmark):
     return cs.compare(benchmark, n_boot=200, seed=0, n_floor=200)
 
 
@@ -187,8 +193,8 @@ def test_comparison_is_deterministic(cs, benchmark):
     assert json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
 
 
-def test_sensitivity_keeps_the_finding(cs, benchmark):
-    rows = cs.sensitivity(benchmark)
+def test_sensitivity_keeps_the_finding(cs, benchmark_v40):
+    rows = cs.sensitivity(benchmark_v40)
     assert [r["variation"] for r in rows][0] == "as measured" and len(rows) == len(cs.VARIATIONS)
     for r in rows:
         clinic = r["models"]["clinic_plumbing"]["w1_weighted"]
@@ -201,3 +207,26 @@ def test_revision_3_is_farther_from_the_held_out_building(cs, benchmark_v3):
     g3 = np.concatenate(cs.generated_samples(benchmark_v3))
     g, w = cs.measured_sample(cs.load_measured("clinic_plumbing"))
     assert cs.w1(g3, g, None, w) == pytest.approx(65.1, abs=0.1)
+
+
+# --------------------------------------------------------------------------- revision 4.1
+
+def test_revision_4_1_samples_and_distances(report_41):
+    """4.1 changes composition, not the gap draw: wider DN bands add insulation, so the
+    bare-surface gaps sit a little farther from the clinic (32 vs 28 mm), inside the
+    4.0 interval, and the finding holds."""
+    g, r = report_41["gen_to_real"], report_41["real_to_real"]
+    assert report_41["generated"]["pairs"] == 1690 and report_41["generated"]["contexts_with_pairs"] == 575
+    assert g["clinic_plumbing"]["length_weighted"]["w1"] == pytest.approx(32.5, abs=0.1)
+    for key in ("length_weighted", "unweighted"):
+        assert g["clinic_plumbing"][key]["w1"] < r["clinic_plumbing|duplex_mep"][key]["w1"] / 2
+        assert g["clinic_plumbing"][key]["hi"] < r["clinic_plumbing|duplex_mep"][key]["lo"]
+        for name in ("clinic_plumbing", "duplex_mep", "duplex_plumbing"):
+            x = g[name][key]
+            assert x["noise_floor"]["median"] < x["w1"] < x["fixed_25mm"]
+
+
+def test_revision_4_1_sensitivity(cs, benchmark):
+    for r in cs.sensitivity(benchmark):
+        clinic = r["models"]["clinic_plumbing"]["w1_weighted"]
+        assert clinic < 45.0 and clinic < r["clinic_to_duplex_mep_weighted"] / 1.5

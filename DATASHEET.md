@@ -1,4 +1,4 @@
-# Datasheet: CrossMEP (release 4.0.0; data revisions 4.0 and 3.0)
+# Datasheet: CrossMEP (release 4.1.0; data revisions 4.1, 4.0 and 3.0)
 
 Following Gebru et al., "Datasheets for Datasets," CACM 64(12), 2021.
 
@@ -37,10 +37,14 @@ invariant.
 1,000 (seed 42; 125 per difficulty tier). Tiers are count-stratified: tier Cn
 contains exactly n elements (C1–C8), with composition (kinds, trades, services,
 surfaces, stacking) marginalized within each tier. Element totals: 22,500 /
-2,242 / 2,242 / 4,500. Benchmark composition: 2,529 pipes, 1,141 conduits, 569
-trays, 261 ducts. Revision 4.0 (current) and 3.0 (the paper release) contain
-the same elements in the same rows; they differ in along-surface positions
-(4.0 removed a double-counted clearance) and in the two recorded load fields.
+2,242 / 2,242 / 4,500. Benchmark composition, revision 4.1 (current): 2,488
+pipes, 968 conduits, 559 trays, 485 ducts (4.0 and 3.0: 2,529 / 1,141 / 569 /
+261). Revisions 4.0 and 3.0 (the paper release) contain the same elements in the
+same rows; they differ in along-surface positions (4.0 removed a double-counted
+clearance) and in the two recorded load fields. Revision 4.1 keeps the library
+and layout rules of 4.0 and draws its composition with four parameters adjusted
+after the comparison with the open buildings (rows by count, kind continuity,
+duct pairs, DN bands to DN150; README, "Versions").
 
 **Labels?** None, by design. Feasible assemblies are non-unique and
 catalog-dependent; intended consumers (reinforcement learning, constraint solvers)
@@ -85,7 +89,7 @@ is itemized in `VERIFICATION_LOG.md`, and the derivations are pinned by tests.
 domains; the insulation surfaces of any two elements at least 25 mm apart along
 the surface or out from it; per-row centering) and the test suite: JSON Schema
 conformance of all splits, geometric invariants over unseen seeds, byte-exact
-regeneration of all eight files, distribution drift, and convention compliance.
+regeneration of all twelve files, distribution drift, and convention compliance.
 Spacing is verified on sections of two open buildings from buildingSMART's
 community sample files (CC BY 4.0): the Duplex Apartment (MEP and Plumbing
 models) and the Medical-Dental Clinic (Plumbing model; a real building, redacted).
@@ -113,11 +117,13 @@ residential model and a two-storey clinic; congested high-count racks are
 grounded in coordination practice and standards rather than measurement. (4)
 Trade-mix frequencies are declared, not surveyed; `verify/compare_composition.py`
 compares them with what hanger locations carry in the two open buildings
-(disciplines merged): the pipe/duct split conditional on the count is within
-TV 0.10 of the clinic for three to eight elements, but the generator mixes kinds
-and stacks rows more often than the clinic, and the pipe-size mix differs by
-building; the electrical share and the surface mix cannot be tested on these
-models (their electrical models hold fixtures only). (5) The June 2026 duplex
+(disciplines merged). Revision 4.1 adjusted four composition parameters after
+that comparison was run on 4.0 (rows by count, kind continuity, duct pairs,
+wider DN bands), so for the current files the comparison is in sample: the
+pipe/duct split by count is within TV 0.13 of the clinic, mixing and stacking
+within about ten points; the pipe-size mix still differs by building; the
+electrical share and the surface mix cannot be tested on these models (their
+electrical models hold fixtures only). (5) The June 2026 duplex
 samples, to which the generator's gap distribution was fitted, cannot be
 regenerated with the procedure documented at the time (`verify/VERIFICATION.md`);
 they are kept because the generator constants and the paper's numbers derive from
@@ -152,12 +158,12 @@ above trays is subsumed in the clearance floor and gap distribution rather than
 modelled as a separate rule. Stagger is drawn per element, so pipes of one bank
 may sit at different standoffs although a bank on a shared trapeze is co-planar.
 Row spacing is a fixed 120 mm clear plus stagger, not a trapeze depth. Pipe sizes
-stop at DN100; substrates are concrete only; no anchor capacity is encoded.
+stop at DN150 (DN100 in 3.0 / 4.0); substrates are concrete only; no anchor capacity is encoded.
 
 **Relation to the paper.** The CIB W78 2026 paper describes an internal v3.4
 build with a function × material pipe library and additional substrates; this
 public release is the v3.0 element library (revision 4.0 adds the span and kN/m
-fields the paper mentions). Section 5.1 clearance ordering, all of section 5.2
+fields the paper mentions; 4.1 adds DN125 and DN150). Section 5.1 clearance ordering, all of section 5.2
 and the split sizes reproduce exactly from these files; composition-dependent
 values (Table 1, Figures 3 and 4b, catalog coverage) differ and are restated for
 the public files in `RESULTS.md`.

@@ -25,12 +25,15 @@ along-gap from a distribution fitted to measurement (see :mod:`crossmep.layout`)
 
 Data revisions
 --------------
-Data revision **4.0** records exactly this geometry.  Revision **3.0** (the files
-the CIB W78 2026 paper was released with) was laid out with an extra 25 mm
-routing envelope on each element side, so its surface-to-surface gaps are the
-sampled gap plus 50 mm and its bundle widths include the two outer envelopes.
-:class:`Revision` carries the difference so that both revisions regenerate
-byte-for-byte from the same code; the validator is physical and applies to both.
+Data revisions **4.1** (current) and **4.0** record exactly this geometry; 4.1
+differs from 4.0 only in the composition design parameters (rows, kind mixing,
+duct pairs, DN bands; :mod:`crossmep.generate`) and in the pipe library reaching
+DN150.  Revision **3.0** (the files the CIB W78 2026 paper was released with) was
+laid out with an extra 25 mm routing envelope on each element side, so its
+surface-to-surface gaps are the sampled gap plus 50 mm and its bundle widths
+include the two outer envelopes.  :class:`Revision` carries the differences so
+that every revision regenerates byte-for-byte from the same code; the validator
+is physical and applies to all.
 """
 from __future__ import annotations
 
@@ -62,22 +65,31 @@ class Revision:
     laying a row out (3.0: 25 mm, so neighbours sit draw + 50 mm apart and the
     recorded bundle width includes 50 mm of empty envelope; 4.0: 0).
     ``element_extra_fields``: per-element fields written beyond the common set.
+    ``composition``: which set of composition design parameters the generator
+    uses (:mod:`crossmep.generate`): "4.0" for revisions 3.0 and 4.0 (identical
+    draws), "4.1" for the revision whose rows, kind mixing, duct pairs and DN
+    bands were adjusted after the comparison with the open buildings.
     """
     version: str
     layout_envelope_mm: float
     element_extra_fields: Tuple[str, ...]
+    composition: str = "4.0"
 
 
 REV_3_0 = Revision("3.0", 25.0, ())
 REV_4_0 = Revision("4.0", 0.0, ("span_m", "load_kN_per_m"))
-REVISIONS: Dict[str, Revision] = {r.version: r for r in (REV_3_0, REV_4_0)}
-CURRENT_REVISION = REV_4_0
+REV_4_1 = Revision("4.1", 0.0, ("span_m", "load_kN_per_m"), "4.1")
+REVISIONS: Dict[str, Revision] = {r.version: r for r in (REV_3_0, REV_4_0, REV_4_1)}
+CURRENT_REVISION = REV_4_1
 
 
 def revision_for(version: str) -> Revision:
-    """Revision object for a file-level ``version`` string ('3.0', '4.0', '4.1' ...)."""
+    """Revision object for a file-level ``version`` string ('3.0', '4.0', '4.1');
+    an unknown minor falls back to the newest revision of its major."""
+    if version in REVISIONS:
+        return REVISIONS[version]
     major = version.split(".")[0]
-    for r in REVISIONS.values():
+    for r in reversed(list(REVISIONS.values())):
         if r.version.split(".")[0] == major:
             return r
     raise ValueError(f"unknown data revision {version!r}")

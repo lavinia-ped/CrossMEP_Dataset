@@ -123,7 +123,7 @@ Kolmogorov–Smirnov D = 0.092, p = 0.53. `compare_gaps.py` refits these from th
 shipped sample and checks them against the generator constants, then computes
 Wasserstein-1 distances (gaps < 600 mm) for each definition of the generated gap.
 
-Revision 4.0 (current; the sampled gap is the physical gap between insulation surfaces):
+Revision 4.0 (the sampled gap is the physical gap between insulation surfaces; revision 4.1 draws the same gaps and reports 42.3 / 90.9 / 60.4 mm at the insulation surface because its wider DN bands add insulation):
 
 | generated gap | median | min | W1 → MEP | W1 → Plumbing | W1 → pooled |
 |---|---|---|---|---|---|

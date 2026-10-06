@@ -15,12 +15,30 @@ measurement) in :mod:`crossmep.layout`.
 
 Frozen random stream
 --------------------
-Both data revisions regenerate byte-for-byte from ``generate_split``.  The order
+Every data revision regenerates byte-for-byte from ``generate_split``.  The order
 and arguments of every ``rng`` call in this module are therefore part of the
 data format; two historical quirks are preserved and marked ``# stream:`` rather
 than cleaned up.  Revision 4.0 differs from 3.0 only in layout arithmetic
 (:mod:`crossmep.layout`) and recorded fields, never in a draw, so the two
 revisions contain the same elements in the same rows.
+
+Composition 4.1
+---------------
+Revision 4.1 keeps every library value and layout rule of 4.0 and changes four
+composition parameters, after ``verify/compare_composition.py`` set the 4.0
+choices against what hanger locations carry in two open buildings:
+
+* rows: a second row is drawn with a probability that rises with the count
+  (``P_SECOND_ROW_4_1``) and a third only rarely above five elements, instead
+  of two or three rows always above five;
+* kind continuity: with probability ``P_SAME_KIND_4_1`` the next group repeats
+  the kind of the previous one, so fewer bundles mix kinds;
+* duct pairs: a supply-and-return pair of equal ducts is an option
+  (``OPTIONS_MULTI_4_1``), so ducts pair with other services more often;
+* DN bands widened at the top (``library.TRADE_DN_BAND_4_1``; DN125 and DN150).
+
+The values are design parameters informed by that comparison, not fitted
+to it; the comparison is in-sample for 4.1 and reported as such.
 """
 from __future__ import annotations
 
@@ -72,14 +90,31 @@ OPTIONS_MULTI = ("pipe_bank", "tray_group", "duct", "conduit_group", "single_pip
 WEIGHTS_MULTI = (0.46, 0.16, 0.12, 0.16, 0.10)
 WALL_DUCT_FACTOR = 0.3                                  # ducts are rare on walls
 
+# Composition 4.1 (see the module docstring)
+OPTIONS_MULTI_4_1 = ("pipe_bank", "tray_group", "duct", "duct_pair", "conduit_group", "single_pipe")
+WEIGHTS_MULTI_4_1 = (0.44, 0.16, 0.08, 0.08, 0.16, 0.08)
+P_SAME_KIND_4_1 = 0.5                                   # next group repeats the previous kind
+P_SECOND_ROW_4_1 = {2: 0.12, 3: 0.12, 4: 0.20, 5: 0.35, 6: 0.40, 7: 0.40, 8: 0.30}
+P_THIRD_ROW_4_1 = 0.05                                  # above five elements, within the stacked share
+SAME_KIND_OPTION = {"pipe": ("pipe_bank", "single_pipe"), "cable_tray": ("tray_group", "tray"),
+                    "duct": ("duct", "duct"), "conduit": ("conduit_group", "conduit1")}
+
 MAX_CUSTOM_ELEMENTS = 12
 
 
-def rows_for(n: int, surface: MountingSurface, rng: np.random.Generator) -> int:
-    """Number of generative rows: 1 for a single element, 1-2 up to five
-    elements, 2-3 above; walls are limited to two rows (draw first, then clamp)."""
+def rows_for(n: int, surface: MountingSurface, rng: np.random.Generator,
+             composition: str = "4.0") -> int:
+    """Number of generative rows.  Composition 4.0: 1 for a single element, 1-2
+    up to five elements, 2-3 above.  Composition 4.1: a second row with
+    probability ``P_SECOND_ROW_4_1[n]`` and, above five elements, a third with
+    ``P_THIRD_ROW_4_1`` (the stacked share of the open clinic by count).  Walls
+    are limited to two rows (draw first, then clamp)."""
     if n == 1:
         r = 1
+    elif composition == "4.1":
+        u = rng.random()
+        p2 = P_SECOND_ROW_4_1[min(n, 8)]
+        r = 3 if (n > 5 and u < P_THIRD_ROW_4_1) else (2 if u < p2 else 1)
     elif n <= 5:
         r = int(rng.integers(1, 3))
     else:
@@ -121,10 +156,17 @@ def sample_conduit_group(rng: np.random.Generator) -> List[Element]:
     return [lib.make_conduit(od) for _ in range(n)]
 
 
-def sample_pipe_bank(rng: np.random.Generator, trade: str) -> List[Element]:
+def sample_duct_pair(rng: np.random.Generator) -> List[Element]:
+    """Supply and return: two ducts of one size side by side (composition 4.1)."""
+    d = sample_duct(rng)
+    return [d, lib.make_round_duct(int(d.width_mm)) if d.shape == "round"
+            else lib.make_rect_duct(int(d.width_mm), int(d.height_mm))]
+
+
+def sample_pipe_bank(rng: np.random.Generator, trade: str, composition: str = "4.0") -> List[Element]:
     """Pipes grouped the way trades run: domestic hot+cold pairs, heating
     supply+return pairs, a sprinkler main with an optional branch, chilled banks."""
-    band = lib.dn_band(trade)
+    band = lib.dn_band(trade, composition)
     if trade == "domestic":
         s = int(rng.choice(band))
         bank = [lib.make_pipe(s, "domestic_hot", trade), lib.make_pipe(s, "domestic_cold", trade)]
@@ -148,19 +190,19 @@ def sample_pipe_bank(rng: np.random.Generator, trade: str) -> List[Element]:
     return [lib.make_pipe(int(rng.choice(band)), "chilled", trade) for _ in range(n)]
 
 
-def sample_single_pipe(rng: np.random.Generator) -> Element:
+def sample_single_pipe(rng: np.random.Generator, composition: str = "4.0") -> Element:
     trade = str(rng.choice(lib.PIPE_TRADES, p=TRADE_P))
     # stream: the hot/cold draw is made for EVERY trade (v3.0 evaluated it inside
     # a dict literal); it is only used when the trade is domestic.
     hot_or_cold = str(rng.choice(("domestic_hot", "domestic_cold")))
     service = hot_or_cold if trade == "domestic" else trade
-    return lib.make_pipe(int(rng.choice(lib.dn_band(trade))), service, trade)
+    return lib.make_pipe(int(rng.choice(lib.dn_band(trade, composition))), service, trade)
 
 
 def _finish(groups: List[Tuple[int, List[Element]]], n: int, surface: MountingSurface,
             rng: np.random.Generator, tier: str, context_id: str,
             revision: Revision) -> MEPContext:
-    n_rows = rows_for(n, surface, rng)
+    n_rows = rows_for(n, surface, rng, revision.composition)
     els = arrange(groups, n_rows, surface, stagger_for(n), rng=rng,
                   envelope_mm=revision.layout_envelope_mm)
     ctx = MEPContext(tuple(els), surface, tier, context_id, revision)
@@ -176,24 +218,32 @@ def generate_context(rng: np.random.Generator, tier: str = "C3", context_id: str
                      revision: Revision = CURRENT_REVISION) -> MEPContext:
     """One context of tier ``tier`` (exactly ``TIERS[tier]`` elements), validated."""
     n_target = TIERS[tier]
+    comp = revision.composition
     surface = sample_surface(rng)
     groups: List[Tuple[int, List[Element]]] = []
     remaining = n_target
     while remaining > 0:
         if remaining == 1:
             opts, w = OPTIONS_LAST, np.array(WEIGHTS_LAST)
+        elif comp == "4.1":
+            opts, w = OPTIONS_MULTI_4_1, np.array(WEIGHTS_MULTI_4_1)
         else:
             opts, w = OPTIONS_MULTI, np.array(WEIGHTS_MULTI)
         if surface.kind == "wall":
             w[opts.index("duct")] *= WALL_DUCT_FACTOR
+            if "duct_pair" in opts:
+                w[opts.index("duct_pair")] *= WALL_DUCT_FACTOR
         choice = str(rng.choice(opts, p=w / w.sum()))
+        if comp == "4.1" and groups and rng.random() < P_SAME_KIND_4_1:
+            multi, single = SAME_KIND_OPTION[groups[-1][1][0].kind]
+            choice = multi if remaining > 1 else single
         if choice == "pipe_bank":
             trade = str(rng.choice(lib.PIPE_TRADES, p=TRADE_P))
-            bank = sample_pipe_bank(rng, trade)[:remaining]    # trimming = a lone supply line
+            bank = sample_pipe_bank(rng, trade, comp)[:remaining]    # trimming = a lone supply line
             groups.append((VPRIORITY["pipe"], bank))
             remaining -= len(bank)
         elif choice == "single_pipe":
-            groups.append((VPRIORITY["pipe"], [sample_single_pipe(rng)]))
+            groups.append((VPRIORITY["pipe"], [sample_single_pipe(rng, comp)]))
             remaining -= 1
         elif choice in ("tray", "tray_group"):
             k = 1 if choice == "tray" else int(min(remaining, rng.integers(TRAY_GROUP_SIZES[0], TRAY_GROUP_SIZES[1] + 1)))
@@ -202,6 +252,9 @@ def generate_context(rng: np.random.Generator, tier: str = "C3", context_id: str
         elif choice == "duct":
             groups.append((VPRIORITY["duct"], [sample_duct(rng)]))
             remaining -= 1
+        elif choice == "duct_pair":
+            groups.append((VPRIORITY["duct"], sample_duct_pair(rng)))
+            remaining -= 2
         else:                                                   # conduit1 / conduit_group
             # stream: a full group is sampled and then trimmed, also for conduit1.
             group = sample_conduit_group(rng)[:remaining]
@@ -301,7 +354,7 @@ def generate_custom(n: int, *, pipes: CountSpec = 0, trays: CountSpec = 0,
         remaining = n_p                                         # pipes -> realistic banks
         while remaining > 0:
             t = str(rng.choice(pool, p=trade_w / trade_w.sum()))
-            bank = sample_pipe_bank(rng, t)[:remaining]
+            bank = sample_pipe_bank(rng, t, CURRENT_REVISION.composition)[:remaining]
             groups.append((VPRIORITY["pipe"], bank))
             remaining -= len(bank)
         left = n_t                                              # trays, 1-2 per group
