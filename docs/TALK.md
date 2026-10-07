@@ -39,9 +39,10 @@ problems."
 
 ## 2. The synthesis of structural support assemblies (SSAs) takes 25% of MEP design effort because every assembly must be designed individually (0:45)
 
-**Show:** (from the ISARC 2026 talk) a hospital model with its support locations,
-zoomed to one modular support assembly; three figures (≈ 10,000 assemblies per
-hospital; 20 min – 2 h each; ≈ ¼ of MEP design effort).
+**Show:** the hospital model with its red support marks and a caption chip,
+the inset of one assembly, and three tiles that read as arithmetic: 10,000
+assemblies × 20 min to 2 h each = about a quarter of MEP design effort, about
+$600k per project.
 
 **Say:** "Here is the scale. This is a hospital, and every red mark is a place where
 services hang from the structure. A modular support groups several services on
@@ -52,13 +53,11 @@ Practitioner estimates, but these are the numbers people live with."
 
 ## 3. An SSA designer turns one MEP cross-section into a feasible structural support assembly (1:15)
 
-**Show:** (from the ISARC 2026 talk) the problem as a diagram: in, one
-cross-section at a hanger (the structure with its anchor zones; the services
-with trade, position, size and weight per metre); out, a stack of verified
-support designs (a rod trapeze, checked for statics, anchors, connectors and
-buildability; up to ten, ranked by installed cost). Below, the two words the
-talk relies on: the *context* is the brief and is what CrossMEP contains; the
-*assembly* is the answer and is what a method produces.
+**Show:** two panels with tabs, CONTEXT (the brief) and FEASIBLE SSA (the
+answer). Left: the section with named services over a 200 mm slab. Between
+them an SSA designer icon on the arrow, "from a catalog". Right: the rod
+trapeze with anchor, threaded rod, pipe clamps and channel named, and four
+green check chips: statics, anchors, connectors, buildable.
 
 **Say:** "So what exactly is designed, and from what? In: one cross-section at a hanger.
 The structure it hangs from, and the services crossing it, each with its trade,
@@ -70,9 +69,10 @@ contains no assemblies."
 
 ## 4. Existing tools coordinate and verify modular support assemblies, but their synthesis remains manual because it relies on tacit engineering expertise and complex catalog-driven rules (1:50)
 
-**Show:** (from the ISARC 2026 talk) the route-to-section figure from the paper;
-where practice stands (tools coordinate and check; topology and parts are chosen
-by hand); three reasons it resists automation.
+**Show:** the workflow at a hanger as three stage cards: coordinate the model
+(tools do this, with the route figure), synthesize the assembly (by hand, a
+ghost of the assembly with a question mark), verify the design (tools do this,
+check chips). Below, the three reasons the middle step resists automation.
 
 **Say:** "Why is this still done by hand? A designer works from one section at each
 hanger, after coordination. Tools coordinate the model and check a design, but
