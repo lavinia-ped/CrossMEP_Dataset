@@ -34,7 +34,7 @@ to do some of that, and the first thing missing was data: no public set of
 support-design problems existed. So we built one, CrossMEP, with David
 Gvadzabia, Torben Graeber and Martin Fischer."
 
-## 2. One hospital needs about ten thousand support assemblies, and every one of them is designed by hand (0:25)
+## 2. In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort (0:25)
 
 **Show:** (from the ISARC 2026 talk) a hospital model with its support locations,
 zoomed to one modular support assembly; three figures (≈ 10,000 assemblies per

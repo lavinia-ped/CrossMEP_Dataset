@@ -18,7 +18,7 @@ from a support that an engineer designs by hand. We want machines to do some of 
 the first thing missing was data: no public set of support-design problems existed. So we
 built one, CrossMEP, with David Gvadzabia, Torben Graeber and Martin Fischer.
 
-## Slide 2, One hospital needs about ten thousand support assemblies, and every one of them is designed by hand (starts at 0:25)
+## Slide 2, In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort (starts at 0:25)
 
 Here is the scale. Every red mark in this hospital is a place where services hang from the
 structure. A modular support groups several services on one prefabricated frame: a
