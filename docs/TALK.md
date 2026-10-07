@@ -69,10 +69,10 @@ contains no assemblies."
 
 ## 4. Existing tools coordinate and verify modular support assemblies, but their synthesis remains manual because it relies on tacit engineering expertise and complex catalog-driven rules (1:50)
 
-**Show:** the workflow at a hanger as three stage cards: coordinate the model
-(tools do this, with the route figure), synthesize the assembly (by hand, a
-ghost of the assembly with a question mark), verify the design (tools do this,
-check chips). Below, the three reasons the middle step resists automation.
+**Show:** three stage cards: coordinate the model (tools), synthesize the
+assembly (by hand, orange, a ghost of the assembly with a question mark),
+verify the design (tools). Below, one row with the three reasons the middle
+step resists automation.
 
 **Say:** "Why is this still done by hand? A designer works from one section at each
 hanger, after coordination. Tools coordinate the model and check a design, but
