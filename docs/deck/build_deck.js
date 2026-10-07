@@ -347,9 +347,11 @@ async function main() {
       { text: " ", options: { breakLine: true, fontSize: 6 } },
       { text: "43rd International CIB W78 Conference · IT in Construction · New Delhi, 6–8 October 2026", options: { color: ICE } },
     ], { placeholder: "authors" });
-    s.addImage({ path: path.join(FIG, "title_art.png"), x: 8.5, y: 1.6, w: 4.4, h: 2.75, objectName: "title art" });
-    s.addText("a generated C8 context: eight services on three rows", { x: 8.5, y: 4.45, w: 4.4, h: 0.3, fontSize: 10, color: ICE, align: "right", margin: 0, isTextBox: true, objectName: "art caption" });
-    await logos(s, 9.0, 5.35);
+    // the idea in one picture (docs/CrossMEP_title_art_idea_white.png, portrait 1124 x 2160): generator -> contexts -> one brief -> the missing answer
+    const AH = 6.7, AW = AH * 1124 / 2160, AX = 13.33 - 0.45 - AW, AY = 0.4;
+    s.addShape(pres.ShapeType.roundRect, { x: AX - 0.12, y: AY - 0.12, w: AW + 0.24, h: AH + 0.24, rectRadius: 0.1, fill: { color: THEME.colors.lt1 }, objectName: "title art panel" });
+    s.addImage({ path: path.join(ROOT, "docs", "CrossMEP_title_art_idea_white.png"), x: AX, y: AY, w: AW, h: AH, objectName: "title art" });
+    await logos(s, 0.7, 6.05);
     s.addNotes("Hi, I'm Lavinia, a PhD student at Stanford University, and today I am happy to present CrossMEP, which is the dataset we built when we found that the data to learn support design from did not exist. Support design is the one part of MEP that every tool coordinates, every tool checks, and no tool does. A hospital has ten thousand of these supports, each chosen by hand from a catalog. We think a machine can learn to choose them, and what has stopped anyone trying is not the algorithm. It is that nobody had the problems to practise on. So we built the problems. (0:00)");
   }
 
