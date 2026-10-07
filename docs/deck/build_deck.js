@@ -490,59 +490,53 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText([{ text: "Existing tools coordinate and verify modular support assemblies, but their synthesis remains manual because it relies on tacit engineering expertise and complex catalog-driven rules", options: { fontSize: 22, bold: true } }], { placeholder: "title" });
-    // the workflow at a hanger: coordinate (tools), synthesize (by hand), verify (tools)
-    const Y = 1.45, H = 2.9, SW = 3.65, GAP = (12.13 - 3 * SW) / 2;
+    // the workflow at a hanger: coordinate (tools), synthesize (by hand), verify (tools). One idea per card.
+    const Y = 1.5, H = 2.75, SW = 3.65, GAP = (12.13 - 3 * SW) / 2;
     const pill = (x, y, w, t, fill, name) => {
-      s.addShape(pres.ShapeType.roundRect, { x, y, w, h: 0.3, rectRadius: 0.15, fill: { color: fill }, objectName: "pill " + name });
-      s.addText(t, { x, y, w, h: 0.3, fontSize: 10.5, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "pill text " + name });
+      s.addShape(pres.ShapeType.roundRect, { x, y, w, h: 0.32, rectRadius: 0.16, fill: { color: fill }, objectName: "pill " + name });
+      s.addText(t, { x, y, w, h: 0.32, fontSize: 11, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "pill text " + name });
     };
-    const stage = async (i, head, status, statusColor, body, icon, name) => {
+    const stage = async (i, head, status, statusColor, line, icon, name) => {
       const x = 0.6 + i * (SW + GAP);
       s.addShape(pres.ShapeType.roundRect, { x, y: Y, w: SW, h: H, rectRadius: 0.07, fill: { color: C.background2 }, line: i === 1 ? { color: THEME.colors.accent2, width: 1.5 } : undefined, objectName: "stage " + name });
-      await iconCircle(s, x + 0.25, Y + 0.22, 0.5, icon, "", "stage " + name);
-      s.addText(`${i + 1}. ${head}`, { x: x + 0.9, y: Y + 0.2, w: SW - 1.1, h: 0.54, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "stage head " + name });
-      pill(x + 0.25, Y + 0.88, 1.35, status, statusColor, name);
-      s.addText(body, { x: x + 0.25, y: Y + 1.26, w: SW - 0.5, h: 0.62, fontSize: 11, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: "stage body " + name });
-      if (i < 2) s.addShape(pres.ShapeType.line, { x: x + SW + 0.08, y: Y + 1.03, w: GAP - 0.16, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "stage arrow " + i });
-      return { x, vy: Y + 1.92, vh: H - 2.07 };
+      await iconCircle(s, x + SW / 2 - 0.3, Y + 0.25, 0.6, icon, "", "stage " + name);
+      s.addText(head, { x: x + 0.2, y: Y + 0.9, w: SW - 0.4, h: 0.4, fontSize: 16, bold: true, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "stage head " + name });
+      pill(x + SW / 2 - 0.7, Y + 1.35, 1.4, status, statusColor, name);
+      s.addText(line, { x: x + 0.2, y: Y + H - 0.55, w: SW - 0.4, h: 0.4, fontSize: 11.5, color: INK2, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "stage line " + name });
+      if (i < 2) s.addShape(pres.ShapeType.line, { x: x + SW + 0.1, y: Y + H / 2, w: GAP - 0.2, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "stage arrow " + i });
+      return { x, vy: Y + 1.8 };
     };
-    const c1 = await stage(0, "Coordinate the model", "tools do this", THEME.colors.accent6, "Routing and clash detection lay the services out. Design starts after coordination, from the section at each hanger [3].", "FiLayers", "coordinate");
+    const c1 = await stage(0, "Coordinate the model", "tools", THEME.colors.accent6, "services routed and clash-free", "FiLayers", "coordinate");
+    miniCtx(s, c1.x + SW / 2 - 0.55, c1.vy, 1.1, 0.42, 4, ["duct", "pipe", "pipe", "tray"], C.accent1, "stage section");
+    const c2 = await stage(1, "Synthesize the assembly", "by hand", THEME.colors.accent2, "topology and parts chosen by an engineer [1]", "FiUser", "synthesize");
     {
-      const meta = await sharp(path.join(FIG, "paper_fig1_route_to_section.png")).metadata();
-      await cropImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: c1.x + 0.25, y: c1.vy, w: SW - 0.5, h: c1.vh }, { x: Math.round(meta.width * 0.03), y: 0, w: Math.round(meta.width * 0.35), h: Math.round(meta.height * 0.86) }, "route");
+      const gw = 1.3, gx = c2.x + SW / 2 - gw / 2, gy = c2.vy - 0.05;
+      s.addShape(pres.ShapeType.rect, { x: gx, y: gy, w: gw, h: 0.07, fill: { color: INK2 }, objectName: "ghost slab" });
+      [gx + 0.08, gx + gw - 0.08].forEach((rx, i) => s.addShape(pres.ShapeType.line, { x: rx, y: gy + 0.07, w: 0, h: 0.42, line: { color: MUTED, width: 1.25, dashType: "dash" }, objectName: "ghost rod " + i }));
+      s.addShape(pres.ShapeType.line, { x: gx, y: gy + 0.49, w: gw, h: 0, line: { color: MUTED, width: 1.25, dashType: "dash" }, objectName: "ghost channel" });
+      s.addShape(pres.ShapeType.ellipse, { x: gx + gw / 2 - 0.17, y: gy + 0.11, w: 0.34, h: 0.34, fill: { color: THEME.colors.accent2 }, objectName: "ghost q" });
+      s.addText("?", { x: gx + gw / 2 - 0.17, y: gy + 0.11, w: 0.34, h: 0.34, fontSize: 13, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "ghost q text" });
     }
-    const c2 = await stage(1, "Synthesize the assembly", "by hand", THEME.colors.accent2, "Choosing the topology and the parts from a fixed catalog is still done by an engineer, one section at a time [1].", "FiUser", "synthesize");
-    {
-      // a ghost of the assembly to be designed: dashed rods and channel under a slab, with a question mark
-      const gx = c2.x + 0.8, gw = SW - 1.6, gy = c2.vy + 0.12;
-      s.addShape(pres.ShapeType.rect, { x: gx, y: gy, w: gw, h: 0.08, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "ghost slab" });
-      [gx + 0.1, gx + gw - 0.1].forEach((rx, i) => s.addShape(pres.ShapeType.line, { x: rx, y: gy + 0.08, w: 0, h: 0.45, line: { color: MUTED, width: 1.25, dashType: "dash" }, objectName: "ghost rod " + i }));
-      s.addShape(pres.ShapeType.line, { x: gx, y: gy + 0.53, w: gw, h: 0, line: { color: MUTED, width: 1.25, dashType: "dash" }, objectName: "ghost channel" });
-      s.addShape(pres.ShapeType.ellipse, { x: gx + gw / 2 - 0.19, y: gy + 0.12, w: 0.38, h: 0.38, fill: { color: THEME.colors.accent2 }, objectName: "ghost q" });
-      s.addText("?", { x: gx + gw / 2 - 0.19, y: gy + 0.12, w: 0.38, h: 0.38, fontSize: 14, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "ghost q text" });
-    }
-    const c3 = await stage(2, "Verify the design", "tools do this", THEME.colors.accent6, "Once an assembly exists, software checks its statics, anchors and connectors against the catalog data.", "FiCheckCircle", "verify");
-    {
-      const chips = ["statics", "anchors", "connectors"], cwc = (SW - 0.5 - 0.2) / 3;
-      chips.forEach((t, i) => {
-        const x = c3.x + 0.25 + i * (cwc + 0.1);
-        s.addShape(pres.ShapeType.roundRect, { x, y: c3.vy + 0.25, w: cwc, h: 0.34, rectRadius: 0.17, fill: { color: "EAF5EE" }, objectName: "verify chip " + t });
-        s.addText("✓ " + t, { x, y: c3.vy + 0.25, w: cwc, h: 0.34, fontSize: 10.5, bold: true, color: THEME.colors.accent6, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "verify chip text " + t });
-      });
-    }
-    s.addText("Why the middle step resists automation", { x: 0.6, y: 4.5, w: 8, h: 0.3, fontSize: 12, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "why heading" });
+    const c3 = await stage(2, "Verify the design", "tools", THEME.colors.accent6, "statics, anchors and connectors checked", "FiCheckCircle", "verify");
+    ["statics", "anchors", "connectors"].forEach((t, i) => {
+      const cwc = 0.98, x = c3.x + SW / 2 - 1.5 + i * (cwc + 0.06);
+      s.addShape(pres.ShapeType.roundRect, { x, y: c3.vy + 0.05, w: cwc, h: 0.32, rectRadius: 0.16, fill: { color: "EAF5EE" }, objectName: "verify chip " + t });
+      s.addText("✓ " + t, { x, y: c3.vy + 0.05, w: cwc, h: 0.32, fontSize: 10, bold: true, color: THEME.colors.accent6, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "verify chip text " + t });
+    });
+    // why the middle step resists automation: one row, no boxes
+    s.addShape(pres.ShapeType.line, { x: 0.6, y: 4.65, w: 12.13, h: 0, line: { color: GRID, width: 1 }, objectName: "why rule" });
+    s.addText("Why the middle step resists automation", { x: 0.6, y: 4.75, w: 12.13, h: 0.3, fontSize: 12, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "why heading" });
     const why = [
-      ["Tacit judgment", "Engineers choose an assembly’s topology from experience, not from a written rule.", "FiEye"],
-      ["Rule explosion", "Code, load and material constraints interact across thousands of combinations.", "FiGitBranch"],
-      ["Catalog volatility", "Catalogs change faster than rule-based systems can be rewritten.", "FiRefreshCw"],
+      ["Tacit judgment", "the topology comes from experience", "FiEye"],
+      ["Rule explosion", "constraints interact across thousands of combinations", "FiGitBranch"],
+      ["Catalog volatility", "catalogs change faster than rule systems", "FiRefreshCw"],
     ];
-    const cw = (12.13 - 2 * 0.2) / 3;
+    const cw = (12.13 - 2 * 0.3) / 3;
     for (const [i, [h, t, icon]] of why.entries()) {
-      const x = 0.6 + i * (cw + 0.2);
-      panel(s, x, 4.85, cw, 1.4, "why " + h);
-      await iconCircle(s, x + 0.25, 4.98, 0.46, icon, "", "why " + h);
-      s.addText(h, { x: x + 0.85, y: 4.95, w: cw - 1.05, h: 0.5, fontSize: 15, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "why head " + h });
-      s.addText(t, { x: x + 0.25, y: 5.5, w: cw - 0.5, h: 0.7, fontSize: 12, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "why text " + h });
+      const x = 0.6 + i * (cw + 0.3);
+      await iconCircle(s, x, 5.2, 0.56, icon, "", "why " + h);
+      s.addText([{ text: h, options: { bold: true, fontSize: 14, color: C.text1, breakLine: true } }, { text: t, options: { fontSize: 11.5, color: INK2 } }],
+        { x: x + 0.75, y: 5.1, w: cw - 0.8, h: 0.8, valign: "middle", margin: 0, isTextBox: true, objectName: "why text " + h });
     }
     refs(s, [1, 2, 3]);
     s.addNotes("Why is this still done by hand? A designer works from one section at each hanger, after coordination. Tools coordinate the model and check a design, but they do not choose the layout or the parts. Three reasons it has resisted automation: the topology comes from experience, the rules interact across thousands of combinations, and catalogs change faster than rule systems can be rewritten. (1:50)");
