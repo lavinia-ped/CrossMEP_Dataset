@@ -372,19 +372,30 @@ async function main() {
     s.addImage({ path: path.join(FIG, "isarc_ssa.jpg"), ...ins, objectName: "one assembly" });
     s.addShape(pres.ShapeType.rect, { ...ins, fill: { type: "none" }, line: orange, objectName: "inset frame" });
     s.addText("1 unit = 1 structural support assembly (SSA)", { x: ins.x, y: 1.45, w: ins.w, h: 0.45, fontSize: 15, bold: true, color: C.text1, valign: "bottom", margin: 0, isTextBox: true, objectName: "inset label" });
-    const tw = (12.13 - 2 * 0.2) / 3;
+    // caption chip on the model
+    s.addShape(pres.ShapeType.roundRect, { x: b.x + 0.15, y: b.y + b.h - 0.52, w: 3.75, h: 0.36, rectRadius: 0.18, fill: { color: THEME.colors.lt1 }, line: { color: GRID, width: 0.75 }, objectName: "model chip" });
+    s.addShape(pres.ShapeType.ellipse, { x: b.x + 0.3, y: b.y + b.h - 0.42, w: 0.16, h: 0.16, fill: { color: RED }, objectName: "model chip dot" });
+    s.addText("200,000 sq ft hospital · every red mark is one support", { x: b.x + 0.52, y: b.y + b.h - 0.52, w: 3.35, h: 0.36, fontSize: 10.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "model chip text" });
+    // count x time = effort
+    const OP = 0.42, TY = 5.35, TH = 1.3, tw = (12.13 - 2 * (OP + 0.3)) / 3;
     const stat = async (x, icon, big, lead, label, name) => {
-      panel(s, x, 5.35, tw, 1.3, "tile " + name);
-      s.addShape(pres.ShapeType.ellipse, { x: x + 0.25, y: 5.35 + 0.33, w: 0.64, h: 0.64, fill: { color: RED }, objectName: "icon ring " + name });
+      panel(s, x, TY, tw, TH, "tile " + name);
+      s.addShape(pres.ShapeType.ellipse, { x: x + 0.25, y: TY + 0.33, w: 0.64, h: 0.64, fill: { color: RED }, objectName: "icon ring " + name });
       const d = await iconData(icon, THEME.colors.lt1);
-      if (d) s.addImage({ data: d, x: x + 0.25 + 0.64 * 0.21, y: 5.35 + 0.33 + 0.64 * 0.21, w: 0.64 * 0.58, h: 0.64 * 0.58, objectName: "icon " + name });
-      s.addText(big, { x: x + 1.1, y: 5.42, w: tw - 1.3, h: 0.6, fontSize: 28, bold: true, color: RED, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + name });
+      if (d) s.addImage({ data: d, x: x + 0.25 + 0.64 * 0.21, y: TY + 0.33 + 0.64 * 0.21, w: 0.64 * 0.58, h: 0.64 * 0.58, objectName: "icon " + name });
+      s.addText(big, { x: x + 1.1, y: TY + 0.07, w: tw - 1.25, h: 0.6, fontSize: 28, bold: true, color: RED, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + name });
       s.addText([{ text: lead + " ", options: { bold: true, color: RED } }, { text: label, options: { color: INK2 } }],
-        { x: x + 1.1, y: 6.02, w: tw - 1.3, h: 0.58, fontSize: 12, valign: "top", margin: 0, isTextBox: true, objectName: "label " + name });
+        { x: x + 1.1, y: TY + 0.67, w: tw - 1.25, h: 0.6, fontSize: 11.5, valign: "top", margin: 0, isTextBox: true, objectName: "label " + name });
     };
-    await stat(0.6, "FiLayers", "≈ 10,000", "support assemblies", "in one 200,000 sq ft hospital project", "assemblies");
-    await stat(0.6 + tw + 0.2, "FiClock", "20 min – 2 h", "of engineering time", "for each assembly, designed one by one", "time");
-    await stat(0.6 + 2 * (tw + 0.2), "FiDollarSign", "≈ $600k", "of engineering cost", "cumulative per hospital project", "effort");
+    const op = (x, t, name) => {
+      s.addShape(pres.ShapeType.ellipse, { x, y: TY + TH / 2 - OP / 2, w: OP, h: OP, fill: { color: THEME.colors.lt1 }, line: { color: RED, width: 1.5 }, objectName: "op " + name });
+      s.addText(t, { x, y: TY + TH / 2 - OP / 2, w: OP, h: OP, fontSize: 18, bold: true, color: RED, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "op text " + name });
+    };
+    await stat(0.6, "FiLayers", "≈ 10,000", "support assemblies", "in one hospital project, each one its own design", "assemblies");
+    op(0.6 + tw + 0.15, "×", "times");
+    await stat(0.6 + tw + OP + 0.3, "FiClock", "20 min – 2 h", "of engineering time", "for each assembly, designed one by one", "time");
+    op(0.6 + 2 * tw + OP + 0.45, "=", "equals");
+    await stat(0.6 + 2 * (tw + OP + 0.3), "FiPieChart", "≈ 25 %", "of MEP design effort,", "about $600k of engineering cost per project", "effort");
     refs(s, [1], "Approximate practitioner estimates [1].");
     s.addNotes("Here is the scale. This is a hospital, and every red mark is a place where services hang from the structure. A modular support groups several services on one prefabricated frame: a structural support assembly. A hospital this size needs about ten thousand of them, each designed individually, twenty minutes to two hours apiece. Add it up and it is about a quarter of the MEP design effort. Practitioner estimates, but these are the numbers people live with. (0:45)");
   }
@@ -393,54 +404,83 @@ async function main() {
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
     s.addText("An SSA designer turns one MEP cross-section into a feasible structural support assembly", { placeholder: "title" });
-    const PY = 2.0, PH = 3.0, PW = 5.3, LX = 0.6, RX = 7.43;
-    const head = (x, t, name) => s.addText(t, { x, y: 1.45, w: PW, h: 0.3, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "head " + name });
-    const frame = (x, y, name, line = { color: GRID, width: 1 }) =>
-      s.addShape(pres.ShapeType.roundRect, { x, y, w: PW, h: PH, rectRadius: 0.06, fill: { color: THEME.colors.lt1 }, line, objectName: "frame " + name });
+    const PY = 1.75, PH = 4.35, PW = 5.5, LX = 0.6, RX = 7.23;
+    const frame = (x, name, line) =>
+      s.addShape(pres.ShapeType.roundRect, { x, y: PY, w: PW, h: PH, rectRadius: 0.06, fill: { color: THEME.colors.lt1 }, line, objectName: "frame " + name });
+    const tab = (x, t, fill, name) => {
+      s.addShape(pres.ShapeType.roundRect, { x: x + 0.25, y: PY - 0.17, w: 2.6, h: 0.34, rectRadius: 0.17, fill: { color: fill }, objectName: "tab " + name });
+      s.addText(t, { x: x + 0.25, y: PY - 0.17, w: 2.6, h: 0.34, fontSize: 11, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "tab text " + name });
+    };
     const ceiling = (x, name) => {
-      const cx = x + 0.2, cy = PY + 0.2, cw = PW - 0.4, ch = 0.42;
+      const cx = x + 0.25, cy = PY + 0.4, cw = PW - 0.5, ch = 0.42;
       s.addShape(pres.ShapeType.rect, { x: cx, y: cy, w: cw, h: ch, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.75 }, objectName: "ceiling " + name });
       for (let hx = cx; hx + 0.3 <= cx + cw + 1e-6; hx += 0.3)
         s.addShape(pres.ShapeType.line, { x: hx, y: cy, w: 0.3, h: ch, flipV: true, line: { color: MUTED, width: 0.5 }, objectName: `hatch ${name} ${hx.toFixed(1)}` });
-      s.addText("Concrete ceiling", { x: cx + cw / 2 - 0.85, y: cy + 0.07, w: 1.7, h: ch - 0.14, fontSize: 11, color: C.text1, fill: { color: THEME.colors.lt1 },
+      s.addText("Concrete slab, 200 mm", { x: cx + cw / 2 - 1.0, y: cy + 0.07, w: 2.0, h: ch - 0.14, fontSize: 11, color: C.text1, fill: { color: THEME.colors.lt1 },
         align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "ceiling label " + name });
       return { x: cx, y: cy, w: cw, h: ch };
     };
-    // the same services in both panels; on the right they sit on the trapeze (dy)
+    // the same four services in both panels; on the right they rest on the channel (dy)
     const services = (x, name, dy = 0) => {
       const g = { fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 1 } };
-      const yb = PY + 2.25 + dy;
-      s.addShape(pres.ShapeType.rect, { x: x + 0.45, y: yb - 0.95, w: 1.55, h: 0.95, ...g, objectName: "duct " + name });
-      s.addText("Duct", { x: x + 0.45, y: yb - 0.95, w: 1.55, h: 0.95, fontSize: 12, color: C.text1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "duct label " + name });
-      s.addShape(pres.ShapeType.ellipse, { x: x + 2.35, y: yb - 0.7, w: 0.7, h: 0.7, ...g, objectName: "pipe a " + name });
-      s.addShape(pres.ShapeType.ellipse, { x: x + 3.2, y: yb - 0.45, w: 0.45, h: 0.45, ...g, objectName: "pipe b " + name });
-      s.addShape(pres.ShapeType.rect, { x: x + 3.7, y: yb - 0.3, w: 1.0, h: 0.3, ...g, objectName: "tray " + name });
+      const yb = PY + 2.85 + dy;
+      s.addShape(pres.ShapeType.rect, { x: x + 0.5, y: yb - 1.05, w: 1.7, h: 1.05, ...g, objectName: "duct " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 2.5 - 0.09, y: yb - 0.8 - 0.09, w: 0.98, h: 0.98, fill: { type: "none" }, line: { color: INK2, width: 0.75, dashType: "sysDash" }, objectName: "insulation " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 2.5, y: yb - 0.8, w: 0.8, h: 0.8, ...g, objectName: "pipe a " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 3.6, y: yb - 0.5, w: 0.5, h: 0.5, ...g, objectName: "pipe b " + name });
+      s.addShape(pres.ShapeType.rect, { x: x + 4.25, y: yb - 0.32, w: 0.85, h: 0.32, ...g, objectName: "tray " + name });
       return yb;
     };
+    const small = (x, y, w, t, name, align = "center", color = INK2, bold = false) =>
+      s.addText(t, { x, y, w, h: 0.26, fontSize: 10.5, bold, color, align, valign: "middle", margin: 0, isTextBox: true, objectName: name });
 
     // in: the context
-    frame(LX, PY, "in");
+    frame(LX, "in", { color: C.accent1, width: 1.25 });
+    tab(LX, "CONTEXT  ·  the brief", C.accent1, "context");
     ceiling(LX, "in");
     const ybL = services(LX, "in");
-    s.addText("Pipes", { x: LX + 2.35, y: ybL + 0.08, w: 1.3, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "pipes label" });
-    s.addText("Cable tray", { x: LX + 3.6, y: ybL + 0.08, w: 1.2, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "tray label" });
+    small(LX + 0.5, ybL + 0.08, 1.7, "Duct 600 × 400", "label duct");
+    small(LX + 2.2, ybL + 0.08, 1.5, "DN80, insulated", "label dn80");
+    small(LX + 3.5, ybL + 0.08, 0.7, "DN40", "label dn40");
+    small(LX + 4.1, ybL + 0.08, 1.15, "Cable tray 300", "label tray");
+    s.addText("Every element with its kind, trade, size, insulation, position and load per metre. Nothing else.",
+      { x: LX + 0.25, y: PY + PH - 0.72, w: PW - 0.5, h: 0.55, fontSize: 11, color: INK2, valign: "middle", margin: 0, isTextBox: true, objectName: "in note" });
 
-    // design
-    s.addShape(pres.ShapeType.line, { x: LX + PW + 0.2, y: PY + PH / 2, w: RX - LX - PW - 0.4, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "design arrow" });
-    s.addText("design", { x: LX + PW, y: PY + PH / 2 - 0.4, w: RX - LX - PW, h: 0.3, fontSize: 11.5, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "design label" });
+    // the designer, on the arrow between the panels
+    const MY = PY + PH / 2, MX = (LX + PW + RX) / 2, D = 0.7;
+    s.addShape(pres.ShapeType.line, { x: LX + PW + 0.08, y: MY, w: MX - D / 2 - LX - PW - 0.08, h: 0, line: { color: INK2, width: 1.5 }, objectName: "arrow in" });
+    s.addShape(pres.ShapeType.line, { x: MX + D / 2, y: MY, w: RX - MX - D / 2 - 0.08, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "arrow out" });
+    await iconCircle(s, MX - D / 2, MY - D / 2, D, "FiUser", "", "designer");
+    small(MX - 0.6, MY - D / 2 - 0.34, 1.2, "SSA designer", "designer label", "center", C.text1, true);
+    small(MX - 0.55, MY + D / 2 + 0.06, 1.1, "from a catalog", "designer sub");
 
-    // out: the assemblies, a stack of verified designs
-    frame(RX, PY, "out", { color: INK2, width: 0.75 });
+    // out: a feasible assembly, parts named, checks passed
+    frame(RX, "out", { color: THEME.colors.dk2, width: 1.25 });
+    tab(RX, "FEASIBLE SSA  ·  the answer", THEME.colors.dk2, "assembly");
     const cl = ceiling(RX, "out");
-    const ybR = services(RX, "out", -0.15);
-    const bar = { x: RX + 0.3, y: ybR, w: PW - 0.6, h: 0.09 };
-    [bar.x + 0.08, bar.x + bar.w - 0.2].forEach((rx, i) => {
-      s.addShape(pres.ShapeType.rect, { x: rx - 0.02, y: cl.y + cl.h - 0.12, w: 0.16, h: 0.16, fill: { color: THEME.colors.dk2 }, objectName: "anchor " + i });
+    const ybR = services(RX, "out", -0.2);
+    const bar = { x: RX + 0.25, y: ybR, w: PW - 0.5, h: 0.1 };
+    [bar.x + 0.08, bar.x + bar.w - 0.16].forEach((rx, i) => {
+      s.addShape(pres.ShapeType.rect, { x: rx - 0.03, y: cl.y + cl.h - 0.12, w: 0.18, h: 0.16, fill: { color: THEME.colors.dk2 }, objectName: "anchor " + i });
       s.addShape(pres.ShapeType.rect, { x: rx + 0.04, y: cl.y + cl.h, w: 0.04, h: bar.y - cl.y - cl.h, fill: { color: THEME.colors.dk2 }, objectName: "rod " + i });
     });
-    s.addShape(pres.ShapeType.rect, { ...bar, fill: { color: THEME.colors.dk2 }, objectName: "trapeze bar" });
-    s.addText("Rod trapeze", { x: RX + 0.25, y: PY + PH - 0.5, w: 2.5, h: 0.35, fontSize: 13, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "assembly name" });
-    s.addText("✓ verified", { x: RX + PW - 2.0, y: PY + PH - 0.5, w: 1.75, h: 0.35, fontSize: 13, bold: true, color: THEME.colors.accent6, align: "right", valign: "middle", margin: 0, isTextBox: true, objectName: "verified" });
+    s.addShape(pres.ShapeType.rect, { ...bar, fill: { color: THEME.colors.dk2 }, objectName: "channel" });
+    // clamps: a heavy ring around each pipe
+    s.addShape(pres.ShapeType.ellipse, { x: RX + 2.5 - 0.05, y: ybR - 0.8 - 0.05, w: 0.9, h: 0.9, fill: { type: "none" }, line: { color: THEME.colors.dk2, width: 3 }, objectName: "clamp a" });
+    s.addShape(pres.ShapeType.ellipse, { x: RX + 3.6 - 0.05, y: ybR - 0.5 - 0.05, w: 0.6, h: 0.6, fill: { type: "none" }, line: { color: THEME.colors.dk2, width: 3 }, objectName: "clamp b" });
+    small(RX + 0.6, cl.y + cl.h + 0.02, 1.2, "anchor", "label anchor", "left");
+    small(RX + 3.7, cl.y + cl.h + 0.95, 1.35, "threaded rod", "label rod", "right");
+    small(RX + 2.3, ybR + 0.1, 1.9, "pipe clamps", "label clamps");
+    small(RX + PW - 1.9, ybR + 0.1, 1.6, "channel", "label channel", "right");
+    small(RX + 2.4, cl.y + cl.h + 0.02, 2.5, "Rod trapeze", "assembly name", "right", C.text1, true);
+    // the checks a feasible design has passed
+    const checks = ["statics", "anchors", "connectors", "buildable"], cw2 = (PW - 0.5 - 0.3) / 4;
+    checks.forEach((t, i) => {
+      const x = RX + 0.25 + i * (cw2 + 0.1);
+      s.addShape(pres.ShapeType.roundRect, { x, y: PY + PH - 0.62, w: cw2, h: 0.36, rectRadius: 0.18, fill: { color: "EAF5EE" }, objectName: "check " + t });
+      s.addText("✓ " + t, { x, y: PY + PH - 0.62, w: cw2, h: 0.36, fontSize: 11, bold: true, color: THEME.colors.accent6, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "check text " + t });
+    });
+    refs(s, [1], "The synthesis problem as defined at ISARC 2026 [1].");
 
     // the two words the talk relies on
     s.addNotes("So what exactly is designed, and from what? In: one cross-section at a hanger. The structure it hangs from, and the services crossing it, each with its trade, position, size and weight per metre. We call that the context. It is the brief. Out: assemblies of catalog parts that carry those services to the structure, checked for statics, anchors, connectors and buildability, ranked by cost. That is the answer. Hold on to these two words, because CrossMEP is contexts only. It contains no assemblies. (1:15)");
