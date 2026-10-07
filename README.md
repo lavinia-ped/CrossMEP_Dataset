@@ -1,10 +1,60 @@
-# CrossMEP
+<h1 align="center">CrossMEP</h1>
+<p align="center"><b>7,000 generated MEP cross-sections for learning structural support design.</b><br>
+The brief at one hanger, in numbers, with nothing about the support itself: that is the answer a method has to find.</p>
 
-[![ci](https://github.com/lavinia-ped/CrossMEP_Dataset/actions/workflows/ci.yml/badge.svg)](https://github.com/lavinia-ped/CrossMEP_Dataset/actions/workflows/ci.yml)
-Data: CC BY 4.0 · Code: MIT · Python ≥ 3.9 · generator needs only NumPy; the JSON files need nothing.
+<p align="center">
+<a href="https://github.com/lavinia-ped/CrossMEP_Dataset/actions/workflows/ci.yml"><img alt="ci" src="https://github.com/lavinia-ped/CrossMEP_Dataset/actions/workflows/ci.yml/badge.svg"></a>
+<img alt="data CC BY 4.0" src="https://img.shields.io/badge/data-CC%20BY%204.0-2A78D6">
+<img alt="code MIT" src="https://img.shields.io/badge/code-MIT-2A78D6">
+<img alt="python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-52514E">
+<img alt="dependencies: NumPy for the generator, none for the data" src="https://img.shields.io/badge/deps-NumPy%20only-52514E">
+<a href="https://lavinia-ped.github.io/CrossMEP_Dataset/studio/"><img alt="Generator Studio" src="https://img.shields.io/badge/try%20it-Generator%20Studio-EB6834"></a>
+<a href="docs/CrossMEP_CIBW78_talk.pdf"><img alt="talk slides" src="https://img.shields.io/badge/talk-CIB%20W78%202026-52514E"></a>
+</p>
 
-A tiered synthetic dataset of multi-trade MEP cross-sections for learning-based
-structural support assembly (SSA) synthesis.
+<p align="center"><a href="https://lavinia-ped.github.io/CrossMEP_Dataset/studio/"><img src="docs/figures/08_studio_demo.png" alt="The Generator Studio: pick a tier or an exact mix and a seed; the page shows the section as an A4 drawing sheet, the same run in 3D cut at the section, and the record" width="900"></a></p>
+<p align="center"><i><a href="https://lavinia-ped.github.io/CrossMEP_Dataset/studio/">Open the Generator Studio</a>: pick a tier (one to eight services) or an exact mix and a seed, and see the section the way a support designer receives it, as a drawing sheet and in 3D. Every section on the page is a stored output of the released generator, with the call that reproduces it. Offline: open <code>docs/studio/index.html</code>.</i></p>
+
+## What this is
+
+Every pipe, duct and cable tray in a building hangs from a support that an
+engineer designs by hand, one hanger at a time, from the cross-section at that
+hanger. A method that wants to learn this job needs thousands of such sections
+to practise on, and real projects give a handful, under NDA, all alike. CrossMEP
+generates them.
+
+- **7,000 contexts in eight tiers** (C1 to C8, exactly *n* services each): train, validation, test and a fixed 1,000-context benchmark, on disjoint seeds. Plain JSON with a schema and a datasheet; loading needs only the standard library.
+- **Each context is the brief, not the answer.** The slab or wall, and every service with its kind, trade, size, insulation, position and load per metre. No channel, rods, clamps or anchors: a feasible support depends on the catalog you build from.
+- **Every number is traced.** Sizes and weights from EN, IEC, ASME and SMACNA tables; spacing drawn from gaps measured on a built project and checked on sections of two open buildings; the few choices that are ours are labelled as ours (`VERIFICATION_LOG.md`).
+- **The generator is released**, seeded and reproducible to the byte on Python 3.9 to 3.13 (`python -m crossmep generate`), with an evaluation harness that scores any method per tier with intervals and paired tests.
+
+Paper: *CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections*,
+Pedrollo, Gvadzabia, Graeber & Fischer, 43rd CIB W78 Conference, 2026.
+Companion formulation: Pedrollo, Graeber & Fischer, ISARC 2026.
+
+## Sixty-second tour
+
+```bash
+pip install -e ".[test]"        # generator + tests; the JSON files themselves need nothing
+```
+
+```python
+import crossmep.tasks as cm
+data = cm.load("benchmark")                  # 1,000 contexts, 125 per tier, seed 42
+print(cm.per_tier_table(data))               # medians per tier
+cm.filter_contexts(data, pipes=2, trays=1)   # exactly two pipes and one tray
+from crossmep.evaluate import score, compare
+score(my_results, data)                      # per tier, 95 % intervals
+```
+
+```bash
+python -m crossmep generate --tier C5 --n 200 --seed 7 --out my_c5.json   # your own contexts
+```
+
+![One benchmark context per tier, C1 to C8](docs/figures/02_tier_gallery.png)
+
+*One context per difficulty tier from the benchmark split: tier Cn holds exactly n
+elements; ceilings and walls; dashed rings are insulation.*
 
 **In practitioner terms.** Pick one hanger location on a coordinated corridor
 run and cut the section. What the support designer receives is exactly that
@@ -12,20 +62,7 @@ section: which services pass (pipes by DN and service, cable trays, ducts,
 conduit groups), their bare size and insulation, what each weighs per metre and
 at the support spacing it was sized for, how far apart they are, how they stack,
 and what they hang from (slab or wall, substrate, thickness). CrossMEP is that
-section in numbers — 7,000 of them — with the spacing drawn from measurements on
-a built project and checked on sections of two open buildings, and **nothing
-about the support itself**: no
-channel, rods, clamps or anchors, because that is the answer the dataset exists
-to let a method find.
-
-Paper: *CrossMEP: A Tiered Synthetic Dataset of Multi-Trade MEP Cross-Sections*,
-Pedrollo, Gvadzabia, Graeber & Fischer, 43rd CIB W78 Conference, 2026.
-Companion formulation: Pedrollo, Graeber & Fischer, ISARC 2026.
-
-![One benchmark context per tier, C1 to C8](docs/figures/02_tier_gallery.png)
-
-*One context per difficulty tier from the benchmark split: tier Cn holds exactly n
-elements; ceilings and walls; dashed rings are insulation.*
+section in numbers, 7,000 of them, and **nothing about the support itself**.
 
 ## Files
 
@@ -305,7 +342,7 @@ The verification chain is executable end to end:
 
 ## Generator Studio
 
-`docs/studio/index.html` is an interactive page for demonstrating the generator:
+`docs/studio/index.html` (hosted at <https://lavinia-ped.github.io/CrossMEP_Dataset/studio/>) is an interactive page for demonstrating the generator:
 choose a tier or an exact mix of services, the surface and a seed, and press
 *Generate another*. Each section is drawn as an A4 support detail the way an
 engineer would issue it (section A–A at a standard scale, 1:1 to 1:100; hatched
