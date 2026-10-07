@@ -91,27 +91,28 @@ itself stays a black box: the approaches are unpublished.
 **Say:** "So how would a machine learn it? Give it a context. Let it propose an assembly.
 Check the assembly, and feed pass or fail back. Round after round, it gets
 better. But every round needs a new context, and that is where it stops. Real
-projects give a handful of sections, from one project, under NDA: too few to
-practise on, and a method tuned on them only fits that project. So we generate
-the contexts, as many as a method needs, and we fix one benchmark to judge every
-method on."
+projects give a handful of sections, all from the same kind of job and
+confidential: too few to practise on, and a method tuned on them only fits that
+job. So we generate the contexts, as many as a method needs, and we fix one
+benchmark to judge every method on."
 
-## 6. The real designs we had sat in one corner of the design space, so we generate the whole of it (2:40)
+## 6. The ninety real designs we had came from one project and filled one corner of the design space, so CrossMEP covers all of it by construction (2:40)
 
-**Show:** left, the design space (element count across, kinds / trades /
-surface up) drawn with thumbnail sections: the real designs available are a
-few near-identical sections in one corner (one project, one trade mix);
-CrossMEP is a section for every tier, with kinds and surfaces varied, and
-without limit (a new seed is a new set); right, CrossMEP at a glance (7,000
-contexts · 31,484 elements · C1–C8 · 0 labels · traced · open).
+**Show:** the design space twice (element count across, kinds, trades and
+surface up). Left: the ninety real designs, a duct with many pipes each, ringed
+in one corner, with the note "ducts and many pipes, no trays, nothing as simple
+as one pipe". Right: a CrossMEP thumbnail for every tier, on ceilings and walls.
+Beside them, CrossMEP at a glance.
 
-**Say:** "The real designs we had were few, from one kind of project with one trade mix:
-one corner of the design space. A method tuned on them measures fit to that
-project. So we generate. CrossMEP fills the space by construction, without
-limit: a new seed is a new set, uniform over the tiers or any mix you ask for.
-Seven thousand contexts are the release, not the ceiling."
+**Say:** "How scarce? The real designs we could get were ninety, from one project. Nearly
+every one had a duct and many pipes. Not one had a cable tray, and not one was
+as simple as a single pipe: one corner of the design space. A method tuned on
+them measures fit to that project. So CrossMEP fills the space by construction:
+every tier from one element to eight, kinds and surfaces varied, without limit.
+A new seed is a new set. Seven thousand contexts are the release, not the
+ceiling."
 
-## 7. One context is exactly what a support designer receives at one hanger, without the answer (3:10)
+## 7. One context is exactly what a support designer receives at one hanger, without the answer (3:20)
 
 **Show:** one C5 context from the Generator Studio: its drawing sheet and 3D view
 (grey run, the section face in the trade colour) on the left with the fields every
@@ -126,7 +127,7 @@ weight per metre times the span it was sized at. Add the surface, slab or wall,
 and that is all. No channel, no rods, no anchors, no correct answer, because a
 feasible support depends on the catalog you build from."
 
-## 8. Every section is built the way trades run services, with gaps measured on a real building (3:35)
+## 8. Every section is built the way trades run services, with gaps measured on a real building (3:45)
 
 **Show:** six step cards (tier, surface, services, rows, spacing, check) beside a
 generated C8 context from the Generator Studio: its drawing sheet with one sampled
@@ -139,7 +140,7 @@ nearest the slab. Gaps are drawn from gaps measured on a built project, never
 below twenty-five millimetres. On walls, electrical stays above water. Same
 seed, same file."
 
-## 9. Every number is traced to a standard, to a measurement, or to a choice we declare as ours (4:05)
+## 9. Every number is traced to a standard, to a measurement, or to a choice we declare as ours (4:15)
 
 **Show:** the five element kinds, each with a glyph, its size standard and its load
 basis, with the citation numbers; beside them the three kinds of ground, colour
@@ -150,7 +151,7 @@ pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
 Spacing from measured open buildings. And a few choices of our own, like the
 trade mix, labelled as choices."
 
-## 10. The tier fixes the element count, and load and congestion grow with it as the rules intend (4:25)
+## 10. The tier fixes the element count, and load and congestion grow with it as the rules intend (4:35)
 
 **Show:** two bar charts of medians per tier, benchmark and population: load at
 the support rises, the closest clear gap narrows; a caption says this is a design
@@ -170,7 +171,7 @@ with load +0.46, with the closest gap −0.38 (benchmark medians 0.30 → 2.04 k
 the gap widened again at C6, where the generator always stacked two or three
 rows; 4.1 draws rows by count, so that step is gone.
 
-## 11. Generated spacing matches a clinic the generator never saw to within 32 millimetres (4:55)
+## 11. Generated spacing matches a clinic the generator never saw to within 32 millimetres (5:05)
 
 **Show:** left, the two gap distributions (clinic measured, generator) as a
 native chart; right, the Wasserstein distances with 95 % intervals, generated
@@ -193,7 +194,7 @@ of the cut, generated ↔ clinic stays at 31–41 mm. (Revision 4.0: 28 mm, 27�
 across settings; 4.1 widens the DN bands, so more insulation and slightly wider
 bare gaps. The gap draw itself is unchanged.)
 
-## 12. The paper's two clamp sizes reach one pipe in seven, and the dataset says which sizes to add (5:30)
+## 12. The paper's two clamp sizes reach one pipe in seven, and the dataset says which sizes to add (5:40)
 
 **Show:** benchmark pipes by nominal size with the attachable ones in blue (only
 DN40); the best share of pipes any k clamp sizes could attach (38 % with two,
@@ -207,7 +208,7 @@ right, what the dataset asks of any catalog: two well-placed sizes reach 38
 percent, six sizes 76, fifteen every pipe. What the catalog should contain
 becomes a measurement."
 
-## 13. Pick a tier or an exact mix and a seed, and the Generator Studio returns the designer's brief (6:00)
+## 13. Pick a tier or an exact mix and a seed, and the Generator Studio returns the designer's brief (6:10)
 
 **Show:** the Generator Studio (live; the slide is its screenshot): in, the
 parameters bar; out, the section drawn as an A4 support detail with its facts line,
@@ -223,7 +224,7 @@ the released generator. Scan the code to try it."
 twice; then *Exact mix*, add a duct. If the demo fails, stay on the slide: its
 screenshot is the fallback. (See "Before the talk" above.)
 
-## 14. Methods train on the generator and are compared on one fixed benchmark, tier by tier (7:05)
+## 14. Methods train on the generator and are compared on one fixed benchmark, tier by tier (7:15)
 
 **Show:** the protocol as a flow, generator → train (5,000; validation and
 test 500 each) → benchmark (1,000, 125 per tier, never trained on) → report per
@@ -237,7 +238,7 @@ constraint programming and benchmarking, and we ship the scoring. Train on the
 generator. Evaluate on the benchmark, the same contexts for every method. Report
 per tier, with intervals and paired tests."
 
-## 15. Today CrossMEP is one section at one support, and next come a checker and real projects (7:40)
+## 15. Today CrossMEP is one section at one support, and next come a checker and real projects (7:50)
 
 **Show:** scope as four icon rows, next steps as three numbered rows; the
 request to practitioners with the QR code.
@@ -249,7 +250,7 @@ a public checker, so methods can be compared on the answer; the catalog as an
 input; and a real test set from commercial projects, with supports designed by
 engineers. That is where I would value your eye."
 
-## 16. Support design finally has open problems to learn from (8:10)
+## 16. Support design finally has open problems to learn from (8:20)
 
 **Say:** "To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design
 problems, every constant sourced or declared, spacing checked on two open

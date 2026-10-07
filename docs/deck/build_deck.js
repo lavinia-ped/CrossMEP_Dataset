@@ -562,13 +562,13 @@ async function main() {
       "As many contexts as a method needs: every tier from one to eight elements, kinds and surfaces varied, a new seed a new set. And one fixed benchmark, never trained on, to judge every method on.", "generated");
     const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
     for (let n = 1; n <= 8; n++) miniCtx(s, GX + 0.3 + (n - 1) * 0.68, BY + 0.62, 0.56, 0.42, n, rows[n % 3], C.accent1, "gen " + n, n % 4 === 3);
-    s.addNotes("So how would a machine learn it? Give it a context. Let it propose an assembly. Check the assembly, and feed pass or fail back. Round after round, it gets better. But every round needs a new context, and that is where it stops. Real projects give a handful of sections, from one project, under NDA: too few to practise on, and a method tuned on them only fits that project. So we generate the contexts, as many as a method needs, and we fix one benchmark to judge every method on. (2:00)");
+    s.addNotes("So how would a machine learn it? Give it a context. Let it propose an assembly. Check the assembly, and feed pass or fail back. Round after round, it gets better. But every round needs a new context, and that is where it stops. Real projects give a handful of sections, all from the same kind of job and confidential: too few to practise on, and a method tuned on them only fits that job. So we generate the contexts, as many as a method needs, and we fix one benchmark to judge every method on. (2:00)");
   }
 
   // ========================================================================= 6 gap + at a glance
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("The real designs we had sat in one corner of the design space, so we generate the whole of it", { placeholder: "title" });
+    s.addText("The ninety real designs we had came from one project and filled one corner of the design space, so CrossMEP covers all of it by construction", { placeholder: "title" });
     // the design space: element count across, kinds / surface up. Real designs: a few near-identical
     // sections in one corner. CrossMEP: a section for every tier, with kinds and surfaces varied.
     const plot = (x, y, w, h, head, sub, name) => {
@@ -583,12 +583,13 @@ async function main() {
       return ax;
     };
     const mini = (...a) => miniCtx(s, ...a);
-    const left = plot(0.6, 1.5, 5.7, 2.3, "The real designs we had", "few · one project · one trade mix", "real");
-    // a handful of near-identical sections in one corner
-    [[0.03, 0.05], [0.14, 0.12], [0.25, 0.04], [0.06, 0.4], [0.2, 0.36], [0.33, 0.3]].forEach(([u, v], i) =>
-      mini(left.x + u * left.w, left.y + (1 - v) * left.h - 0.26, 0.5, 0.26, 3, ["pipe"], THEME.colors.accent2, "real " + i));
-    s.addShape(pres.ShapeType.ellipse, { x: left.x - 0.02, y: left.y + 0.35 * left.h, w: 0.5 * left.w, h: 0.68 * left.h, fill: { type: "none" }, line: { color: THEME.colors.accent2, width: 1, dashType: "dash" }, objectName: "real cluster ring" });
-    s.addText("a method tuned here only fits that project", { x: left.x + 0.52 * left.w, y: left.y + 0.3 * left.h, w: 0.48 * left.w, h: 0.5, fontSize: 11, color: INK2, italic: true, margin: 0, isTextBox: true, objectName: "real note" });
+    const left = plot(0.6, 1.5, 5.7, 2.3, "The real designs we had", "ninety · one project · confidential", "real");
+    // ninety near-identical sections in one corner: a duct with many pipes, never a tray, never a single pipe
+    [[0.5, 0.62], [0.64, 0.62], [0.78, 0.62], [0.54, 0.3], [0.68, 0.3], [0.82, 0.3]].forEach(([u, v], i) =>
+      mini(left.x + u * left.w, left.y + (1 - v) * left.h - 0.26, 0.6, 0.26, 6 + (i % 3), ["duct", "pipe", "pipe", "pipe"], THEME.colors.accent2, "real " + i));
+    s.addShape(pres.ShapeType.ellipse, { x: left.x + 0.44 * left.w, y: left.y + 0.1 * left.h, w: 0.54 * left.w, h: 0.78 * left.h, fill: { type: "none" }, line: { color: THEME.colors.accent2, width: 1, dashType: "dash" }, objectName: "real cluster ring" });
+    s.addText([{ text: "ducts and many pipes, no trays, nothing as simple as one pipe", options: { breakLine: true } }, { text: "a method tuned here only fits that project", options: { italic: true } }],
+      { x: left.x + 0.02, y: left.y + 0.12 * left.h, w: 0.4 * left.w, h: 0.75 * left.h, fontSize: 11, color: INK2, valign: "middle", margin: 0, isTextBox: true, objectName: "real note" });
     const right = plot(0.6, 3.95, 5.7, 2.3, "CrossMEP", "every tier · kinds and surfaces varied · unlimited", "synthetic");
     // one column per tier (n elements), three rows: pipes; mixed kinds; on a wall
     const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
@@ -614,7 +615,7 @@ async function main() {
       s.addText(big, { x: x + 1.05, y: y + 0.12, w: tw - 1.2, h: 0.55, fontSize: 24, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "glance value " + big });
       s.addText(label, { x: x + 1.05, y: y + 0.68, w: tw - 1.2, h: 0.55, fontSize: 11.5, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: "glance label " + big });
     }
-    s.addNotes("The real designs we had were few, from one kind of project with one trade mix: one corner of the design space. A method tuned on them measures fit to that project. So we generate. CrossMEP fills the space by construction, without limit: a new seed is a new set, uniform over the tiers or any mix you ask for. Seven thousand contexts are the release, not the ceiling. (2:40)");
+    s.addNotes("How scarce? The real designs we could get were ninety, from one project. Nearly every one had a duct and many pipes. Not one had a cable tray, and not one was as simple as a single pipe: one corner of the design space. A method tuned on them measures fit to that project. So CrossMEP fills the space by construction: every tier from one element to eight, kinds and surfaces varied, without limit. A new seed is a new set. Seven thousand contexts are the release, not the ceiling. (2:40)");
   }
 
   // studio captures (scripts/screenshot_contexts.js): crop boxes and the trade colours of the 3D view
@@ -692,7 +693,7 @@ async function main() {
     s.addText([{ text: "Not given, by design: ", options: { bold: true, color: THEME.colors.lt1 } },
                { text: "channel, rods, clamps, anchors. No correct answer either: a feasible support depends on the catalog you build from.", options: { color: ICE } }],
       { x: RX + 0.95, y: NY, w: RW - 1.15, h: 6.64 - NY, fontSize: 12, valign: "middle", margin: 0, isTextBox: true, objectName: "absent text" });
-    s.addNotes("Here is one context: a two-dimensional section at one support. Each element has its kind, service and trade, its size, insulation and position, and its load: weight per metre times the span it was sized at. Add the surface, slab or wall, and that is all. No channel, no rods, no anchors, no correct answer, because a feasible support depends on the catalog you build from. (3:10)");
+    s.addNotes("Here is one context: a two-dimensional section at one support. Each element has its kind, service and trade, its size, insulation and position, and its load: weight per metre times the span it was sized at. Add the surface, slab or wall, and that is all. No channel, no rods, no anchors, no correct answer, because a feasible support depends on the catalog you build from. (3:20)");
   }
 
   // ========================================================================= 8 generation
@@ -728,7 +729,7 @@ async function main() {
     caption(s, `One generated context, tier ${ctx8.tier}: ${ctx8.n_elements} services on ${ctx8.n_levels} rows, ducts nearest the slab, then the tray and conduits, then the pipe. The gap marked on the sheet is one draw from the measured distribution; the same seed gives the same section.`,
       { x: 9.95, y: 4.6, w: 2.78, h: 1.9 }, "generation caption", 11);
     refs(s, [3, 10, 12]);
-    s.addNotes("How is a context made? By rules an engineer would recognize. The tier fixes the element count. We pick the surface and fill it the way trades run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps are drawn from gaps measured on a built project, never below twenty-five millimetres. On walls, electrical stays above water. Same seed, same file. (3:35)");
+    s.addNotes("How is a context made? By rules an engineer would recognize. The tier fixes the element count. We pick the surface and fill it the way trades run services: hot and cold together, flow and return together, conduits in groups, bulky services nearest the slab. Gaps are drawn from gaps measured on a built project, never below twenty-five millimetres. On walls, electrical stays above water. Same seed, same file. (3:45)");
   }
 
   // ========================================================================= 9 sources
@@ -786,7 +787,7 @@ async function main() {
     }
     caption(s, "Every constant carries its source and its status, and why each standard was chosen over its alternatives is written down with it.", { x: 0.6, y: 5.88, w: 12.13, h: 0.3 }, "sources note", 11);
     refs(s, [4, 5, 6, 7, 8, 9, 10, 11, 12], "", 6.22, 0.76);
-    s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (4:05)");
+    s.addNotes("Where do the numbers come from? Sizes, weights and spans from standards: EN for pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing from measured open buildings. And a few choices of our own, like the trade mix, labelled as choices. (4:15)");
   }
 
   // ========================================================================= 10 tiers and the design check (gallery + experiment 1)
@@ -811,7 +812,7 @@ async function main() {
         title: "Tighter with the tier: median closest clear gap (mm)", objectName: "gap chart" }));
     caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the element count; load and congestion follow from the rules. Within a tier, kinds, trades, surfaces and stacking all vary. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark, 125 contexts per tier; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}); intervals are bootstrapped over contexts.`,
       { x: 0.6, y: 6.3, w: 12.13, h: 0.55 }, "experiment 1 caption", 11);
-    s.addNotes("Three analyses. The first is a design check. Each tier adds one element: C1 is a single service, the most common support in any building; C8 has eight. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:25)");
+    s.addNotes("Three analyses. The first is a design check. Each tier adds one element: C1 is a single service, the most common support in any building; C8 has eight. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:35)");
   }
 
   // ========================================================================= 11 experiment 2
@@ -861,7 +862,7 @@ async function main() {
     tile(s, 0.6 + tw + 0.2, 5.72, tw, 0.95, `${mm(r["duplex_mep|duplex_plumbing"][LW].w1)} mm`, "the duplex's own two models from each other: about as close as real is to real", { bigSize: 20, labelSize: 10 });
     tile(s, 0.6 + 2 * (tw + 0.2), 5.72, tw, 0.95, `${Math.round(gc.fixed_25mm / 10) * 10} mm`, "what a fixed 25 mm gap would be from the clinic", { bigSize: 20, labelSize: 10 });
     refs(s, [12], `Sections every 250 mm, clinic pipe pairs weighted by shared length; models: buildingSMART Duplex Apartment and Medical-Dental Clinic [12].`, 6.74);
-    s.addNotes(`The second is the one the generator could fail: is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We held out a medical clinic, cut it into sections every 250 millimetres, and measured the gaps between pipes side by side. Generator to clinic: ${mm(gc.w1)} millimetres. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimetre gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (4:55)`);
+    s.addNotes(`The second is the one the generator could fail: is the spacing realistic in a building it has never seen? The gap distribution was fitted on a residential duplex. We held out a medical clinic, cut it into sections every 250 millimetres, and measured the gaps between pipes side by side. Generator to clinic: ${mm(gc.w1)} millimetres. Above the ${mm(gc.noise_floor.median)} a perfect generator would show, but about as close as the duplex's own two models are to each other. A fixed 25-millimetre gap would be about ${Math.round(gc.fixed_25mm / 10) * 10} off. (5:05)`);
   }
 
   // ========================================================================= 12 experiment 3
@@ -893,7 +894,7 @@ async function main() {
     tile(s, 0.6 + 2 * (tw + 0.2), 5.1, tw, 1.6, `0 of ${fmtInt(CB.not_pipe)}`,
       `trays, ducts and conduits: a pipe-clamp catalog defines no attachment. Load never binds (${CB.max_pipe_load_kN.toFixed(2)} vs ${CB.min_bin_capacity_kN.toFixed(1)} kN)`, { labelSize: 11 });
     refs(s, [2]);
-    s.addNotes(`The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Trays, ducts and conduits are not covered at all. On the right, what the dataset asks of any catalog: two well-placed sizes reach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} every pipe. What the catalog should contain becomes a measurement. (5:30)`);
+    s.addNotes(`The third is a use of the dataset: what must a catalog of clamps cover? Our paper's two-size catalog attaches ${fmt1(CB.pct_pipes)} percent of the pipes, interval ${Math.round(CB.ci[0])} to ${Math.round(CB.ci[1])}, all one size, DN40. Trays, ducts and conduits are not covered at all. On the right, what the dataset asks of any catalog: two well-placed sizes reach ${Math.round(k2)} percent, six sizes ${Math.round(k6)}, ${NUMBER_WORDS[curve.length] || curve.length} every pipe. What the catalog should contain becomes a measurement. (5:40)`);
   }
 
   // ========================================================================= 13 demo
@@ -921,7 +922,7 @@ async function main() {
     s.addText([{ text: "Scan to open the studio", options: { bold: true, color: C.text1, breakLine: true } },
                { text: "every section is a stored output of the released generator, with the call that reproduces it", options: { color: INK2, fontSize: 10.5 } }],
       { x: x + 1.35, y: 5.4, w: w - 1.5, h: 1.25, fontSize: 12.5, valign: "middle", margin: 0, isTextBox: true, objectName: "studio link" });
-    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:00)");
+    s.addNotes("Let me show it. This is the Generator Studio. I choose what crosses the hanger, a tier or an exact mix, and a seed. Out comes the section a designer receives, drawn as an engineer would issue it: every service at true size, its level, its load, the closest gap, and the run in 3D. Every section is a stored output of the released generator. Scan the code to try it. [Live: switch to the studio, click C3, then Generate another twice, then Exact mix with a duct. If the demo fails, stay on this slide: its screenshot is the fallback. Before the talk: open the studio once with internet, set its link sharing to public, scan the QR from a phone not logged in.] (6:10)");
   }
   // ========================================================================= 14 using it
   {
@@ -955,7 +956,7 @@ async function main() {
     ], { x: 0.6, y: 4.1, w: 12.13, h: 1.45 }, 13, "code");
     caption(s, "Four lines to load, score and compare; loading, metrics and scoring need only the Python standard library, the generator needs NumPy. The same files serve reinforcement learning, constraint programming and benchmarking: there are no labels to fit a method to.",
       { x: 0.6, y: 5.7, w: 12.13, h: 0.55 }, "code caption", 11.5);
-    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Four splits on disjoint seeds: five thousand to train, five hundred each for validation and test, and a benchmark of a thousand, a hundred and twenty-five per tier. The same files serve reinforcement learning, constraint programming and benchmarking, and we ship the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for every method. Report per tier, with intervals and paired tests. (7:05)");
+    s.addNotes("Using it takes a few lines: load a split, filter by composition, or generate your own mix. Four splits on disjoint seeds: five thousand to train, five hundred each for validation and test, and a benchmark of a thousand, a hundred and twenty-five per tier. The same files serve reinforcement learning, constraint programming and benchmarking, and we ship the scoring. Train on the generator. Evaluate on the benchmark, the same contexts for every method. Report per tier, with intervals and paired tests. (7:15)");
   }
 
   // ========================================================================= 15 scope & next
@@ -989,7 +990,7 @@ async function main() {
       { text: "open the studio, generate the sections you know from your projects, and tell us what looks wrong. Every rule is one documented constant away from being changed." }],
       { x: 0.95, y: 5.4, w: 10.0, h: 1.15, fontSize: 15, color: C.background1, valign: "middle", margin: 0, isTextBox: true, objectName: "ask" });
     s.addImage({ path: path.join(FIG, "qr_repo.png"), x: 11.55, y: 5.42, w: 1.1, h: 1.1, objectName: "qr ask" });
-    s.addNotes("Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It is not for the structural design of real installations. Next: a public checker, so methods can be compared on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That is where I would value your eye. (7:40)");
+    s.addNotes("Scope. CrossMEP is one section at one support. Pipe spacing was checked on two open buildings; the rest rests on practice and standards, and the trade mix is a design choice. It is not for the structural design of real installations. Next: a public checker, so methods can be compared on the answer; the catalog as an input; and a real test set from commercial projects, with supports designed by engineers. That is where I would value your eye. (7:50)");
   }
 
   // ========================================================================= 16 closing
@@ -1017,7 +1018,7 @@ async function main() {
     s.addText([{ text: REPO, options: { bold: true, breakLine: true } }, { text: "laviniap@stanford.edu" }],
       { x: 9.0, y: 4.05, w: 3.9, h: 0.75, fontSize: 12, color: C.background1, align: "center", valign: "top", margin: 0, isTextBox: true, objectName: "closing link" });
     await logos(s, 9.0, 5.35);
-    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (8:10)");
+    s.addNotes("To sum up: CrossMEP is the brief, not the answer. Seven thousand support-design problems, every constant sourced or declared, spacing checked on two open buildings, all of it open. If you coordinate services or design supports, try the studio and tell me what looks wrong. Thank you. (8:20)");
   }
 
   await pres.writeFile({ fileName: OUT });
