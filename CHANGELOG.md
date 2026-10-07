@@ -17,7 +17,7 @@ package version tracks code and documentation.
   sheet and the 3D view of one studio section each (`scripts/screenshot_contexts.js`; tier C5
   seed 8 section 11 and tier C8 seed 1 section 6), with slide 7's table and facts read from the
   captured record.
-- No semicolons or colons in titles; every title is one sentence. Code in Aptos Mono; reference lines
+- Every title is one full sentence, without semicolons or colons. Code in Aptos Mono; reference lines
   at 9 pt. Closing slide with four takeaway tiles. Demo slide as in and out panels with the studio's
   facts line; evaluation protocol as a flow; scope and next as icon rows.
 - Stanford (CEE lockup) and Hilti logos on the title and closing slides; slide text no longer names
