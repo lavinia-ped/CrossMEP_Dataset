@@ -332,7 +332,7 @@ async function main() {
   pres.addSection({ title: "Motivation" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("A hospital needs about 10,000 support assemblies, each designed by hand", { placeholder: "title" });
+    s.addText("One hospital needs about ten thousand support assemblies, and every one of them is designed by hand", { placeholder: "title" });
     const b = { x: 0.6, y: 1.45, w: 6.6, h: 6.6 * 720 / 1280 };
     s.addImage({ path: path.join(FIG, "isarc_building.jpg"), ...b, objectName: "hospital model" });
     const z = { x: b.x + 0.4567 * b.w, y: b.y + 0.4318 * b.h, w: 0.0982 * b.w, h: 0.1396 * b.h };
@@ -361,7 +361,7 @@ async function main() {
   // ========================================================================= 3 the problem: one cross-section in, verified support designs out (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("A designer turns one cross-section into verified support assemblies", { placeholder: "title" });
+    s.addText("A support designer turns one cross-section into a set of verified support assemblies", { placeholder: "title" });
     const PY = 2.0, PH = 3.0, PW = 5.3, LX = 0.6, RX = 7.43;
     const head = (x, t, name) => s.addText(t, { x, y: 1.45, w: PW, h: 0.3, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "head " + name });
     const frame = (x, y, name, line = { color: GRID, width: 1 }) =>
@@ -432,7 +432,7 @@ async function main() {
   // ========================================================================= 4 the synthesis problem (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Synthesizing the assembly from a catalog and a context has resisted automation", { placeholder: "title" });
+    s.addText("Choosing the assembly from a catalog is still done by hand, one section at a time", { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: 0.6, y: 1.5, w: 7.4, h: 2.75 }, "route to section");
     caption(s, "Design starts after coordination [3]: at each hanger the designer works from the section across the run, not from the whole model [2].",
       { x: img.x, y: img.y + img.h + 0.1, w: img.w, h: 0.5 }, "fig1 caption");
@@ -465,7 +465,7 @@ async function main() {
   // ========================================================================= 5 what a method would look like (unpublished work: the approach is a black box)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Whatever the method, it needs problems to learn from and a fixed set to compare on", { placeholder: "title" });
+    s.addText("Any method, learned or not, needs problems to learn from and a fixed benchmark to be judged on", { placeholder: "title" });
     const Y = 1.7, H = 2.45, MID = Y + H / 2;
     const text = (box, head, body, headColor, bodyColor, name, headSize = 14, bodySize = 11.5) =>
       s.addText([{ text: head, options: { bold: true, fontSize: headSize, color: headColor, breakLine: true } },
@@ -559,7 +559,7 @@ async function main() {
   // ========================================================================= 6 gap + at a glance
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Real designs cover one corner of the design space and CrossMEP covers all of it", { placeholder: "title" });
+    s.addText("The real designs we had sat in one corner of the design space, so we generate the whole of it", { placeholder: "title" });
     // the design space: element count across, kinds / surface up. Real designs: a few near-identical
     // sections in one corner. CrossMEP: a section for every tier, with kinds and surfaces varied.
     const plot = (x, y, w, h, head, sub, name) => {
@@ -641,7 +641,7 @@ async function main() {
   pres.addSection({ title: "The dataset" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("We generate what a designer receives, the section at one hanger", { placeholder: "title" });
+    s.addText("One context is exactly what a support designer receives at one hanger, without the answer", { placeholder: "title" });
     // the studio section captured by scripts/screenshot_contexts.js (tier C5, seed 8, section 11), with its stored record
     const ctx = JSON.parse(fs.readFileSync(path.join(FIG, "11_c5.json"), "utf8")).record;
     let gap = Infinity;   // closest clear gap between insulation surfaces, as crossmep.tasks.min_clear_gap (ceiling)
@@ -712,7 +712,7 @@ async function main() {
   // ========================================================================= 8 generation
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Sections follow trade practice and measured spacing, not random shapes", { placeholder: "title" });
+    s.addText("Every section is built the way trades run services, with gaps measured on a real building", { placeholder: "title" });
     const steps = [
       ["FiHash", "Tier", "Cn fixes the exact element count, n = 1 … 8"],
       ["FiLayers", "Surface", "ceiling or wall (78 / 22 %); concrete, 150–300 mm thick"],
@@ -748,7 +748,7 @@ async function main() {
   // ========================================================================= 9 sources
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "The dataset" });
-    s.addText("Sizes, spans and loads come from standards, and the choices are declared", { placeholder: "title" });
+    s.addText("Every number is traced to a standard, to a measurement, or to a choice we declare as ours", { placeholder: "title" });
     // left: the five element kinds, each with its size standard and load basis; a glyph per kind
     const glyph = (kind, x, y) => {
       const g = { fill: { color: THEME.colors.lt2 }, line: { color: THEME.colors.dk2, width: 1 } };
@@ -807,7 +807,7 @@ async function main() {
   pres.addSection({ title: "Experiments" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Tier Cn holds exactly n elements, and higher tiers are heavier and tighter as designed", { placeholder: "title" });
+    s.addText("The tier fixes the element count, and load and congestion grow with it as the rules intend", { placeholder: "title" });
     // the design check: medians per tier, benchmark (125 per tier) and population (2,000 per tier)
     const tiers = D.tiers, lb = TR.benchmark.load_kN.per_tier, lp = TR.population.load_kN.per_tier;
     const gb = TR.benchmark.clear_gap_mm.per_tier, gp = TR.population.clear_gap_mm.per_tier, gt = tiers.slice(1);
@@ -831,7 +831,7 @@ async function main() {
   // ========================================================================= 11 experiment 2
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText("Spacing holds up on a clinic the generator never saw", { placeholder: "title" });
+    s.addText(`Generated spacing matches a clinic the generator never saw to within ${mm(SEC.gen_to_real.clinic_plumbing[LW].w1)} millimetres`, { placeholder: "title" });
     const g = SEC.gen_to_real, r = SEC.real_to_real;
     const gc = g.clinic_plumbing[LW];
     // left: the two gap distributions, share of pipe pairs per 25 mm bin
@@ -881,7 +881,7 @@ async function main() {
   // ========================================================================= 12 experiment 3
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Experiments" });
-    s.addText(`A two-size catalog attaches one pipe in ${NUMBER_WORDS[Math.round(100 / CB.pct_pipes)]}, and the dataset shows what to cover`, { placeholder: "title" });
+    s.addText(`The paper’s two clamp sizes reach one pipe in ${NUMBER_WORDS[Math.round(100 / CB.pct_pipes)]}, and the dataset says which sizes to add`, { placeholder: "title" });
     const sizes = Object.keys(CAT.by_size);
     s.addChart(pres.ChartType.bar, [
       { name: "attachable", labels: sizes, values: sizes.map((k) => CAT.by_size[k].covered) },
@@ -914,7 +914,7 @@ async function main() {
   pres.addSection({ title: "Use" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("The Generator Studio turns a few parameters into the designer’s brief", { placeholder: "title" });
+    s.addText("Pick a tier or an exact mix and a seed, and the Generator Studio returns the designer’s brief", { placeholder: "title" });
     const demo = path.join(FIG, "08_studio_demo.png");
     const frame = (box, name) => s.addShape(pres.ShapeType.rect, { x: box.x - 0.05, y: box.y - 0.05, w: box.w + 0.1, h: box.h + 0.1, fill: { type: "none" }, line: { color: GRID, width: 0.75 }, objectName: name });
     // in: the parameters bar
@@ -940,7 +940,7 @@ async function main() {
   // ========================================================================= 14 using it
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("A method trains on the generator, is scored on the benchmark and reports per tier", { placeholder: "title" });
+    s.addText("Methods train on the generator and are compared on one fixed benchmark, tier by tier", { placeholder: "title" });
     // the protocol as a flow: generator -> train -> benchmark -> report
     const steps = [
       ["FiCpu", "Generator", "unlimited problems: a new seed is a new set; a curriculum from C1 up to C8"],
@@ -975,7 +975,7 @@ async function main() {
   // ========================================================================= 15 scope & next
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Use" });
-    s.addText("CrossMEP covers one section at one support today, and a checker and real data come next", { placeholder: "title" });
+    s.addText("Today CrossMEP is one section at one support, and next come a checker and real projects", { placeholder: "title" });
     const cw = (12.13 - 0.25) / 2, x2 = 0.6 + cw + 0.25;
     const column = async (x, head, rows, numbered, name) => {
       panel(s, x, 1.5, cw, 3.55, name + " card");
@@ -1009,7 +1009,7 @@ async function main() {
   // ========================================================================= 16 closing
   {
     const s = addSlide({ masterName: "CLOSING_DARK", sectionTitle: "Use" });
-    s.addText("Support design now has open problems to learn from", { placeholder: "title" });
+    s.addText("Support design finally has open problems to learn from", { placeholder: "title" });
     s.addText([
       { text: "CrossMEP is the brief, not the answer: seven thousand support-design problems, open to anyone who wants to teach a machine to design supports.", options: { breakLine: true } },
       { text: " ", options: { breakLine: true, fontSize: 6 } },
