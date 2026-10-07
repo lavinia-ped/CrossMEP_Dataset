@@ -76,19 +76,21 @@ the parts. Three reasons: the topology comes from experience, the rules interact
 across thousands of combinations, and catalogs change faster than rule systems
 can be rewritten."
 
-## 5. Any method, learned or not, needs problems to learn from and a fixed benchmark to be judged on (1:45)
+## 5. A learning method needs thousands of contexts to practise on, and real projects give too few, so we generate them (1:45)
 
-**Show:** a generic flow: the brief (section + catalog) → build the assembly
-step by step (rule table, search or a learned policy) → check every finished
-design → verified designs ranked by cost; below it the three things any such
-method needs. Deliberately generic: the approaches themselves are unpublished.
+**Show:** the learning loop: a context goes into a black-box method, which
+proposes a design; the design is checked; pass or fail is fed back and the
+method improves. Below, where the contexts come from: real projects (a few
+near-identical sections, then empty slots) versus CrossMEP (a thumbnail per tier,
+unlimited), with an arrow from CrossMEP into the loop's context box. The method
+itself stays a black box: the approaches are unpublished.
 
-**Say:** "What would a method look like? The context and a catalog go in. Rules say which
-actions are legal; each action adds parts. In the middle, a black box chooses
-the next action: a rule table, a search, or a learned policy. A verifier checks
-every finished design and feeds pass or fail back. Whatever sits in the black
-box, it needs problems to learn from, a fixed set to compare on, and problems
-that look like practice."
+**Say:** "How would a machine learn this? Give it a context, let it propose a design,
+check the design, and feed pass or fail back. Round after round, the method
+improves. Each round needs a new context. Real projects give a handful, from one
+project, under NDA: too few to practise on, and a method tuned on them only fits
+that project. So we generate the contexts, as many as a method needs, and fix
+one benchmark to judge every method on."
 
 ## 6. The real designs we had sat in one corner of the design space, so we generate the whole of it (2:20)
 
@@ -105,7 +107,7 @@ project. So we generate. CrossMEP fills the space by construction, without
 limit: a new seed is a new set, uniform over the tiers or any mix you ask for.
 Seven thousand contexts are the release, not the ceiling."
 
-## 7. One context is exactly what a support designer receives at one hanger, without the answer (2:45)
+## 7. One context is exactly what a support designer receives at one hanger, without the answer (2:50)
 
 **Show:** one C5 context from the Generator Studio: its drawing sheet and 3D view
 (grey run, the section face in the trade colour) on the left with the fields every
@@ -144,7 +146,7 @@ pipes and ducts, IEC for conduits and trays, ASME for spans, GEG for insulation.
 Spacing from measured open buildings. And a few choices of our own, like the
 trade mix, labelled as choices."
 
-## 10. The tier fixes the element count, and load and congestion grow with it as the rules intend (4:00)
+## 10. The tier fixes the element count, and load and congestion grow with it as the rules intend (4:05)
 
 **Show:** two bar charts of medians per tier, benchmark and population: load at
 the support rises, the closest clear gap narrows; a caption says this is a design

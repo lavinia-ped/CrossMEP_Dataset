@@ -265,6 +265,31 @@ async function main() {
     await trimImage(slide, path.join(FIG, "logo_hilti.jpg"), { x: x + 2.6, y: y + 0.42, w: 1.1, h: H - 0.84 }, { x: 0, y: 0, w: sizes[1].width, h: sizes[1].height }, "logo hilti", "center", 8);
   }
 
+  // a thumbnail of one context: a slab (or wall) with n elements hanging from it, on a white card
+  function miniCtx(s, x, y, w, h, n, kinds, color, name, wall = false) {
+    const g = { fill: { color }, line: { color: THEME.colors.lt1, width: 0.4 } };
+    s.addShape(pres.ShapeType.rect, { x: x - 0.05, y: y - 0.05, w: w + 0.1, h: h + 0.1, fill: { color: THEME.colors.lt1 }, line: { color: MUTED, width: 0.5 }, objectName: `mini card ${name}` });
+    if (wall) {
+      s.addShape(pres.ShapeType.rect, { x, y, w: 0.035, h, fill: { color: INK2 }, objectName: `mini wall ${name}` });
+      const step = h / (n + 1), f = Math.min(1, step / 0.13);
+      for (let i = 0; i < n; i++) {
+        const cy = y + step * (i + 1), k = kinds[i % kinds.length];
+        if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: x + 0.09, y: cy - 0.045 * f, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
+        else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.05 * f, w: 0.15 * f, h: 0.1 * f, ...g, objectName: `mini ${name} ${i}` });
+        else s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.025 * f, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
+      }
+      return;
+    }
+    s.addShape(pres.ShapeType.rect, { x, y, w, h: 0.035, fill: { color: INK2 }, objectName: `mini slab ${name}` });
+    const step = w / (n + 1), f = Math.min(1, step / 0.17);
+    for (let i = 0; i < n; i++) {
+      const cx = x + step * (i + 1), k = kinds[i % kinds.length];
+      if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: cx - 0.045 * f, y: y + 0.08, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
+      else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: cx - 0.075 * f, y: y + 0.07, w: 0.15 * f, h: 0.11 * f, ...g, objectName: `mini ${name} ${i}` });
+      else s.addShape(pres.ShapeType.rect, { x: cx - 0.06 * f, y: y + 0.1, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
+    }
+  }
+
   function panel(slide, x, y, w, h, name) {
     slide.addShape(pres.ShapeType.roundRect, { x, y, w, h, rectRadius: 0.07, fill: { color: C.background2 }, objectName: name });
   }
@@ -462,98 +487,82 @@ async function main() {
     s.addNotes("Why is this still done by hand? Designers work from one section at each hanger, after coordination. Tools coordinate and check; they do not choose the layout or the parts. Three reasons: the topology comes from experience, the rules interact across thousands of combinations, and catalogs change faster than rule systems can be rewritten. (1:25)");
   }
 
-  // ========================================================================= 5 what a method would look like (unpublished work: the approach is a black box)
+  // ========================================================================= 5 why contexts: a learning loop needs many of them (the approach stays a black box)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Any method, learned or not, needs problems to learn from and a fixed benchmark to be judged on", { placeholder: "title" });
-    const Y = 1.7, H = 2.45, MID = Y + H / 2;
-    const text = (box, head, body, headColor, bodyColor, name, headSize = 14, bodySize = 11.5) =>
+    s.addText("A learning method needs thousands of contexts to practise on, and real projects give too few, so we generate them", { placeholder: "title" });
+    const NY = 1.95, NH = 1.5;
+    const g = { fill: { color: THEME.colors.lt1 }, line: { color: INK2, width: 0.75 } };
+    const text = (box, head, body, headColor, bodyColor, name, headSize = 14, bodySize = 11) =>
       s.addText([{ text: head, options: { bold: true, fontSize: headSize, color: headColor, breakLine: true } },
                  { text: body, options: { fontSize: bodySize, color: bodyColor } }],
-        { ...box, valign: "middle", align: "center", margin: 0.08, isTextBox: true, objectName: "text " + name });
-    const arrow = (x0, x1, y, name, opts = {}) =>
-      s.addShape(pres.ShapeType.line, { x: Math.min(x0, x1), y, w: Math.abs(x1 - x0), h: 0,
-        line: { color: INK2, width: 1.25, ...(x1 > x0 ? { endArrowType: "triangle" } : { beginArrowType: "triangle" }), ...opts }, objectName: "arrow " + name });
-    const label = (x, y, w, t, name, color = INK2) =>
-      s.addText(t, { x, y, w, h: 0.26, fontSize: 10.5, color, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "label " + name });
+        { ...box, valign: "top", align: "center", margin: 0.06, isTextBox: true, objectName: "text " + name });
+    const arrow = (x0, x1, y, name) =>
+      s.addShape(pres.ShapeType.line, { x: x0, y, w: x1 - x0, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "arrow " + name });
+    const label = (x, y, w, t, name, color = INK2, size = 10.5) =>
+      s.addText(t, { x, y, w, h: 0.26, fontSize: size, color, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "label " + name });
+    const pic = async (icon, hex, x, w, name) => { const d = await iconData(icon, hex); if (d) s.addImage({ data: d, x: x + (w - 0.5) / 2, y: NY + 0.14, w: 0.5, h: 0.5, objectName: "icon " + name }); };
 
-    // inputs
-    const IX = 0.6, IW = 1.9;
-    s.addShape(pres.ShapeType.roundRect, { x: IX, y: Y, w: IW, h: 1.2, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box context" });
-    // a small section: slab, duct, two pipes, a tray
-    const g = { fill: { color: THEME.colors.lt1 }, line: { color: INK2, width: 0.75 } };
-    s.addShape(pres.ShapeType.rect, { x: IX + 0.25, y: Y + 0.12, w: IW - 0.5, h: 0.1, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "mini slab" });
-    s.addShape(pres.ShapeType.rect, { x: IX + 0.35, y: Y + 0.3, w: 0.42, h: 0.24, ...g, objectName: "mini duct" });
-    s.addShape(pres.ShapeType.ellipse, { x: IX + 0.9, y: Y + 0.33, w: 0.21, h: 0.21, ...g, objectName: "mini pipe a" });
-    s.addShape(pres.ShapeType.ellipse, { x: IX + 1.17, y: Y + 0.39, w: 0.15, h: 0.15, ...g, objectName: "mini pipe b" });
-    s.addShape(pres.ShapeType.rect, { x: IX + 1.4, y: Y + 0.45, w: 0.26, h: 0.09, ...g, objectName: "mini tray" });
-    text({ x: IX, y: Y + 0.58, w: IW, h: 0.6 }, "Context", "structure, services, loads", C.text1, INK2, "context");
-    s.addShape(pres.ShapeType.can, { x: IX + 0.1, y: Y + H - 1.15, w: IW - 0.2, h: 1.15, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box catalog" });
-    text({ x: IX, y: Y + H - 1.05, w: IW, h: 1.0 }, "Catalog", "parts, sizes, unit costs", C.text1, INK2, "catalog");
+    // the loop: context -> method -> design -> check, and pass or fail back into the method
+    const CX = 0.6, CW = 2.3, MX = 3.55, MW = 2.7, DX = 6.9, DW = 2.3, KX = 9.85, KW = 2.88;
+    s.addText("How a learning method learns, round after round", { x: 0.6, y: 1.45, w: 5.0, h: 0.3, fontSize: 12, bold: true, color: INK2, margin: 0, isTextBox: true, objectName: "loop heading" });
+    // context
+    s.addShape(pres.ShapeType.roundRect, { x: CX, y: NY, w: CW, h: NH, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: C.accent1, width: 1.5 }, objectName: "box context" });
+    miniCtx(s, CX + 0.55, NY + 0.17, CW - 1.1, 0.42, 4, ["duct", "pipe", "pipe", "tray"], C.accent1, "loop context");
+    text({ x: CX, y: NY + 0.68, w: CW, h: NH - 0.7 }, "Context", "one section at a hanger, without the answer", C.text1, INK2, "context");
+    // method: a black box
+    s.addShape(pres.ShapeType.roundRect, { x: MX, y: NY, w: MW, h: NH, rectRadius: 0.06, fill: { color: THEME.colors.dk1 }, objectName: "black box method" });
+    await pic("FiCpu", THEME.colors.lt1, MX, MW, "method");
+    text({ x: MX, y: NY + 0.68, w: MW, h: NH - 0.7 }, "Learning method", "a black box that proposes a design", THEME.colors.lt1, ICE, "method");
+    arrow(CX + CW, MX, NY + NH / 2, "context to method");
+    // proposed design: a small rod trapeze
+    s.addShape(pres.ShapeType.roundRect, { x: DX, y: NY, w: DW, h: NH, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: INK2, width: 1 }, objectName: "box design" });
+    const TX = DX + 0.65, TW = DW - 1.3;
+    s.addShape(pres.ShapeType.rect, { x: TX, y: NY + 0.14, w: TW, h: 0.08, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "mini out slab" });
+    [TX + 0.08, TX + TW - 0.11].forEach((rx, i) => s.addShape(pres.ShapeType.rect, { x: rx, y: NY + 0.22, w: 0.03, h: 0.38, fill: { color: THEME.colors.dk2 }, objectName: "mini rod " + i }));
+    s.addShape(pres.ShapeType.rect, { x: TX, y: NY + 0.58, w: TW, h: 0.04, fill: { color: THEME.colors.dk2 }, objectName: "mini bar" });
+    s.addShape(pres.ShapeType.ellipse, { x: TX + 0.25, y: NY + 0.38, w: 0.2, h: 0.2, ...g, objectName: "mini out pipe a" });
+    s.addShape(pres.ShapeType.ellipse, { x: TX + 0.55, y: NY + 0.43, w: 0.15, h: 0.15, ...g, objectName: "mini out pipe b" });
+    text({ x: DX, y: NY + 0.68, w: DW, h: NH - 0.7 }, "Proposed design", "an assembly: channel, rods, clamps, anchors", C.text1, INK2, "design");
+    arrow(MX + MW, DX, NY + NH / 2, "method to design");
+    // check
+    s.addShape(pres.ShapeType.roundRect, { x: KX, y: NY, w: KW, h: NH, rectRadius: 0.06, fill: { color: "EAF5EE" }, line: { color: THEME.colors.accent6, width: 1.5 }, objectName: "box check" });
+    await pic("FiCheckCircle", THEME.colors.accent6, KX, KW, "check");
+    text({ x: KX, y: NY + 0.68, w: KW, h: NH - 0.7 }, "Check", "statics, anchors, connectors, buildability, cost", C.text1, INK2, "check");
+    arrow(DX + DW, KX, NY + NH / 2, "design to check");
+    // feedback, over the top
+    const FY = 1.75, mxc = MX + MW / 2, kxc = KX + KW / 2;
+    s.addShape(pres.ShapeType.line, { x: kxc, y: FY, w: 0, h: NY - FY, line: { color: THEME.colors.accent6, width: 1.5, dashType: "dash" }, objectName: "feedback up" });
+    s.addShape(pres.ShapeType.line, { x: mxc, y: FY, w: kxc - mxc, h: 0, line: { color: THEME.colors.accent6, width: 1.5, dashType: "dash" }, objectName: "feedback across" });
+    s.addShape(pres.ShapeType.line, { x: mxc, y: FY, w: 0, h: NY - FY, line: { color: THEME.colors.accent6, width: 1.5, dashType: "dash", endArrowType: "triangle" }, objectName: "feedback down" });
+    label(mxc + 0.3, FY - 0.3, kxc - mxc - 0.6, "pass or fail is fed back, and the method improves", "feedback", THEME.colors.accent6, 11);
 
-    // rules
-    const RX = 3.0, RW = 2.0;
-    s.addShape(pres.ShapeType.roundRect, { x: RX, y: Y, w: RW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk2, width: 1.25 }, objectName: "box rules" });
-    const pic = async (icon, hex, x, w, name) => { const d = await iconData(icon, hex); if (d) s.addImage({ data: d, x: x + (w - 0.5) / 2, y: Y + 0.3, w: 0.5, h: 0.5, objectName: "icon " + name }); };
-    await pic("FiList", THEME.colors.dk2, RX, RW, "rules");
-    text({ x: RX, y: Y + 0.85, w: RW, h: H - 0.95 }, "Rules", "which actions are legal in a state; each action adds parts", C.text1, INK2, "rules");
-    arrow(IX + IW, RX, Y + 0.6, "context to rules");
-    arrow(IX + IW - 0.1, RX, Y + H - 0.55, "catalog to rules");
+    // the contexts feed the loop: an elbow from the CrossMEP card up into the context box
+    const BY = 4.45, BH = 2.1, BW2 = 5.9, GX = 0.6 + BW2 + 0.33, EY = 3.9;
+    const cxc = CX + CW / 2, gxc = GX + 1.1;
+    s.addShape(pres.ShapeType.line, { x: gxc, y: EY, w: 0, h: BY - EY, line: { color: C.accent1, width: 1.5 }, objectName: "feed up" });
+    s.addShape(pres.ShapeType.line, { x: cxc, y: EY, w: gxc - cxc, h: 0, line: { color: C.accent1, width: 1.5 }, objectName: "feed across" });
+    s.addShape(pres.ShapeType.line, { x: cxc, y: NY + NH, w: 0, h: EY - NY - NH, line: { color: C.accent1, width: 1.5, beginArrowType: "triangle" }, objectName: "feed into context" });
+    label(cxc + 0.3, EY - 0.3, gxc - cxc - 0.6, "a new context every round: thousands of them, each with the brief and no answer", "feed", C.accent1, 11);
 
-    // the approach: a black box
-    const BX = 5.6, BW = 2.4;
-    s.addShape(pres.ShapeType.roundRect, { x: BX, y: Y, w: BW, h: H, rectRadius: 0.06, fill: { color: THEME.colors.dk1 }, objectName: "black box approach" });
-    await pic("FiCpu", THEME.colors.lt1, BX, BW, "approach");
-    text({ x: BX, y: Y + 0.85, w: BW, h: H - 0.95 }, "Approach", "a black box that chooses the next action\n\nrule table · search · learned policy", THEME.colors.lt1, ICE, "approach", 16, 11.5);
-    arrow(RX + RW, BX, MID - 0.35, "legal actions");
-    label(RX + RW, MID - 0.66, BX - RX - RW, "legal actions", "legal actions");
-    arrow(BX, RX + RW, MID + 0.35, "chosen action");
-    label(RX + RW, MID + 0.4, BX - RX - RW, "chosen action", "chosen action");
-
-    // verifier and output
-    const VX = 8.6, VW = 2.0, OX = 11.05, OW = 1.68;
-    s.addShape(pres.ShapeType.roundRect, { x: VX, y: Y, w: VW, h: H, rectRadius: 0.06, fill: { color: "EAF5EE" }, line: { color: THEME.colors.accent6, width: 1.5 }, objectName: "box verifier" });
-    await pic("FiCheckCircle", THEME.colors.accent6, VX, VW, "verifier");
-    text({ x: VX, y: Y + 0.85, w: VW, h: H - 0.95 }, "Verifier", "judges every finished design: statics, anchors, connectors, buildability", C.text1, INK2, "verifier");
-    arrow(BX + BW, VX, MID, "finished design");
-    label(BX + BW, MID - 0.31, VX - BX - BW, "finished design", "finished design");
-    s.addShape(pres.ShapeType.roundRect, { x: OX, y: Y, w: OW, h: H, rectRadius: 0.06, fill: { color: C.background2 }, line: { color: THEME.colors.dk1, width: 1.5 }, objectName: "box output" });
-    // a small rod trapeze: slab, two rods, a bar, two pipes
-    s.addShape(pres.ShapeType.rect, { x: OX + 0.2, y: Y + 0.18, w: OW - 0.4, h: 0.1, fill: { color: THEME.colors.lt2 }, line: { color: INK2, width: 0.5 }, objectName: "mini out slab" });
-    [OX + 0.3, OX + OW - 0.33].forEach((rx, i) => s.addShape(pres.ShapeType.rect, { x: rx, y: Y + 0.28, w: 0.03, h: 0.47, fill: { color: THEME.colors.dk2 }, objectName: "mini rod " + i }));
-    s.addShape(pres.ShapeType.rect, { x: OX + 0.22, y: Y + 0.75, w: OW - 0.44, h: 0.04, fill: { color: THEME.colors.dk2 }, objectName: "mini bar" });
-    s.addShape(pres.ShapeType.ellipse, { x: OX + 0.48, y: Y + 0.52, w: 0.23, h: 0.23, ...g, objectName: "mini out pipe a" });
-    s.addShape(pres.ShapeType.ellipse, { x: OX + 0.86, y: Y + 0.58, w: 0.17, h: 0.17, ...g, objectName: "mini out pipe b" });
-    text({ x: OX, y: Y + 0.85, w: OW, h: H - 0.95 }, "Verified designs", "up to ten, ranked by installed cost", C.text1, INK2, "output");
-    arrow(VX + VW, OX, MID, "to output");
-
-    // feedback
-    const FY = Y + H + 0.3;
-    s.addShape(pres.ShapeType.line, { x: VX + VW / 2, y: Y + H, w: 0, h: 0.3, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash" }, objectName: "feedback down" });
-    s.addShape(pres.ShapeType.line, { x: BX + BW / 2, y: FY, w: VX + VW / 2 - BX - BW / 2, h: 0, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash" }, objectName: "feedback across" });
-    s.addShape(pres.ShapeType.line, { x: BX + BW / 2, y: Y + H, w: 0, h: 0.3, line: { color: THEME.colors.accent6, width: 1.25, dashType: "dash", beginArrowType: "triangle" }, objectName: "feedback up" });
-    label(BX + BW / 2 + 0.2, FY + 0.03, VX + VW / 2 - BX - BW / 2 - 0.4, "pass or fail, fed back", "feedback", THEME.colors.accent6);
-
-    // legend
-    const legend = [["Input", C.background2, INK2], ["Rules", C.background2, THEME.colors.dk2], ["Approach (black box)", THEME.colors.dk1, THEME.colors.dk1],
-                    ["Verifier", "EAF5EE", THEME.colors.accent6], ["Output", C.background2, THEME.colors.dk1]];
-    let lx = 0.6;
-    const LY = 5.05;
-    legend.forEach(([t, fill, line]) => {
-      s.addShape(pres.ShapeType.roundRect, { x: lx, y: LY + 0.04, w: 0.3, h: 0.2, rectRadius: 0.04, fill: { color: fill }, line: { color: line, width: 1 }, objectName: "legend swatch " + t });
-      s.addText(t, { x: lx + 0.38, y: LY, w: 2.2, h: 0.28, fontSize: 11.5, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "legend " + t });
-      lx += 0.38 + t.length * 0.085 + 0.55;
-    });
-
-    // what any approach needs
-    s.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 5.55, w: 12.13, h: 1.0, rectRadius: 0.07, fill: { color: C.text2 }, objectName: "needs band" });
-    s.addText([
-      { text: "Whatever sits in the black box, it needs ", options: { color: THEME.colors.lt1 } },
-      { text: "problems to learn from", options: { bold: true, color: THEME.colors.lt1 } }, { text: ", ", options: { color: THEME.colors.lt1 } },
-      { text: "a fixed set to compare on", options: { bold: true, color: THEME.colors.lt1 } }, { text: " and ", options: { color: THEME.colors.lt1 } },
-      { text: "problems that look like practice", options: { bold: true, color: THEME.colors.lt1 } }, { text: ".", options: { color: THEME.colors.lt1 } },
-    ], { x: 0.9, y: 5.55, w: 11.5, h: 1.0, fontSize: 16, valign: "middle", margin: 0, isTextBox: true, objectName: "needs text" });
-    s.addNotes("What would a method look like? The context and a catalog go in. Rules say which actions are legal; each action adds parts. In the middle, a black box chooses the next action: a rule table, a search, or a learned policy. A verifier checks every finished design and feeds pass or fail back. Whatever sits in the black box, it needs problems to learn from, a fixed set to compare on, and problems that look like practice. (1:45)");
+    // where the contexts come from
+    const card = (x, head, tag, tagColor, body, name) => {
+      s.addShape(pres.ShapeType.roundRect, { x, y: BY, w: BW2, h: BH, rectRadius: 0.07, fill: { color: C.background2 }, line: { color: tagColor, width: 1.5 }, objectName: "card " + name });
+      s.addText(head, { x: x + 0.25, y: BY + 0.12, w: 3.2, h: 0.36, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "card head " + name });
+      s.addShape(pres.ShapeType.roundRect, { x: x + BW2 - 1.85, y: BY + 0.15, w: 1.6, h: 0.3, rectRadius: 0.15, fill: { color: tagColor }, objectName: "card tag " + name });
+      s.addText(tag, { x: x + BW2 - 1.85, y: BY + 0.15, w: 1.6, h: 0.3, fontSize: 10.5, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "card tag text " + name });
+      s.addText(body, { x: x + 0.25, y: BY + 1.3, w: BW2 - 0.5, h: BH - 1.4, fontSize: 11.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "card body " + name });
+    };
+    card(0.6, "Real projects", "too few", THEME.colors.accent2,
+      "A handful of sections, from one project with one trade mix, and confidential. Not enough to practise on, and a method tuned on them only fits that project.", "real");
+    // six near-identical thumbnails, with empty slots after them
+    for (let i = 0; i < 6; i++) miniCtx(s, 0.6 + 0.3 + i * 0.62, BY + 0.62, 0.5, 0.42, 3, ["pipe"], THEME.colors.accent2, "real " + i);
+    for (let i = 6; i < 9; i++) s.addShape(pres.ShapeType.rect, { x: 0.6 + 0.25 + i * 0.62, y: BY + 0.57, w: 0.6, h: 0.52, fill: { type: "none" }, line: { color: MUTED, width: 0.5, dashType: "dash" }, objectName: "empty slot " + i });
+    card(GX, "CrossMEP generates them", "unlimited", C.accent1,
+      "As many contexts as a method needs: every tier from one to eight elements, kinds and surfaces varied, a new seed a new set. And one fixed benchmark, never trained on, to judge every method on.", "generated");
+    const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
+    for (let n = 1; n <= 8; n++) miniCtx(s, GX + 0.3 + (n - 1) * 0.68, BY + 0.62, 0.56, 0.42, n, rows[n % 3], C.accent1, "gen " + n, n % 4 === 3);
+    s.addNotes("How would a machine learn this? Give it a context, let it propose a design, check the design, and feed pass or fail back. Round after round, the method improves. Each round needs a new context. Real projects give a handful, from one project, under NDA: too few to practise on, and a method tuned on them only fits that project. So we generate the contexts, as many as a method needs, and fix one benchmark to judge every method on. (1:45)");
   }
 
   // ========================================================================= 6 gap + at a glance
@@ -573,30 +582,7 @@ async function main() {
       s.addText("kinds, trades, surface", { x: x - 0.03, y: ax.y, w: 0.5, h: ax.h, fontSize: 10, color: INK2, align: "center", valign: "middle", rotate: 270, margin: 0, isTextBox: true, objectName: "y label " + name });
       return ax;
     };
-    // a thumbnail of one context: a slab (or wall) with n elements hanging from it
-    const mini = (x, y, w, h, n, kinds, color, name, wall = false) => {
-      const g = { fill: { color }, line: { color: THEME.colors.lt1, width: 0.4 } };
-      s.addShape(pres.ShapeType.rect, { x: x - 0.05, y: y - 0.05, w: w + 0.1, h: h + 0.1, fill: { color: THEME.colors.lt1 }, line: { color: MUTED, width: 0.5 }, objectName: `mini card ${name}` });
-      if (wall) {
-        s.addShape(pres.ShapeType.rect, { x, y, w: 0.035, h, fill: { color: INK2 }, objectName: `mini wall ${name}` });
-        const step = h / (n + 1), f = Math.min(1, step / 0.13);
-        for (let i = 0; i < n; i++) {
-          const cy = y + step * (i + 1), k = kinds[i % kinds.length];
-          if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: x + 0.09, y: cy - 0.045 * f, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
-          else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.05 * f, w: 0.15 * f, h: 0.1 * f, ...g, objectName: `mini ${name} ${i}` });
-          else s.addShape(pres.ShapeType.rect, { x: x + 0.08, y: cy - 0.025 * f, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
-        }
-        return;
-      }
-      s.addShape(pres.ShapeType.rect, { x, y, w, h: 0.035, fill: { color: INK2 }, objectName: `mini slab ${name}` });
-      const step = w / (n + 1), f = Math.min(1, step / 0.17);
-      for (let i = 0; i < n; i++) {
-        const cx = x + step * (i + 1), k = kinds[i % kinds.length];
-        if (k === "pipe") s.addShape(pres.ShapeType.ellipse, { x: cx - 0.045 * f, y: y + 0.08, w: 0.09 * f, h: 0.09 * f, ...g, objectName: `mini ${name} ${i}` });
-        else if (k === "duct") s.addShape(pres.ShapeType.rect, { x: cx - 0.075 * f, y: y + 0.07, w: 0.15 * f, h: 0.11 * f, ...g, objectName: `mini ${name} ${i}` });
-        else s.addShape(pres.ShapeType.rect, { x: cx - 0.06 * f, y: y + 0.1, w: 0.12 * f, h: 0.05 * f, ...g, objectName: `mini ${name} ${i}` });
-      }
-    };
+    const mini = (...a) => miniCtx(s, ...a);
     const left = plot(0.6, 1.5, 5.7, 2.3, "The real designs we had", "few · one project · one trade mix", "real");
     // a handful of near-identical sections in one corner
     [[0.03, 0.05], [0.14, 0.12], [0.25, 0.04], [0.06, 0.4], [0.2, 0.36], [0.33, 0.3]].forEach(([u, v], i) =>
@@ -706,7 +692,7 @@ async function main() {
     s.addText([{ text: "Not given, by design: ", options: { bold: true, color: THEME.colors.lt1 } },
                { text: "channel, rods, clamps, anchors. No correct answer either: a feasible support depends on the catalog you build from.", options: { color: ICE } }],
       { x: RX + 0.95, y: NY, w: RW - 1.15, h: 6.64 - NY, fontSize: 12, valign: "middle", margin: 0, isTextBox: true, objectName: "absent text" });
-    s.addNotes("Here is one context: a two-dimensional section at one support. Each element has its kind, service and trade, its size, insulation and position, and its load: weight per metre times the span it was sized at. Add the surface, slab or wall, and that is all. No channel, no rods, no anchors, no correct answer, because a feasible support depends on the catalog you build from. (2:45)");
+    s.addNotes("Here is one context: a two-dimensional section at one support. Each element has its kind, service and trade, its size, insulation and position, and its load: weight per metre times the span it was sized at. Add the surface, slab or wall, and that is all. No channel, no rods, no anchors, no correct answer, because a feasible support depends on the catalog you build from. (2:50)");
   }
 
   // ========================================================================= 8 generation
@@ -825,7 +811,7 @@ async function main() {
         title: "Tighter with the tier: median closest clear gap (mm)", objectName: "gap chart" }));
     caption(s, `A check that the dataset behaves as designed, not a discovery: the tier fixes the element count; load and congestion follow from the rules. Within a tier, kinds, trades, surfaces and stacking all vary. Load rises with the tier (rank correlation ${rho(TR.benchmark.load_kN.spearman)} on the benchmark, 125 contexts per tier; the population medians rise at every step) and the closest gap narrows at every step (${rho(TR.benchmark.clear_gap_mm.spearman)}); intervals are bootstrapped over contexts.`,
       { x: 0.6, y: 6.3, w: 12.13, h: 0.55 }, "experiment 1 caption", 11);
-    s.addNotes("Three analyses. The first is a design check. Each tier adds one element: C1 is a single service, the most common support in any building; C8 has eight. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:00)");
+    s.addNotes("Three analyses. The first is a design check. Each tier adds one element: C1 is a single service, the most common support in any building; C8 has eight. Within a tier everything else varies, so the element count is the one controlled axis. Load at the support rises with the tier, from about 0.3 to 2.0 kilonewtons, and the closest gap narrows at every step, from 130 to about 51 millimetres. The dataset behaves as designed. (4:05)");
   }
 
   // ========================================================================= 11 experiment 2
