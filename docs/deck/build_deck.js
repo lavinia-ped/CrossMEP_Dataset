@@ -365,7 +365,7 @@ async function main() {
     const RED = "C00000";
     const orange = { color: RED, width: 1.5 };
     s.addShape(pres.ShapeType.rect, { ...z, fill: { type: "none" }, line: orange, objectName: "zoom box" });
-    s.addShape(pres.ShapeType.line, { x: z.x + z.w, y: z.y, w: ins.x - z.x - z.w, h: ins.y - z.y, line: orange, flipV: ins.y < z.y, objectName: "zoom line top" });
+    s.addShape(pres.ShapeType.line, { x: z.x + z.w, y: Math.min(z.y, ins.y), w: ins.x - z.x - z.w, h: Math.abs(ins.y - z.y), line: orange, flipV: ins.y < z.y, objectName: "zoom line top" });
     s.addShape(pres.ShapeType.line, { x: z.x + z.w, y: z.y + z.h, w: ins.x - z.x - z.w, h: ins.y + ins.h - z.y - z.h, line: orange, objectName: "zoom line bottom" });
     s.addImage({ path: path.join(FIG, "isarc_ssa.jpg"), ...ins, objectName: "one assembly" });
     s.addShape(pres.ShapeType.rect, { ...ins, fill: { type: "none" }, line: orange, objectName: "inset frame" });
@@ -1029,11 +1029,32 @@ async function applyThemeColors(file, theme) {
   }
   xml = xml.replace(/<a:clrScheme name="[^"]*"/, `<a:clrScheme name="${theme.name}"`);
   zip.file(part, xml);
-  // pptxgenjs gives its slide-number placeholder a fixed id (25) and tables an id of their own, so slides with
-  // many shapes carry duplicate ids, which makes PowerPoint offer to repair the file. Renumber every shape id.
-  for (const name of Object.keys(zip.files).filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n))) {
+  // Repairs of what pptxgenjs writes, each a schema violation PowerPoint answers with its repair prompt
+  // (checked with the OOXML schemas, scripts/validate_pptx: Apache POI XMLBeans):
+  //  - the slide-number placeholder has a fixed id (25) and tables an id of their own, so shapes carry duplicate ids;
+  //  - a paragraph of several runs repeats <a:pPr> before every run, where only runs may follow a run;
+  //  - a shape may be written with a negative extent (caught here, fixed at the call);
+  //  - the notes-master list is written after the slide list in presentation.xml;
+  //  - bar charts carry a third <c:axId> without a series axis, and tickLblSkip follows noMultiLvlLbl.
+  for (const name of Object.keys(zip.files).filter((n) => /^ppt\/(slides|slideLayouts|slideMasters|notesSlides)\/.*\.xml$/.test(n))) {
     let n = 1;
-    const x = (await zip.file(name).async("string")).replace(/<p:cNvPr id="\d+"/g, () => `<p:cNvPr id="${n++}"`);
+    let x = await zip.file(name).async("string");
+    if (/^ppt\/slides\//.test(name)) x = x.replace(/<p:cNvPr id="\d+"/g, () => `<p:cNvPr id="${n++}"`);
+    x = x.replace(/<\/a:r>\s*<a:pPr\b[^>]*\/>/g, "</a:r>").replace(/<\/a:r>\s*<a:pPr\b[^>]*>[\s\S]*?<\/a:pPr>/g, "</a:r>");
+    const neg = x.match(/<a:ext cx="-?\d+" cy="-?\d+"\/>/g)?.filter((e) => e.includes('"-'));
+    if (neg && neg.length) throw new Error(`${name}: negative extent ${neg[0]}`);
+    zip.file(name, x);
+  }
+  {
+    let x = await zip.file("ppt/presentation.xml").async("string");
+    const m = x.match(/<p:notesMasterIdLst>[\s\S]*?<\/p:notesMasterIdLst>/);
+    if (m) x = x.replace(m[0], "").replace("</p:sldMasterIdLst>", "</p:sldMasterIdLst>" + m[0]);
+    zip.file("ppt/presentation.xml", x);
+  }
+  for (const name of Object.keys(zip.files).filter((n) => /^ppt\/charts\/chart\d+\.xml$/.test(n))) {
+    let x = await zip.file(name).async("string");
+    if (!x.includes("<c:serAx>")) x = x.replace(/(<c:barChart>[\s\S]*?<c:axId val="\d+"\/><c:axId val="\d+"\/>)<c:axId val="\d+"\/>/, "$1");
+    x = x.replace(/(<c:noMultiLvlLbl val="\d"\/>)\s*(<c:tickLblSkip val="\d+"\/>)?\s*(<c:tickMarkSkip val="\d+"\/>)?/g, (m0, a, b, c) => (b || "") + (c || "") + a);
     zip.file(name, x);
   }
   // write the package back without directory entries and with the content types first, as PowerPoint does
