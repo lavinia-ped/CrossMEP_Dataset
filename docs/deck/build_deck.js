@@ -386,7 +386,7 @@ async function main() {
   // ========================================================================= 3 the problem: one cross-section in, verified support designs out (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("A support designer turns one cross-section into a set of verified support assemblies", { placeholder: "title" });
+    s.addText("An SSA designer turns one MEP cross-section into a feasible structural support assembly", { placeholder: "title" });
     const PY = 2.0, PH = 3.0, PW = 5.3, LX = 0.6, RX = 7.43;
     const head = (x, t, name) => s.addText(t, { x, y: 1.45, w: PW, h: 0.3, fontSize: 16, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "head " + name });
     const frame = (x, y, name, line = { color: GRID, width: 1 }) =>
@@ -457,7 +457,7 @@ async function main() {
   // ========================================================================= 4 the synthesis problem (from the ISARC 2026 talk)
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("Choosing the assembly from a catalog is still done by hand, one section at a time", { placeholder: "title" });
+    s.addText([{ text: "Existing tools coordinate and verify modular support assemblies, but their synthesis remains manual because it relies on tacit engineering expertise and complex catalog-driven rules", options: { fontSize: 22, bold: true } }], { placeholder: "title" });
     const img = fitImage(s, path.join(FIG, "paper_fig1_route_to_section.png"), { x: 0.6, y: 1.5, w: 7.4, h: 2.75 }, "route to section");
     caption(s, "Design starts after coordination [3]: at each hanger the designer works from the section across the run, not from the whole model [2].",
       { x: img.x, y: img.y + img.h + 0.1, w: img.w, h: 0.5 }, "fig1 caption");
