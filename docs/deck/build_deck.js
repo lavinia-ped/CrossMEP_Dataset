@@ -357,12 +357,13 @@ async function main() {
   pres.addSection({ title: "Motivation" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText([{ text: "In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort", options: { fontSize: 22, bold: true } }], { placeholder: "title" });
+    s.addText([{ text: "The synthesis of structural support assemblies (SSAs) takes 25% of MEP design effort because every assembly must be designed individually", options: { fontSize: 22, bold: true } }], { placeholder: "title" });
     const b = { x: 0.6, y: 1.45, w: 6.6, h: 6.6 * 720 / 1280 };
     s.addImage({ path: path.join(FIG, "isarc_building.jpg"), ...b, objectName: "hospital model" });
     const z = { x: b.x + 0.4567 * b.w, y: b.y + 0.4318 * b.h, w: 0.0982 * b.w, h: 0.1396 * b.h };
     const ins = { x: 7.6, y: 1.95, w: 5.13, h: 5.13 * 728 / 1268 };
-    const orange = { color: THEME.colors.accent2, width: 1.5 };
+    const RED = "C00000";
+    const orange = { color: RED, width: 1.5 };
     s.addShape(pres.ShapeType.rect, { ...z, fill: { type: "none" }, line: orange, objectName: "zoom box" });
     s.addShape(pres.ShapeType.line, { x: z.x + z.w, y: z.y, w: ins.x - z.x - z.w, h: ins.y - z.y, line: orange, flipV: ins.y < z.y, objectName: "zoom line top" });
     s.addShape(pres.ShapeType.line, { x: z.x + z.w, y: z.y + z.h, w: ins.x - z.x - z.w, h: ins.y + ins.h - z.y - z.h, line: orange, objectName: "zoom line bottom" });
@@ -370,15 +371,18 @@ async function main() {
     s.addShape(pres.ShapeType.rect, { ...ins, fill: { type: "none" }, line: orange, objectName: "inset frame" });
     s.addText("1 unit = 1 structural support assembly (SSA)", { x: ins.x, y: 1.45, w: ins.w, h: 0.45, fontSize: 15, bold: true, color: C.text1, valign: "bottom", margin: 0, isTextBox: true, objectName: "inset label" });
     const tw = (12.13 - 2 * 0.2) / 3;
-    const stat = async (x, icon, big, label, name) => {
+    const stat = async (x, icon, big, lead, label, name) => {
       panel(s, x, 5.35, tw, 1.3, "tile " + name);
-      await iconCircle(s, x + 0.25, 5.35 + 0.33, 0.64, icon, "", name);
-      s.addText(big, { x: x + 1.1, y: 5.42, w: tw - 1.3, h: 0.6, fontSize: 28, bold: true, color: C.accent1, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + name });
-      s.addText(label, { x: x + 1.1, y: 6.02, w: tw - 1.3, h: 0.58, fontSize: 12, color: INK2, valign: "top", margin: 0, isTextBox: true, objectName: "label " + name });
+      s.addShape(pres.ShapeType.ellipse, { x: x + 0.25, y: 5.35 + 0.33, w: 0.64, h: 0.64, fill: { color: RED }, objectName: "icon ring " + name });
+      const d = await iconData(icon, THEME.colors.lt1);
+      if (d) s.addImage({ data: d, x: x + 0.25 + 0.64 * 0.21, y: 5.35 + 0.33 + 0.64 * 0.21, w: 0.64 * 0.58, h: 0.64 * 0.58, objectName: "icon " + name });
+      s.addText(big, { x: x + 1.1, y: 5.42, w: tw - 1.3, h: 0.6, fontSize: 28, bold: true, color: RED, valign: "middle", margin: 0, isTextBox: true, objectName: "value " + name });
+      s.addText([{ text: lead + " ", options: { bold: true, color: RED } }, { text: label, options: { color: INK2 } }],
+        { x: x + 1.1, y: 6.02, w: tw - 1.3, h: 0.58, fontSize: 12, valign: "top", margin: 0, isTextBox: true, objectName: "label " + name });
     };
-    await stat(0.6, "FiLayers", "≈ 10,000", "support assemblies in one 200,000 sq ft hospital", "assemblies");
-    await stat(0.6 + tw + 0.2, "FiClock", "20 min – 2 h", "of engineering for each assembly, designed one by one", "time");
-    await stat(0.6 + 2 * (tw + 0.2), "FiPieChart", "≈ ¼", "of MEP design effort; on the order of $600K per project", "effort");
+    await stat(0.6, "FiLayers", "≈ 10,000", "support assemblies", "in one 200,000 sq ft hospital project", "assemblies");
+    await stat(0.6 + tw + 0.2, "FiClock", "20 min – 2 h", "of engineering time", "for each assembly, designed one by one", "time");
+    await stat(0.6 + 2 * (tw + 0.2), "FiDollarSign", "≈ $600k", "of engineering cost", "cumulative per hospital project", "effort");
     refs(s, [1], "Approximate practitioner estimates [1].");
     s.addNotes("Here is the scale. This is a hospital, and every red mark is a place where services hang from the structure. A modular support groups several services on one prefabricated frame: a structural support assembly. A hospital this size needs about ten thousand of them, each designed individually, twenty minutes to two hours apiece. Add it up and it is about a quarter of the MEP design effort. Practitioner estimates, but these are the numbers people live with. (0:45)");
   }
@@ -413,21 +417,17 @@ async function main() {
     };
 
     // in: the context
-    head(LX, "In: one cross-section = a context", "in");
     frame(LX, PY, "in");
     ceiling(LX, "in");
     const ybL = services(LX, "in");
     s.addText("Pipes", { x: LX + 2.35, y: ybL + 0.08, w: 1.3, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "pipes label" });
     s.addText("Cable tray", { x: LX + 3.6, y: ybL + 0.08, w: 1.2, h: 0.3, fontSize: 12, color: C.text1, align: "center", margin: 0, isTextBox: true, objectName: "tray label" });
-    caption(s, "Structure: ceiling, floor or wall, with anchor zones\nServices: trade, position, size and weight per metre", { x: LX, y: PY + PH + 0.1, w: PW, h: 0.55 }, "in caption", 12);
 
     // design
     s.addShape(pres.ShapeType.line, { x: LX + PW + 0.2, y: PY + PH / 2, w: RX - LX - PW - 0.4, h: 0, line: { color: INK2, width: 1.5, endArrowType: "triangle" }, objectName: "design arrow" });
     s.addText("design", { x: LX + PW, y: PY + PH / 2 - 0.4, w: RX - LX - PW, h: 0.3, fontSize: 11.5, color: INK2, align: "center", margin: 0, isTextBox: true, objectName: "design label" });
 
     // out: the assemblies, a stack of verified designs
-    head(RX, "Out: verified support designs = assemblies", "out");
-    [0.2, 0.1].forEach((o, i) => frame(RX + o, PY - o, "out back " + i));
     frame(RX, PY, "out", { color: INK2, width: 0.75 });
     const cl = ceiling(RX, "out");
     const ybR = services(RX, "out", -0.15);
@@ -439,18 +439,8 @@ async function main() {
     s.addShape(pres.ShapeType.rect, { ...bar, fill: { color: THEME.colors.dk2 }, objectName: "trapeze bar" });
     s.addText("Rod trapeze", { x: RX + 0.25, y: PY + PH - 0.5, w: 2.5, h: 0.35, fontSize: 13, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "assembly name" });
     s.addText("✓ verified", { x: RX + PW - 2.0, y: PY + PH - 0.5, w: 1.75, h: 0.35, fontSize: 13, bold: true, color: THEME.colors.accent6, align: "right", valign: "middle", margin: 0, isTextBox: true, objectName: "verified" });
-    caption(s, "Up to ten designs, ranked by installed cost\nEach checked: statics, anchors, connectors, buildability", { x: RX, y: PY + PH + 0.1, w: PW, h: 0.55 }, "out caption", 12);
 
     // the two words the talk relies on
-    const BY = 5.75, BH = 0.85, BW = (12.13 - 0.2) / 2;
-    const gloss = (x, head, body, name) => {
-      panel(s, x, BY, BW, BH, "gloss " + name);
-      s.addText([{ text: head, options: { bold: true, color: C.accent1 } }, { text: body, options: { color: C.text1 } }],
-        { x: x + 0.25, y: BY, w: BW - 0.5, h: BH, fontSize: 13, valign: "middle", margin: 0, isTextBox: true, objectName: "gloss text " + name });
-    };
-    gloss(0.6, "Context, the brief: ", "the section at one hanger, its structure and services. This is what CrossMEP contains.", "context");
-    gloss(0.6 + BW + 0.2, "Assembly, the answer: ", "catalog parts that carry the services to the structure. Not in CrossMEP: a method produces it.", "assembly");
-    refs(s, [1], "The synthesis problem as defined at ISARC 2026 [1].");
     s.addNotes("So what exactly is designed, and from what? In: one cross-section at a hanger. The structure it hangs from, and the services crossing it, each with its trade, position, size and weight per metre. We call that the context. It is the brief. Out: assemblies of catalog parts that carry those services to the structure, checked for statics, anchors, connectors and buildability, ranked by cost. That is the answer. Hold on to these two words, because CrossMEP is contexts only. It contains no assemblies. (1:15)");
   }
 
@@ -537,28 +527,26 @@ async function main() {
     s.addShape(pres.ShapeType.line, { x: mxc, y: FY, w: 0, h: NY - FY, line: { color: THEME.colors.accent6, width: 1.5, dashType: "dash", endArrowType: "triangle" }, objectName: "feedback down" });
     label(mxc + 0.3, FY - 0.3, kxc - mxc - 0.6, "pass or fail is fed back, and the method improves", "feedback", THEME.colors.accent6, 11);
 
-    // the contexts feed the loop: an elbow from the CrossMEP card up into the context box
-    const BY = 4.45, BH = 2.1, BW2 = 5.9, GX = 0.6 + BW2 + 0.33, EY = 3.9;
-    const cxc = CX + CW / 2, gxc = GX + 1.1;
-    s.addShape(pres.ShapeType.line, { x: gxc, y: EY, w: 0, h: BY - EY, line: { color: C.accent1, width: 1.5 }, objectName: "feed up" });
-    s.addShape(pres.ShapeType.line, { x: cxc, y: EY, w: gxc - cxc, h: 0, line: { color: C.accent1, width: 1.5 }, objectName: "feed across" });
-    s.addShape(pres.ShapeType.line, { x: cxc, y: NY + NH, w: 0, h: EY - NY - NH, line: { color: C.accent1, width: 1.5, beginArrowType: "triangle" }, objectName: "feed into context" });
-    label(cxc + 0.3, EY - 0.3, gxc - cxc - 0.6, "a new context every round: thousands of them, each with the brief and no answer", "feed", C.accent1, 11);
+    // the two sources sit in one frame, called out from the context box with dotted lines
+    const BY = 4.45, BH = 2.1, BW2 = 5.83, GX = 6.83;
+    s.addShape(pres.ShapeType.roundRect, { x: 0.6, y: 4.38, w: 12.21, h: 2.24, rectRadius: 0.07, fill: { color: C.background2 }, line: { color: C.accent1, width: 1.5 }, objectName: "sources frame" });
+    s.addShape(pres.ShapeType.line, { x: CX, y: NY + NH, w: 0, h: 4.38 - NY - NH, line: { color: C.accent1, width: 1.5, dashType: "sysDot" }, objectName: "callout left" });
+    s.addShape(pres.ShapeType.line, { x: CX + CW, y: NY + NH, w: 12.81 - CX - CW, h: 4.38 - NY - NH, line: { color: C.accent1, width: 1.5, dashType: "sysDot" }, objectName: "callout right" });
 
     // where the contexts come from
-    const card = (x, head, tag, tagColor, body, name) => {
-      s.addShape(pres.ShapeType.roundRect, { x, y: BY, w: BW2, h: BH, rectRadius: 0.07, fill: { color: C.background2 }, line: { color: tagColor, width: 1.5 }, objectName: "card " + name });
+    const card = (x, head, tag, tagColor, body, name, tagW = 1.6) => {
+      s.addShape(pres.ShapeType.roundRect, { x, y: BY, w: BW2, h: BH, rectRadius: 0.07, fill: { color: THEME.colors.lt1 }, line: { color: tagColor, width: 1.5 }, objectName: "card " + name });
       s.addText(head, { x: x + 0.25, y: BY + 0.12, w: 3.2, h: 0.36, fontSize: 15, bold: true, color: C.text1, valign: "middle", margin: 0, isTextBox: true, objectName: "card head " + name });
-      s.addShape(pres.ShapeType.roundRect, { x: x + BW2 - 1.85, y: BY + 0.15, w: 1.6, h: 0.3, rectRadius: 0.15, fill: { color: tagColor }, objectName: "card tag " + name });
-      s.addText(tag, { x: x + BW2 - 1.85, y: BY + 0.15, w: 1.6, h: 0.3, fontSize: 10.5, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "card tag text " + name });
+      s.addShape(pres.ShapeType.roundRect, { x: x + BW2 - tagW - 0.25, y: BY + 0.15, w: tagW, h: 0.3, rectRadius: 0.15, fill: { color: tagColor }, objectName: "card tag " + name });
+      s.addText(tag, { x: x + BW2 - tagW - 0.25, y: BY + 0.15, w: tagW, h: 0.3, fontSize: 10.5, bold: true, color: THEME.colors.lt1, align: "center", valign: "middle", margin: 0, isTextBox: true, objectName: "card tag text " + name });
       s.addText(body, { x: x + 0.25, y: BY + 1.3, w: BW2 - 0.5, h: BH - 1.4, fontSize: 11.5, color: C.text1, valign: "top", margin: 0, isTextBox: true, objectName: "card body " + name });
     };
-    card(0.6, "Real projects", "too few", THEME.colors.accent2,
-      "A handful of sections, from one project with one trade mix, and confidential. Not enough to practise on, and a method tuned on them only fits that project.", "real");
+    card(0.67, "Real projects", "too few, not diverse enough", THEME.colors.accent2,
+      "A handful of sections, from one project with one trade mix, and confidential. Not enough to practise on, and a method tuned on them only fits that project.", "real", 2.3);
     // six near-identical thumbnails, with empty slots after them
-    for (let i = 0; i < 6; i++) miniCtx(s, 0.6 + 0.3 + i * 0.62, BY + 0.62, 0.5, 0.42, 3, ["pipe"], THEME.colors.accent2, "real " + i);
-    for (let i = 6; i < 9; i++) s.addShape(pres.ShapeType.rect, { x: 0.6 + 0.25 + i * 0.62, y: BY + 0.57, w: 0.6, h: 0.52, fill: { type: "none" }, line: { color: MUTED, width: 0.5, dashType: "dash" }, objectName: "empty slot " + i });
-    card(GX, "CrossMEP generates them", "unlimited", C.accent1,
+    for (let i = 0; i < 6; i++) miniCtx(s, 0.67 + 0.3 + i * 0.62, BY + 0.62, 0.5, 0.42, 3, ["pipe"], THEME.colors.accent2, "real " + i);
+    for (let i = 6; i < 9; i++) s.addShape(pres.ShapeType.rect, { x: 0.67 + 0.25 + i * 0.62, y: BY + 0.57, w: 0.6, h: 0.52, fill: { type: "none" }, line: { color: MUTED, width: 0.5, dashType: "dash" }, objectName: "empty slot " + i });
+    card(GX, "CrossMEP generates them", "unlimited, diverse", C.accent1,
       "As many contexts as a method needs: every tier from one to eight elements, kinds and surfaces varied, a new seed a new set. And one fixed benchmark, never trained on, to judge every method on.", "generated");
     const rows = [["pipe"], ["duct", "pipe", "tray", "pipe"], ["pipe", "tray", "pipe"]];
     for (let n = 1; n <= 8; n++) miniCtx(s, GX + 0.3 + (n - 1) * 0.68, BY + 0.62, 0.56, 0.42, n, rows[n % 3], C.accent1, "gen " + n, n % 4 === 3);
@@ -1031,7 +1019,7 @@ async function main() {
 // cannot), so scheme colours resolve to this palette instead of Office's stock one.
 async function applyThemeColors(file, theme) {
   const JSZip = require("jszip");
-  const zip = await JSZip.loadAsync(fs.readFileSync(file));
+  const zip = await JSZip.loadAsync(fs.readFileSync(file), { createFolders: false });
   const part = "ppt/theme/theme1.xml";
   let xml = await zip.file(part).async("string");
   for (const [k, v] of Object.entries(theme.colors)) {
@@ -1041,7 +1029,18 @@ async function applyThemeColors(file, theme) {
   }
   xml = xml.replace(/<a:clrScheme name="[^"]*"/, `<a:clrScheme name="${theme.name}"`);
   zip.file(part, xml);
-  fs.writeFileSync(file, await zip.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
+  // pptxgenjs gives its slide-number placeholder a fixed id (25) and tables an id of their own, so slides with
+  // many shapes carry duplicate ids, which makes PowerPoint offer to repair the file. Renumber every shape id.
+  for (const name of Object.keys(zip.files).filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n))) {
+    let n = 1;
+    const x = (await zip.file(name).async("string")).replace(/<p:cNvPr id="\d+"/g, () => `<p:cNvPr id="${n++}"`);
+    zip.file(name, x);
+  }
+  // write the package back without directory entries and with the content types first, as PowerPoint does
+  const out = new JSZip();
+  const names = Object.keys(zip.files).filter((n) => !zip.files[n].dir);
+  for (const name of ["[Content_Types].xml", ...names.filter((n) => n !== "[Content_Types].xml")]) out.file(name, await zip.file(name).async("nodebuffer"), { createFolders: false });
+  fs.writeFileSync(file, await out.generateAsync({ type: "nodebuffer", compression: "DEFLATE" }));
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
