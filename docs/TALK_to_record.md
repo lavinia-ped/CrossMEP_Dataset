@@ -1,6 +1,6 @@
 # CrossMEP talk: script to record
 
-Read-aloud text only, one block per slide, in the order of the slides. About 1,100 words: roughly 7 minutes 30 seconds at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
+Read-aloud text only, one block per slide, in the order of the slides. About 1,100 words: roughly 7 minutes 40 seconds at an easy pace, plus about 35 seconds on slide 13 while you click through the studio.
 
 **Recording tips**
 
@@ -42,13 +42,13 @@ coordination. Tools coordinate and check; they do not choose the layout or the p
 Three reasons: the topology comes from experience, the rules interact across thousands of
 combinations, and catalogs change faster than rule systems can be rewritten.
 
-## Slide 5, Any method, learned or not, needs problems to learn from and a fixed benchmark to be judged on (starts at 1:45)
+## Slide 5, A learning method needs thousands of contexts to practise on, and real projects give too few, so we generate them (starts at 1:45)
 
-What would a method look like? The context and a catalog go in. Rules say which actions
-are legal; each action adds parts. In the middle, a black box chooses the next action: a
-rule table, a search, or a learned policy. A verifier checks every finished design and
-feeds pass or fail back. Whatever sits in the black box, it needs problems to learn from,
-a fixed set to compare on, and problems that look like practice.
+How would a machine learn this? Give it a context, let it propose a design, check the
+design, and feed pass or fail back. Round after round, the method improves. Each round
+needs a new context. Real projects give a handful, from one project, under NDA: too few to
+practise on, and a method tuned on them only fits that project. So we generate the
+contexts, as many as a method needs, and fix one benchmark to judge every method on.
 
 ## Slide 6, The real designs we had sat in one corner of the design space, so we generate the whole of it (starts at 2:20)
 
@@ -58,7 +58,7 @@ CrossMEP fills the space by construction, without limit: a new seed is a new set
 over the tiers or any mix you ask for. Seven thousand contexts are the release, not the
 ceiling.
 
-## Slide 7, One context is exactly what a support designer receives at one hanger, without the answer (starts at 2:45)
+## Slide 7, One context is exactly what a support designer receives at one hanger, without the answer (starts at 2:50)
 
 Here is one context: a two-dimensional section at one support. Each element has its kind,
 service and trade, its size, insulation and position, and its load: weight per metre times
@@ -81,7 +81,7 @@ ducts, IEC for conduits and trays, ASME for spans, GEG for insulation. Spacing f
 measured open buildings. And a few choices of our own, like the trade mix, labelled as
 choices.
 
-## Slide 10, The tier fixes the element count, and load and congestion grow with it as the rules intend (starts at 4:00)
+## Slide 10, The tier fixes the element count, and load and congestion grow with it as the rules intend (starts at 4:05)
 
 Three analyses. The first is a design check. Each tier adds one element: C1 is a single
 service, the most common support in any building; C8 has eight. Within a tier everything
