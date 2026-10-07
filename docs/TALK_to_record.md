@@ -30,7 +30,7 @@ designed individually, twenty minutes to two hours apiece. Add it up and it is a
 quarter of the MEP design effort. Practitioner estimates, but these are the numbers people
 live with.
 
-## Slide 3, A support designer turns one cross-section into a set of verified support assemblies (starts at 1:15)
+## Slide 3, An SSA designer turns one MEP cross-section into a feasible structural support assembly (starts at 1:15)
 
 So what exactly is designed, and from what? In: one cross-section at a hanger. The
 structure it hangs from, and the services crossing it, each with its trade, position, size
@@ -39,7 +39,7 @@ catalog parts that carry those services to the structure, checked for statics, a
 connectors and buildability, ranked by cost. That is the answer. Hold on to these two
 words, because CrossMEP is contexts only. It contains no assemblies.
 
-## Slide 4, Choosing the assembly from a catalog is still done by hand, one section at a time (starts at 1:50)
+## Slide 4, Existing tools coordinate and verify modular support assemblies, but their synthesis remains manual because it relies on tacit engineering expertise and complex catalog-driven rules (starts at 1:50)
 
 Why is this still done by hand? A designer works from one section at each hanger, after
 coordination. Tools coordinate the model and check a design, but they do not choose the
