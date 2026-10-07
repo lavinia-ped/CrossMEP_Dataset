@@ -332,7 +332,7 @@ async function main() {
   pres.addSection({ title: "Motivation" });
   {
     const s = addSlide({ masterName: "CONTENT", sectionTitle: "Motivation" });
-    s.addText("In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort", { placeholder: "title", fontSize: 22 });
+    s.addText([{ text: "In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort", options: { fontSize: 22, bold: true } }], { placeholder: "title" });
     const b = { x: 0.6, y: 1.45, w: 6.6, h: 6.6 * 720 / 1280 };
     s.addImage({ path: path.join(FIG, "isarc_building.jpg"), ...b, objectName: "hospital model" });
     const z = { x: b.x + 0.4567 * b.w, y: b.y + 0.4318 * b.h, w: 0.0982 * b.w, h: 0.1396 * b.h };
