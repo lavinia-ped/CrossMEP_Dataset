@@ -21,7 +21,7 @@ supports, each chosen by hand from a catalog. We think a machine can learn to ch
 and what has stopped anyone trying is not the algorithm. It is that nobody had the
 problems to practise on. So we built the problems.
 
-## Slide 2, In a hospital like this one, ten thousand structural support assemblies are each designed individually, which is why they take about a quarter of the MEP design effort (starts at 0:45)
+## Slide 2, The synthesis of structural support assemblies (SSAs) takes 25% of MEP design effort because every assembly must be designed individually (starts at 0:45)
 
 Here is the scale. This is a hospital, and every red mark is a place where services hang
 from the structure. A modular support groups several services on one prefabricated frame:
