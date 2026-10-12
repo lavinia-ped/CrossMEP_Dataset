@@ -575,7 +575,7 @@ def write_deck_data(splits, stress, trends, sections):
 
 
 REPO_URL = "https://github.com/lavinia-ped/CrossMEP_Dataset"
-STUDIO_URL = "https://lavinia-ped.github.io/CrossMEP_Dataset/studio/"   # hosted copy of docs/studio/index.html
+STUDIO_URL = "https://lavinia-ped.github.io/CrossMEP_Dataset/studio/"   # GitHub Pages copy of docs/studio/index.html
 
 
 def write_qr(url=REPO_URL, name="qr_repo.png"):

@@ -7,7 +7,7 @@ an output of the released Python generator (current data revision), embedded as
 gzip + base64 JSON, together with the call that reproduces it.
 
     python scripts/build_studio.py              # writes docs/studio/index.html
-    python scripts/build_studio.py --fragment F # also writes the page body only (for hosting as an artifact)
+    python scripts/build_studio.py --fragment F # also writes the page body only (for embedding the page in another site)
 
 Parameter grid
 --------------
@@ -110,7 +110,7 @@ def extract_blob(html: str) -> str:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--fragment", help="also write the page without the document wrapper (artifact hosting)")
+    ap.add_argument("--fragment", help="also write the page without the document wrapper (for embedding in another page)")
     a = ap.parse_args(argv)
     with open(TEMPLATE, encoding="utf-8") as f:
         template = f.read()
